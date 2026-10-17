@@ -12,7 +12,7 @@ const braahOne = Braah_One({
 
 export interface HeaderProps {
   loggedIn : boolean;
-  student: boolean;
+  student?: boolean;
   onLogin?: () => void;
   onLogout?: () => void;
   onCreateAccount?: () => void;
