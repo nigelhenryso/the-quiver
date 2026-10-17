@@ -1,39 +1,82 @@
-import './button.css';
+import { Cal_Sans } from 'next/font/google';
+import type { ReactNode } from 'react';
+import { useState } from 'react';
+
+const calSans = Cal_Sans({
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap',
+  adjustFontFallback: false,
+});
 
 export interface ButtonProps {
-  /** Is this the principal call to action on the page? */
   primary?: boolean;
-  /** What background color to use */
   backgroundColor?: string;
-  /** How large should the button be? */
+  borderColor?: string;
   size?: 'small' | 'medium' | 'large';
-  /** Button contents */
-  label: string;
-  /** Optional click handler */
+  type?: 'sign-up' | 'login' | 'nav';
+  paddingX?: number;
+  paddingY?: number;
+  borderRadius?: number;
+  borderWidth?: number;
+  label?: string;
+  logo?: ReactNode;
+  textColor?: string;
+  hoverTextColor?: string;
+  hoverBackgroundColor?: string;
   onClick?: () => void;
 }
 
-/** Primary UI component for user interaction */
 export const Button = ({
   primary = false,
   size = 'medium',
+  type,
   backgroundColor,
+  hoverBackgroundColor,
+  borderColor,
   label,
-  ...props
+  paddingX,
+  paddingY,
+  borderWidth,
+  borderRadius,
+  logo: Logo,
+  textColor = '#FFFFFF',
+  hoverTextColor,
+  onClick,
 }: ButtonProps) => {
-  const mode = primary ? 'storybook-button--primary' : 'storybook-button--secondary';
+  const [isHovered, setIsHovered] = useState(false);
+
+  const buttonStyle = {
+    color: isHovered
+    ? hoverTextColor ?? textColor
+    : textColor,
+    backgroundColor: isHovered
+    ? hoverBackgroundColor ?? backgroundColor
+    : backgroundColor,
+    borderColor,
+    paddingLeft: paddingX,
+    paddingRight: paddingX,
+    paddingTop: paddingY,
+    paddingBottom: paddingY,
+    borderRadius,
+    borderWidth,
+  };
+
+  const buttonClass = `${calSans.className} transition-colors duration-300 ease-in-out cursor-pointer`;
+
   return (
     <button
       type="button"
-      className={['storybook-button', `storybook-button--${size}`, mode].join(' ')}
-      {...props}
+      onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`${buttonClass} cursor-pointer`}
+      style={buttonStyle}
     >
-      {label}
-      <style jsx>{`
-        button {
-          background-color: ${backgroundColor};
-        }
-      `}</style>
+      {Logo}
+      <span className="flex items-center text-[15px] font-normal">
+        {label}
+      </span>
     </button>
   );
 };
