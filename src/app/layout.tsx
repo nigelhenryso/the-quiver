@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Geist, Braah_One } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "../styles/globals.css";
 
@@ -18,6 +18,13 @@ const geistSans = Geist({
   display: "swap",
   subsets: ["latin"],
 });
+
+const braahOne = Braah_One({
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+});
+
 
 export default function RootLayout({
   children,
