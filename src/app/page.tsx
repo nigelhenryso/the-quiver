@@ -10,8 +10,6 @@ export default function Home() {
         onLogin={() => console.log("Log in clicked")}
         onCreateAccount={() => console.log("Sign up clicked")}
       />
-
-      <h1>The Quiver</h1>
     </main>
   );
 }

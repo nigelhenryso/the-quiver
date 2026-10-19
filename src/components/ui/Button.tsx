@@ -33,7 +33,7 @@ export const Button = ({
   type,
   backgroundColor,
   hoverBackgroundColor,
-  borderColor,
+  borderColor ,
   label,
   paddingX,
   paddingY,
@@ -62,7 +62,7 @@ export const Button = ({
     borderWidth,
   };
 
-  const buttonClass = `${calSans.className} transition-colors duration-300 ease-in-out cursor-pointer`;
+  const buttonClass = `${calSans.className} gap-[5px] items-center flex flex-row transition-colors duration-300 ease-in-out cursor-pointer`;
 
   return (
     <button
