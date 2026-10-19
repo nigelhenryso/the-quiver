@@ -91,3 +91,90 @@ export const LightningBolt = ({ width = 34, height = 34, className, color = "whi
   );
 };
 
+
+export const OpenEye = ({ width = 20, height = 20, className, color = 'currentColor', ...props }: LogoProps) => {
+  return (
+    <svg width={width} height={height} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <path
+        d="M2 12C2 12 5.5 5 12 5C18.5 5 22 12 22 12C22 12 18.5 19 12 19C5.5 19 2 12 2 12Z" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="12" cy="12" r="3" stroke={color} strokeWidth="2"/>
+    </svg>
+  );
+};
+
+export const ClosedEye = ({ width = 20, height = 20, className, color = 'currentColor', ...props }: LogoProps) => {
+  return (
+    <svg width={width} height={height} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <path d="M3 3L21 21" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path
+        d="M10.6 10.6C10.2 11 10 11.5 10 12C10 13.1 10.9 14 12 14C12.5 14 13 13.8 13.4 13.4" stroke={color} strokeWidth="2" strokeLinecap="round"  strokeLinejoin="round"/>
+      <path
+        d="M9.9 5.2C10.6 5.1 11.3 5 12 5C18.5 5 22 12 22 12C22 12 20.8 14.4 18.7 16.2M6.2 6.2C3.5 8.1 2 12 2 12C2 12 5.5 19 12 19C13.4 19 14.7 18.7 15.8 18.2"
+        stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+      />
+    </svg>
+  );
+};
+
+export const GoogleLogo = ({
+  width = 20,
+  height = 20,
+  className,
+  ...props
+}: LogoProps) => {
+  return (
+    <svg
+      width={width}
+      height={height}
+      viewBox="0 0 48 48"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      {...props}
+    >
+      <path
+        fill="#4285F4"
+        d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11c-.5 2.5-1.9 4.6-4.1 6v5h6.6c3.9-3.6 6.1-8.7 6.1-14.7Z"
+      />
+      <path
+        fill="#34A853"
+        d="M24 44c5.5 0 10.1-1.8 13.5-4.8l-6.6-5c-1.8 1.2-4.1 2-6.9 2-5.3 0-9.8-3.6-11.4-8.4H5.8v5.2C9.2 39.5 16 44 24 44Z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M12.6 27.8a12 12 0 0 1 0-7.6V15H5.8a20 20 0 0 0 0 18Z"
+      />
+      <path
+        fill="#EA4335"
+        d="M24 11.8c3 0 5.7 1 7.8 3.1l5.8-5.8C34.1 5.8 29.5 4 24 4 16 4 9.2 8.5 5.8 15l6.8 5.2c1.6-4.8 6.1-8.4 11.4-8.4Z"
+      />
+    </svg>
+  );
+};
+
+export const ArrowRight = ({ width = 20, height = 20, className, color = 'currentColor', ...props }: LogoProps) => {
+  return (
+    <svg width={width} height={height} viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <path d="M1.5 8.5H15.5M8.5 15.5L15.5 8.5L8.5 1.5" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" stroke={color} />
+    </svg>
+  );
+};
+
+export const LockKeyHole= ({ width = 20, height = 20, className, color = 'currentColor', ...props }: LogoProps) => {
+  return (
+    <svg width={width} height={height} viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+    <path d="M3.83333 7.375V4.54167C3.83333 3.60236 4.20647 2.70152 4.87066 2.03733C5.53485 1.37314 6.43569 1 7.375 1C8.31431 1 9.21514 1.37314 9.87934 2.03733C10.5435 2.70152 10.9167 3.60236 10.9167 4.54167V7.375M2.41667 7.375H12.3333C13.1157 7.375 13.75 8.00926 13.75 8.79167V13.75C13.75 14.5324 13.1157 15.1667 12.3333 15.1667H2.41667C1.63426 15.1667 1 14.5324 1 13.75V8.79167C1 8.00926 1.63426 7.375 2.41667 7.375Z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" stroke={color}/>
+    </svg>
+  );
+};
+
+
+
+
+
+
+
+
+
+
+
+
