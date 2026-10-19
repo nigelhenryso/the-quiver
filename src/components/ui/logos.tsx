@@ -91,3 +91,30 @@ export const LightningBolt = ({ width = 34, height = 34, className, color = "whi
   );
 };
 
+
+export const OpenEye = ({ width = 20, height = 20, className, color = 'currentColor', ...props }: LogoProps) => {
+  return (
+    <svg width={width} height={height} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <path
+        d="M2 12C2 12 5.5 5 12 5C18.5 5 22 12 22 12C22 12 18.5 19 12 19C5.5 19 2 12 2 12Z" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="12" cy="12" r="3" stroke={color} strokeWidth="2"/>
+    </svg>
+  );
+};
+
+export const ClosedEye = ({ width = 20, height = 20, className, color = 'currentColor', ...props }: LogoProps) => {
+  return (
+    <svg width={width} height={height} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <path d="M3 3L21 21" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path
+        d="M10.6 10.6C10.2 11 10 11.5 10 12C10 13.1 10.9 14 12 14C12.5 14 13 13.8 13.4 13.4" stroke={color} strokeWidth="2" strokeLinecap="round"  strokeLinejoin="round"/>
+      <path
+        d="M9.9 5.2C10.6 5.1 11.3 5 12 5C18.5 5 22 12 22 12C22 12 20.8 14.4 18.7 16.2M6.2 6.2C3.5 8.1 2 12 2 12C2 12 5.5 19 12 19C13.4 19 14.7 18.7 15.8 18.2"
+        stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+      />
+    </svg>
+  );
+};
+
+
+
