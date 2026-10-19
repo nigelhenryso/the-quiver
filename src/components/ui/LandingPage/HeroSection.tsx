@@ -21,8 +21,8 @@ export const HeroSection = () => {
     return (
         <div className="flex flex-col w-full gap-12">
             <div className="flex flex-col gap-12">
-                <h1 className={`${braahOne.className} flex items-center text-[78px] text-[#000000] leading-[30px] font-normal`}>Made By <span className="ml-1 text-[#004D31]">Lasallians</span>,</h1>
-                <h1 className={`${braahOne.className} flex items-center text-[78px] text-[#000000] leading-[30px] font-normal`}>For <span className="ml-1 text-[#004D31]">Lasallians</span>.</h1>
+                <h1 className={`${braahOne.className} flex items-center text-[78px] text-[#000000] leading-[30px] font-normal`}>Made By {' '} <span className="ml-1 text-[#004D31]">Lasallians</span>,</h1>
+                <h1 className={`${braahOne.className} flex items-center text-[78px] text-[#000000] leading-[30px] font-normal`}>For {' '} <span className="ml-1 text-[#004D31]">Lasallians</span>.</h1>
             </div>
             <div className="">
                 <h1 className={`${LatoFont.className} flex items-center text-[28px] text-[#004D31]/50 leading-[30px] font-normal`}>
@@ -41,6 +41,7 @@ export const HeroSection = () => {
                 paddingY={6}
                 label="Shop Now"
                 logo={<ShoppingCart width={16} height={16}/>}
+                fontSize={20}
                 />
                 <Button
                 size="small"
@@ -53,6 +54,7 @@ export const HeroSection = () => {
                 hoverTextColor='#00B775'
                 label="Explore New Arrivals"
                 logo={<LightningBolt width={16} height={16}/>}
+                fontSize={20}
                 />
             </div>
         </div>         

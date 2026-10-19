@@ -66,8 +66,10 @@ export const Button = ({
     borderWidth,
   };
 
-  const buttonClass = `${calSans.className} flex w-full flex-row items-center justify-center gap-[5px] transition-colors duration-300 ease-in-out cursor-pointer`;
-
+  var buttonClass = `${calSans.className}  w-full flex shrink-0 flex-row items-center justify-center gap-[5px] whitespace-nowrap transition-colors duration-300 ease-in-out cursor-pointer`;
+  if (type === "nav"){
+    buttonClass = `${calSans.className} w-fit flex shrink-0 flex-row items-center justify-center gap-[5px] whitespace-nowrap transition-colors duration-300 ease-in-out cursor-pointer`;
+  }
   return (
     <button
       type="button"

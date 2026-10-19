@@ -23,13 +23,11 @@ const LatoFont = Lato({
 interface CompleteYourProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onContinue: () => void;
 }
 
-export default function CompleteYourProfileModalModal({
+export default function CompleteYourProfileModal({
   isOpen,
   onClose,
-  onContinue,
 }: CompleteYourProfileModalProps) {
   return (
     <CommonModal isOpen={isOpen} onClose={onClose}>

@@ -24,7 +24,7 @@ export default function CommonModal({
       <div
         role="dialog"
         aria-modal="true"
-        className="relative h-[832px] w-[603px] max-h-[95dvh] max-w-full overflow-y-auto rounded-[19px] bg-[linear-gradient(180deg,#00B775_28.85%,#66D4AC_93.75%)] p-10 shadow-[0px_4px_8.3px_1px_rgba(0,0,0,0.25)]"
+        className="relative h-hug w-[603px] max-h-[95dvh] max-w-full overflow-y-auto rounded-[19px] bg-[linear-gradient(180deg,#00B775_28.85%,#66D4AC_93.75%)] p-10 shadow-[0px_4px_8.3px_1px_rgba(0,0,0,0.25)]"
         onClick={(event) => event.stopPropagation()}
       >
         <button

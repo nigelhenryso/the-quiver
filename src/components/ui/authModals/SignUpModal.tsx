@@ -1,9 +1,14 @@
+import { useState } from 'react';
 
 import CommonModal from './CommonModal';
 import { Cal_Sans, Lato } from 'next/font/google';
 import { InputField } from '../InputField';
 import { Button } from '../Button';
 import { GoogleLogo, ArrowRight } from '../logos';
+import CompleteYourProfileModal from './CompleteYourProfileModal';
+import LogInModal from './LogInModal';
+import LoginModal from './LogInModal';
+
 
 
 const calSans = Cal_Sans({
@@ -23,22 +28,24 @@ const LatoFont = Lato({
 interface SignUpModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onContinue: () => void;
 }
 
 export default function SignUpModal({
   isOpen,
   onClose,
-  onContinue,
 }: SignUpModalProps) {
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isLogInModalOpen, setIsLogInOpen] = useState(false);
   return (
+    <>
     <CommonModal isOpen={isOpen} onClose={onClose}>
-      <div className="flex flex-col gap-[4px] ">
+      <div className="flex flex-col gap-[2px]">
         <div className="flex flex-col p-[12px] gap-[6px]">
-          <h1 className={`items-center ${calSans.className} text-[40px] font-normal leading-[52px] text-[#E6FAF2] ${calSans.className}`} >
+          <h1 className={`${calSans.className} text-[36px] font-normal leading-[44px] text-[#E6FAF2]`}>
             Sign Up
           </h1>
-          <p className={`${LatoFont.className} text-[20px] font-normal leading-[24px] text-[#CCF0E3]`}>
+
+          <p className={`${LatoFont.className} text-[18px] font-normal leading-[22px] text-[#CCF0E3]`}>
             Provide your school email and account details to get started.
           </p>
         </div>
@@ -51,7 +58,7 @@ export default function SignUpModal({
             inputBackgroundColor='#F5FEF2'
             placeholderColor='#80AA8C'
             borderColor='#A6BA9F'
-            fontSize={20}/>
+            fontSize={16}/>
           
             <InputField
               placeholder='Create a strong password'
@@ -61,7 +68,7 @@ export default function SignUpModal({
               inputBackgroundColor='#F5FEF2'
               placeholderColor='#80AA8C'
               borderColor='#A6BA9F'
-              fontSize={20}/>
+              fontSize={16}/>
             
             <InputField
               placeholder='Retype Password'
@@ -71,7 +78,7 @@ export default function SignUpModal({
               inputBackgroundColor='#F5FEF2'
               placeholderColor='#80AA8C'
               borderColor='#A6BA9F'
-              fontSize={20}/>
+              fontSize={16}/>
         </div>
         <div className="flex flex-col p-[12px] items-center gap-[12px]">
             <p className={`text-[16px] font-normal text-[#CCF0E3] ${LatoFont.className}`}>
@@ -88,6 +95,10 @@ export default function SignUpModal({
               fontSize={20}
               logo={<ArrowRight width={16} height={16}/>}
               logoDir={true}
+              onClick={() => {
+                onClose();
+                setIsProfileModalOpen(true);
+              }}
               />
         </div>
 
@@ -120,7 +131,10 @@ export default function SignUpModal({
             Already have a Quiver account?{' '}
             <button
               type="button"
-              onClick={() => console.log('Log In clicked')}
+              onClick={() => {
+                onClose();
+                setIsLogInOpen(true);
+              }}
               className="font-bold underline underline-offset-2 hover:opacity-70"
             >
               Log In
@@ -129,5 +143,9 @@ export default function SignUpModal({
         </div>    
       </div>
     </CommonModal>
+    <CompleteYourProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)}/>    
+    {/*<LoginModal isOpen={isLogInModalOpen} onClose={() => setIsLogInOpen(false)}/>*/} {/* When i uncomment this out para maredirect sa login, the page suddenly becomes unresponsive hello wtf ive been at this for an hour this will NOT be like that scrollbar issue GOOD FUCKING NIGHT */}
+    </>
+
   );
 }

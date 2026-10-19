@@ -1,9 +1,11 @@
+import { useState } from 'react';
 
 import CommonModal from './CommonModal';
 import { Cal_Sans, Lato } from 'next/font/google';
 import { InputField } from '../InputField';
 import { Button } from '../Button';
 import { GoogleLogo, ArrowRight } from '../logos';
+import SignUpModal from './SignUpModal';
 
 
 const calSans = Cal_Sans({
@@ -23,15 +25,15 @@ const LatoFont = Lato({
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onContinue: () => void;
 }
 
 export default function LoginModal({
   isOpen,
   onClose,
-  onContinue,
 }: LoginModalProps) {
+  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
   return (
+    <>
     <CommonModal isOpen={isOpen} onClose={onClose}>
       <div className="flex flex-col gap-[4px] ">
         <div className="flex flex-col p-[12px] gap-[6px]">
@@ -51,7 +53,7 @@ export default function LoginModal({
             inputBackgroundColor='#F5FEF2'
             placeholderColor='#80AA8C'
             borderColor='#A6BA9F'
-            fontSize={20}/>
+            fontSize={16}/>
           
             <InputField
               placeholder='Enter your password'
@@ -61,16 +63,19 @@ export default function LoginModal({
               inputBackgroundColor='#F5FEF2'
               placeholderColor='#80AA8C'
               borderColor='#A6BA9F'
-              fontSize={20}/>
+              fontSize={16}/>
             
             <label className={`p-[10px] flex w-fit cursor-pointer items-center gap-2 text-[18px] font-bold text-[#008A58] ${LatoFont.className}`}>
-                <input type="checkbox"  className="h-[19px] w-[19px] cursor-pointer appearance-none rounded-[2px] border-2 border-[#008A58] checked:bg-[#008A58] checked:before:text-white checked:before:content-['✓']" />
-                <span>Remember me</span>
+              <input
+                type="checkbox"
+                className="peer relative h-[19px] w-[19px] shrink-0 cursor-pointer appearance-none rounded-[4px] border-2 border-[#008A58] bg-transparent checked:bg-[#008A58] checked:after:absolute checked:after:inset-0 checked:after:flex checked:after:items-center checked:after:justify-center checked:after:text-[13px] checked:after:font-bold checked:after:text-white checked:after:content-['✓']"
+              />
+              <span>Remember me</span>
             </label>
         </div>
         <div className="flex flex-col p-[12px] items-center gap-[12px]">
             <Button
-              label="Sign Up"
+              label="Log In"
               backgroundColor='#008A58'
               textColor='#ECF9F5'
               borderRadius={12}
@@ -78,7 +83,7 @@ export default function LoginModal({
               paddingY={10}
               hoverTextColor='#b9dccf'
               fontSize={20}
-              logo={<ArrowRight width={16} height={16}/>}
+              logo={<ArrowRight width={20} height={20}/>}
               logoDir={true}
               />
         </div>
@@ -102,7 +107,7 @@ export default function LoginModal({
             paddingX={10}
             paddingY={10}
             hoverTextColor="#8c8c8c"
-            fontSize={20}
+            fontSize={16}
             logo={<GoogleLogo width={20} height={20}/>}
           />
         </div>
@@ -112,7 +117,10 @@ export default function LoginModal({
             Don’t have a Quiver account yet?{' '}
             <button
               type="button"
-              onClick={() => console.log('Log In clicked')}
+              onClick={() => {
+                onClose();
+                setIsSignUpOpen(true);
+              }}
               className="font-bold underline underline-offset-2 hover:opacity-70"
             >
               Sign up
@@ -121,5 +129,10 @@ export default function LoginModal({
         </div>    
       </div>
     </CommonModal>
+    <SignUpModal
+      isOpen={isSignUpOpen}
+      onClose={() => setIsSignUpOpen(false)}
+    />
+    </>
   );
 }
