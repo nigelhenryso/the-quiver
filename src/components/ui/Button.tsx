@@ -24,6 +24,7 @@ export interface ButtonProps {
   textColor?: string;
   hoverTextColor?: string;
   hoverBackgroundColor?: string;
+  fontSize: number
   onClick?: () => void;
 }
 
@@ -42,6 +43,7 @@ export const Button = ({
   logo: Logo,
   textColor = '#FFFFFF',
   hoverTextColor,
+  fontSize,
   onClick,
 }: ButtonProps) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -62,7 +64,7 @@ export const Button = ({
     borderWidth,
   };
 
-  const buttonClass = `${calSans.className} gap-[5px] items-center flex flex-row transition-colors duration-300 ease-in-out cursor-pointer`;
+  const buttonClass = `${calSans.className} flex w-full flex-row items-center justify-center gap-[5px] transition-colors duration-300 ease-in-out cursor-pointer`;
 
   return (
     <button
@@ -74,7 +76,7 @@ export const Button = ({
       style={buttonStyle}
     >
       {Logo}
-      <span className="flex items-center text-[15px] font-normal">
+      <span className={`flex items-center text-[${fontSize}] font-normal`}>
         {label}
       </span>
     </button>

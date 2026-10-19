@@ -47,6 +47,7 @@ export const Header = ({
                     hoverTextColor='#b9dccf'
                     onClick={onLogin}
                     label="Home"
+                    fontSize={20}
                   />
                   <Button
                     primary
@@ -56,6 +57,7 @@ export const Header = ({
                     hoverTextColor='#b9dccf'
                     onClick={onCreateAccount}
                     label="Campus Orgs"
+                    fontSize={20}
                   />
                   <Button
                     primary
@@ -65,6 +67,7 @@ export const Header = ({
                     hoverTextColor='#b9dccf'
                     onClick={onCreateAccount}
                     label="Orders"
+                    fontSize={20}
                   />
                 </div>
                 <div className="mx-[45px] flex items-center gap-[30px]"> {/* NAV OPTIONS */}
@@ -76,6 +79,7 @@ export const Header = ({
                     hoverTextColor='#b9dccf'
                     onClick={onCreateAccount}
                     logo={<ShoppingCartLogo width={16} height={16}/>}
+                    fontSize={20}
                   />
                   <Button
                     primary
@@ -85,6 +89,7 @@ export const Header = ({
                     hoverTextColor='#b9dccf'
                     onClick={onCreateAccount}
                     logo={<NotificationBellLogo width={16} height={16}/>}
+                    fontSize={20}
                   />
                   <Button
                     primary
@@ -94,6 +99,7 @@ export const Header = ({
                     hoverTextColor='#b9dccf'
                     onClick={onCreateAccount}
                     logo={<UserLogo width={16} height={16}/>}
+                    fontSize={20}
                   />
                 </div>
           </>
@@ -119,6 +125,7 @@ export const Header = ({
                     hoverTextColor='#b9dccf'
                     onClick={onLogin}
                     label="Dashboard"
+                    fontSize={20}
                   />
                   <Button
                     primary
@@ -128,6 +135,7 @@ export const Header = ({
                     hoverTextColor='#b9dccf'
                     onClick={onCreateAccount}
                     label="Inventory"
+                    fontSize={20}
                   />
                   <Button
                     primary
@@ -137,6 +145,7 @@ export const Header = ({
                     hoverTextColor='#b9dccf'
                     onClick={onCreateAccount}
                     label="Orders"
+                    fontSize={20}
                   />
                 </div>
                 <div className="mx-[45px] flex items-center gap-[30px]"> {/* NAV OPTIONS */}
@@ -148,6 +157,7 @@ export const Header = ({
                     hoverTextColor='#b9dccf'
                     onClick={onCreateAccount}
                     logo={<MarketLogo width={16} height={16}/>}
+                    fontSize={20}
                   />
                   <Button
                     primary
@@ -157,6 +167,7 @@ export const Header = ({
                     hoverTextColor='#b9dccf'
                     onClick={onCreateAccount}
                     logo={<NotificationBellLogo width={16} height={16}/>}
+                    fontSize={20}
                   />
                 </div>
             </>
@@ -177,6 +188,7 @@ export const Header = ({
                   textColor='#FFFFFF'
                   hoverTextColor='#b9dccf'
                   label="New Arrivals"
+                  fontSize={20}
                 />
                 <Button
                   primary
@@ -185,6 +197,7 @@ export const Header = ({
                   textColor='#FFFFFF'
                   hoverTextColor='#b9dccf'
                   label="Best Sellers"
+                  fontSize={20}
                 />
                 <Button
                   primary
@@ -193,6 +206,7 @@ export const Header = ({
                   textColor='#FFFFFF'
                   hoverTextColor='#b9dccf'
                   label="About Us"
+                  fontSize={20}
                 />
                 <Button
                   size="small"
@@ -200,6 +214,7 @@ export const Header = ({
                   textColor='#FFFFFF'
                   hoverTextColor='#b9dccf'
                   label="FAQs"
+                  fontSize={20}
                 />
             </div>
             <div className ="border-l-2 border-[#00B775] pl-5 mx-[45px] flex items-center flex-row gap-[8px]"> {/* LOGIN AND SIGNUP */}
@@ -212,6 +227,7 @@ export const Header = ({
                 paddingY={6}
                 textColor='#FFFFFF'
                 hoverTextColor='#b9dccf'
+                fontSize={20}
               />
               <Button
                 size="small"
@@ -221,6 +237,7 @@ export const Header = ({
                 paddingY={6}
                 textColor='#FFFFFF'
                 hoverTextColor='#00B775'
+                fontSize={20}
               />
             </div>
           </>
