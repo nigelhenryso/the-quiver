@@ -115,7 +115,7 @@ export default function SignUpModal({
           />
         </div>
 
-        <div className="p-[12px]  w-full border-t border-[#35B991] pt-4">
+        <div className="p-[12px]  w-full border-t border-[#199E72] pt-4">
           <p className={`text-[18px] font-normal text-center text-[#145B46] ${LatoFont.className}`}>
             Already have a Quiver account?{' '}
             <button

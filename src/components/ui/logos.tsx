@@ -159,6 +159,15 @@ export const ArrowRight = ({ width = 20, height = 20, className, color = 'curren
   );
 };
 
+export const LockKeyHole= ({ width = 20, height = 20, className, color = 'currentColor', ...props }: LogoProps) => {
+  return (
+    <svg width={width} height={height} viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+    <path d="M3.83333 7.375V4.54167C3.83333 3.60236 4.20647 2.70152 4.87066 2.03733C5.53485 1.37314 6.43569 1 7.375 1C8.31431 1 9.21514 1.37314 9.87934 2.03733C10.5435 2.70152 10.9167 3.60236 10.9167 4.54167V7.375M2.41667 7.375H12.3333C13.1157 7.375 13.75 8.00926 13.75 8.79167V13.75C13.75 14.5324 13.1157 15.1667 12.3333 15.1667H2.41667C1.63426 15.1667 1 14.5324 1 13.75V8.79167C1 8.00926 1.63426 7.375 2.41667 7.375Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke={color}/>
+    </svg>
+  );
+};
+
+
 
 
 
