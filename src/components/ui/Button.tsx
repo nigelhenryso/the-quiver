@@ -25,6 +25,7 @@ export interface ButtonProps {
   hoverTextColor?: string;
   hoverBackgroundColor?: string;
   fontSize: number
+  logoDir?: boolean //0 if left; 1 if right
   onClick?: () => void;
 }
 
@@ -44,6 +45,7 @@ export const Button = ({
   textColor = '#FFFFFF',
   hoverTextColor,
   fontSize,
+  logoDir,
   onClick,
 }: ButtonProps) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -72,13 +74,27 @@ export const Button = ({
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`${buttonClass} cursor-pointer`}
+      className={buttonClass}
       style={buttonStyle}
     >
-      {Logo}
-      <span className={`flex items-center text-[${fontSize}] font-normal`}>
+      {Logo && !logoDir && (
+        <span className="flex shrink-0 translate-y-px items-center">
+          {Logo}
+        </span>
+      )}
+
+      <span
+        className="flex items-center font-normal"
+        style={{ fontSize }}
+      >
         {label}
       </span>
+
+      {Logo && logoDir && (
+        <span className="flex shrink-0 translate-y-px items-center">
+          {Logo}
+        </span>
+      )}
     </button>
   );
 };

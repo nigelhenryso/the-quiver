@@ -3,7 +3,7 @@ import CommonModal from './CommonModal';
 import { Cal_Sans, Lato } from 'next/font/google';
 import { InputField } from '../InputField';
 import { Button } from '../Button';
-import { GoogleLogo } from '../logos';
+import { GoogleLogo, ArrowRight } from '../logos';
 
 
 const calSans = Cal_Sans({
@@ -86,6 +86,8 @@ export default function SignUpModal({
               paddingY={10}
               hoverTextColor='#b9dccf'
               fontSize={20}
+              logo={<ArrowRight width={16} height={16}/>}
+              logoDir={true}
               />
         </div>
 
