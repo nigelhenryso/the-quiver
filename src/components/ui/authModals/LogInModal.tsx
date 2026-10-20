@@ -1,11 +1,8 @@
-import { useState } from 'react';
-
 import CommonModal from './CommonModal';
 import { Cal_Sans, Lato } from 'next/font/google';
 import { InputField } from '../InputField';
 import { Button } from '../Button';
 import { GoogleLogo, ArrowRight } from '../logos';
-import SignUpModal from './SignUpModal';
 
 
 const calSans = Cal_Sans({
@@ -25,13 +22,14 @@ const LatoFont = Lato({
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSwitchToSignUp?: () => void;
 }
 
 export default function LoginModal({
   isOpen,
   onClose,
+  onSwitchToSignUp,
 }: LoginModalProps) {
-  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
   return (
     <>
     <CommonModal isOpen={isOpen} onClose={onClose}>
@@ -117,10 +115,7 @@ export default function LoginModal({
             Don’t have a Quiver account yet?{' '}
             <button
               type="button"
-              onClick={() => {
-                onClose();
-                setIsSignUpOpen(true);
-              }}
+              onClick={onSwitchToSignUp}
               className="font-bold underline underline-offset-2 hover:opacity-70"
             >
               Sign up
@@ -129,7 +124,6 @@ export default function LoginModal({
         </div>    
       </div>
     </CommonModal>
-    {isSignUpOpen && (<SignUpModal isOpen={isSignUpOpen} onClose={() => setIsSignUpOpen(false)}/>)}
     </>
   );
 }

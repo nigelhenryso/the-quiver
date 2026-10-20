@@ -260,11 +260,19 @@ export const Header = ({
     <LoginModal
       isOpen={isLoginOpen}
       onClose={() => setIsLoginOpen(false)}
+      onSwitchToSignUp={() => {
+        setIsLoginOpen(false);
+        setIsSignUpOpen(true);
+      }}
     />
 
     <SignUpModal
       isOpen={isSignUpOpen}
       onClose={() => setIsSignUpOpen(false)}
+      onSwitchToLogin={() => {
+        setIsSignUpOpen(false);
+        setIsLoginOpen(true);
+      }}
     />
   </header>
 )

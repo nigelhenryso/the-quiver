@@ -6,7 +6,6 @@ import { InputField } from '../InputField';
 import { Button } from '../Button';
 import { GoogleLogo, ArrowRight } from '../logos';
 import CompleteYourProfileModal from './CompleteYourProfileModal';
-import LogInModal from './LogInModal';
 
 
 
@@ -27,14 +26,15 @@ const LatoFont = Lato({
 interface SignUpModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSwitchToLogin?: () => void;
 }
 
 export default function SignUpModal({
   isOpen,
   onClose,
+  onSwitchToLogin,
 }: SignUpModalProps) {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [isLogInModalOpen, setIsLogInOpen] = useState(false);
   return (
     <>
     <CommonModal isOpen={isOpen} onClose={onClose}>
@@ -130,10 +130,7 @@ export default function SignUpModal({
             Already have a Quiver account?{' '}
             <button
               type="button"
-              onClick={() => {
-                onClose();
-                setIsLogInOpen(true);
-              }}
+              onClick={onSwitchToLogin}
               className="font-bold underline underline-offset-2 hover:opacity-70"
             >
               Log In
@@ -143,7 +140,6 @@ export default function SignUpModal({
       </div>
     </CommonModal>
     <CompleteYourProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)}/>    
-    {isLogInModalOpen && (<LogInModal isOpen={isLogInModalOpen} onClose={() => setIsLogInOpen(false)}/>)}
     </>
   );
 }
