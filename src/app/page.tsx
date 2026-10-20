@@ -4,6 +4,8 @@ import { Header } from "../components/ui/Header";
 import { HeroSection } from "../components/ui/LandingPage/HeroSection";
 import { OrgSlider } from "../components/ui/LandingPage/OrgSlider";
 import { Cal_Sans, Braah_One, Lato } from 'next/font/google';
+import { FAQSection } from "../components/ui/LandingPage/FAQSection";
+import { Footer } from "../components/ui/Footer";
 
 const braahOne = Braah_One({
   weight: '400',
@@ -14,13 +16,16 @@ const braahOne = Braah_One({
 export default function Home() {
   return (
     <main className="flex flex-col w-full">
-      <Header
-        loggedIn={false}
-        onLogin={() => console.log("Log in clicked")}
-        onCreateAccount={() => console.log("Sign up clicked")}
-      />
+      <header className="fixed top-0 left-0 z-50 w-full">
+        <Header
+          loggedIn={false}
+          onLogin={() => console.log("Log in clicked")}
+          onCreateAccount={() => console.log("Sign up clicked")}
+        />
+      </header>
+      
 
-      <div className="flex w-full flex-col gap-[50px] p-[20px] pt-[40px]">
+      <div className="flex w-full flex-col pt-[80px] gap-[50px] p-[20px] pt-[40px]">
         <HeroSection />
         <div className="border-b border-[#D4D4D4] w-[90%] mx-auto" />
         <div className="flex flex-col items-center text-center">
@@ -35,7 +40,12 @@ export default function Home() {
         
         <OrgSlider />
         <div className="border-b border-[#D4D4D4] w-[90%] mx-auto" />
+          <div className="m-8">
+            <FAQSection/>
+          </div>
       </div>
+
+      <Footer/>
     </main>
   );
 }

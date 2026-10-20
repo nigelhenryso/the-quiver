@@ -72,6 +72,23 @@ export const ChevronRight = ({ width = 34, height = 34, className, color = "whit
   );
 };
 
+export const ChevronDown = ({ width = 34, height = 34, className, color = 'currentColor', ...props }: LogoProps) => {
+  return (
+    <svg width={width} height={height} viewBox="0 0 25 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M13.5938 16.7656L0 3.17188L3.17188 0L13.5938 10.4219L24.0156 0L27.1875 3.17187L13.5938 16.7656Z" fill={color}/>
+    </svg>
+  );
+};
+
+export const ChevronUp = ({ width = 34, height = 34, className, color = 'currentColor', ...props }: LogoProps) => {
+  return (
+    <svg width={width} height={height} viewBox="0 0 25 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M13.5937 0L27.1875 13.5938L24.0156 16.7656L13.5937 6.34375L3.17188 16.7656L0 13.5938L13.5937 0Z" fill={color}/>
+    </svg>
+  );
+};
+
+
 export const ShoppingCart = ({ width = 34, height = 34, className, color = "white", ...props }: LogoProps) => {
   return (
     <svg width={width} height={height} viewBox="0 0 35 35" xmlns="http://www.w3.org/2000/svg">
