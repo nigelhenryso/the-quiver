@@ -72,6 +72,23 @@ export const ChevronRight = ({ width = 34, height = 34, className, color = "whit
   );
 };
 
+export const ChevronDown = ({ width = 34, height = 34, className, color = 'currentColor', ...props }: LogoProps) => {
+  return (
+    <svg width={width} height={height} viewBox="0 0 25 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M13.5938 16.7656L0 3.17188L3.17188 0L13.5938 10.4219L24.0156 0L27.1875 3.17187L13.5938 16.7656Z" fill={color}/>
+    </svg>
+  );
+};
+
+export const ChevronUp = ({ width = 34, height = 34, className, color = 'currentColor', ...props }: LogoProps) => {
+  return (
+    <svg width={width} height={height} viewBox="0 0 25 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M13.5937 0L27.1875 13.5938L24.0156 16.7656L13.5937 6.34375L3.17188 16.7656L0 13.5938L13.5937 0Z" fill={color}/>
+    </svg>
+  );
+};
+
+
 export const ShoppingCart = ({ width = 34, height = 34, className, color = "white", ...props }: LogoProps) => {
   return (
     <svg width={width} height={height} viewBox="0 0 35 35" xmlns="http://www.w3.org/2000/svg">
@@ -163,6 +180,15 @@ export const LockKeyHole= ({ width = 20, height = 20, className, color = 'curren
   return (
     <svg width={width} height={height} viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
     <path d="M3.83333 7.375V4.54167C3.83333 3.60236 4.20647 2.70152 4.87066 2.03733C5.53485 1.37314 6.43569 1 7.375 1C8.31431 1 9.21514 1.37314 9.87934 2.03733C10.5435 2.70152 10.9167 3.60236 10.9167 4.54167V7.375M2.41667 7.375H12.3333C13.1157 7.375 13.75 8.00926 13.75 8.79167V13.75C13.75 14.5324 13.1157 15.1667 12.3333 15.1667H2.41667C1.63426 15.1667 1 14.5324 1 13.75V8.79167C1 8.00926 1.63426 7.375 2.41667 7.375Z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" stroke={color}/>
+    </svg>
+  );
+};
+
+export const ProductCardStar= ({ width = 20, height = 20, className, color = 'currentColor', ...props }: LogoProps) => {
+  return (
+    <svg width={width} height={height} viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <path d="M5.10194 8.16465L2.6287 9.65454C2.51944 9.72407 2.40522 9.75387 2.28603 9.74394C2.16684 9.73401 2.06254 9.69428 1.97315 9.62475C1.88375 9.55522 1.81423 9.46841 1.76456 9.36431C1.7149 9.26022 1.70497 9.14341 1.73476 9.01389L2.39032 6.19798L0.200168 4.30581C0.100842 4.21641 0.038862 4.1145 0.014229 4.00008C-0.010404 3.88566 -0.00305385 3.77401 0.0362795 3.66515C0.0756128 3.55629 0.135209 3.4669 0.215067 3.39697C0.294926 3.32704 0.404185 3.28235 0.542845 3.26288L3.43325 3.0096L4.55067 0.357576C4.60034 0.238384 4.67741 0.14899 4.78191 0.0893939C4.8864 0.0297979 4.99307 0 5.10194 0C5.2108 0 5.31747 0.0297979 5.42197 0.0893939C5.52646 0.14899 5.60354 0.238384 5.6532 0.357576L6.77062 3.0096L9.66103 3.26288C9.80008 3.28274 9.90934 3.32744 9.9888 3.39697C10.0683 3.4665 10.1279 3.55589 10.1676 3.66515C10.2073 3.77441 10.2149 3.88625 10.1902 4.00068C10.1656 4.1151 10.1034 4.21681 10.0037 4.30581L7.81355 6.19798L8.46911 9.01389C8.49891 9.14301 8.48897 9.25982 8.43931 9.36431C8.38965 9.46881 8.32012 9.55562 8.23072 9.62475C8.14133 9.69388 8.03704 9.73361 7.91785 9.74394C7.79865 9.75427 7.68443 9.72447 7.57517 9.65454L5.10194 8.16465Z" 
+      fill={color}/>
     </svg>
   );
 };
