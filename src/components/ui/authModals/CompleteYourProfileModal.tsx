@@ -37,7 +37,7 @@ export default function CompleteYourProfileModal({
             Complete your Profile
           </h1>
           <p className={`${LatoFont.className} text-[20px] font-normal leading-[24px] text-[#CCF0E3]`}>
-            Set up you profile to unlock exclusive merch, organization pre-orders, and more.
+            Set up your profile to unlock exclusive merch, organization pre-orders, and more.
           </p>
         </div>
         <div className="flex flex-col p-[12px]">
