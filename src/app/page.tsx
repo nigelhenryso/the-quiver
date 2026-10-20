@@ -12,8 +12,9 @@ export default function Home() {
         onCreateAccount={() => console.log("Sign up clicked")}
       />
 
-      <div className="pt-[80px] mt-[20px] p-[20px]">
+      <div className="pt-[40px] m-auto p-[20px] items-center">
         <HeroSection />
+        <div className="border-b border-[#D4D4D4] w-[90%] mx-auto"/>
       </div>
     </main>
   );

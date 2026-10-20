@@ -31,8 +31,13 @@ export const HeroSection = () => {
         <div className="flex flex-row w-full gap-2 items-center pl-4">
             <div className="flex flex-col w-[45%] ">
                 <div className="flex flex-col ">
-                    <h1 className={`${braahOne.className}  flex items-center text-[68px] text-[#000000] font-normal`}>Made By {' '} <span className="ml-6 text-[#004D31]">Lasallians</span>,</h1>
-                    <h1 className={`${braahOne.className}  flex items-center text-[68px] text-[#000000] font-normal`}>For {' '} <span className="ml-6 text-[#004D31]">Lasallians</span>.</h1>
+                    <h1 className={`${braahOne.className} flex flex-row items-center whitespace-nowrap text-[clamp(32px,5vw,68px)] font-normal text-[#000000]`}>
+                    Made By <span className="ml-4 text-[#004D31]">Lasallians</span>,
+                    </h1>
+
+                    <h1 className={`${braahOne.className} flex flex-row items-center whitespace-nowrap text-[clamp(32px,5vw,68px)] font-normal text-[#000000]`}>
+                    For <span className="ml-4 text-[#004D31]">Lasallians</span>.
+                    </h1>
                 </div>
                 <div className="">
                     <h1 className={`${LatoFont.className}  flex items-center text-[24px] text-[#004D31]/50  font-normal`}>
