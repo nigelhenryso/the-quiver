@@ -129,10 +129,7 @@ export default function LoginModal({
         </div>    
       </div>
     </CommonModal>
-    <SignUpModal
-      isOpen={isSignUpOpen}
-      onClose={() => setIsSignUpOpen(false)}
-    />
+    {isSignUpOpen && (<SignUpModal isOpen={isSignUpOpen} onClose={() => setIsSignUpOpen(false)}/>)}
     </>
   );
 }

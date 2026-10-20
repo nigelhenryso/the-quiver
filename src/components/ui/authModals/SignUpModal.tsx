@@ -7,7 +7,6 @@ import { Button } from '../Button';
 import { GoogleLogo, ArrowRight } from '../logos';
 import CompleteYourProfileModal from './CompleteYourProfileModal';
 import LogInModal from './LogInModal';
-import LoginModal from './LogInModal';
 
 
 
@@ -144,8 +143,7 @@ export default function SignUpModal({
       </div>
     </CommonModal>
     <CompleteYourProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)}/>    
-    {/*<LoginModal isOpen={isLogInModalOpen} onClose={() => setIsLogInOpen(false)}/>*/} {/* When i uncomment this out para maredirect sa login, the page suddenly becomes unresponsive hello wtf ive been at this for an hour this will NOT be like that scrollbar issue GOOD FUCKING NIGHT */}
+    {isLogInModalOpen && (<LogInModal isOpen={isLogInModalOpen} onClose={() => setIsLogInOpen(false)}/>)}
     </>
-
   );
 }
