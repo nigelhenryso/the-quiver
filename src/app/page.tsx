@@ -29,9 +29,7 @@ export default function Home() {
           </h1>
 
           <p className="mx-auto max-w-6xl">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-            tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-            quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+            The Quiver is an e-commerce platform that allows student organizations within De La Salle University (DLSU) to efficiently sell their merchandise to the student body. The Quiver aims to replace the current reliance on Google Sheets and Forms, which often results in cluttered records, limited analysis, and difficulty in monitoring orders and transactions. By providing a centralized, user-friendly platform, the project seeks to streamline the buying and selling process, improve transparency, and enhance the overall experience for both student organizations and buyers.
           </p>
         </div>
         
