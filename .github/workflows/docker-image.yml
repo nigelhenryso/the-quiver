@@ -12,7 +12,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    - name: Create .env file
+      run: |
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+          echo "API_KEY=${{ secrets.API_KEY }}" >> .env
+          echo "NODE_ENV=development" >> .env
     - name: Build the Docker image
-      run: docker compose up --build
+      run: docker compose up --build -d
     - name: Push Image
       run: docker push nigelso/devops_thequiver:latest
