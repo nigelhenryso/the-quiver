@@ -20,4 +20,6 @@ jobs:
     - name: Build the Docker image
       run: docker build -t nigelso/devops_thequiver:latest .
     - name: Push Image
-      run: docker push nigelso/devops_thequiver:latest
+      run: |
+          docker login -u nigelso -p ${{ secrets.DOCKER_HUB_TOKEN }}
+          docker push nigelso/devops_thequiver:latest
