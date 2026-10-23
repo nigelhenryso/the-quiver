@@ -18,24 +18,24 @@ export const FAQSection = () => {
                 Frequently Asked Questions
             </h1>
             <FAQCard 
-                question="fds"
-                description="fwefe"    
+                question="Is The Quiver free to use?"
+                description="Yes! Browsing products and creating an account are free. However, purchases may require payment for the products and any applicable delivery fees."    
             />
             <FAQCard 
-                question="How to belejrlherlhewrlwe?"
-                description="fwefefreg4refhjuirgr4jriwjiotj34iofhi3rthi934hioptwehiopteriotghioerhuiofwegerger3fgerf3erujfiwehjiofwerjiofweriorf0werhuio"    
+                question="How can I as a buyer pay for my order?"
+                description="You can pay using the payment methods available at checkout. These may include e-wallets, online banking, or cash on delivery, depending on the available options."    
             />
             <FAQCard 
-                question="Where to rawrgwargawgrw?"
-                description="fwefe"    
+                question="Can I get a refund if I cancel my order?"
+                description="Refunds are subject to each organization's refund policy. Please contact the organization you purchased from to learn about its refund eligibility and procedures."    
             />
             <FAQCard 
-                question="When is the blehblehrlehrelhrel?"
-                description="fwefe"    
+                question="What if I receive a damaged or incorrect item?"
+                description="Report the issue as soon as possible through the available support channels. Include your order details and photos of the item, if requested, to help resolve the issue."    
             />
             <FAQCard 
-                question="Why is hrewkjhrew?"
-                description="fwefe"    
+                question="How do I create an account?"
+                description="Select the sign-up option on The Quiver, provide the required information, and follow the instructions to complete your registration."    
             />
         </div>  
         </>    

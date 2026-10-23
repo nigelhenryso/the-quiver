@@ -64,9 +64,9 @@ export default function CompleteYourProfileModal({
             </div>
             <div className="flex flex-row">
                 <InputField
-                placeholder='Enter ID Number'
+                placeholder='12******'
                 inputType='number'
-                inputName='DLSU Email'
+                inputName='Enter ID Number'
                 inputNameColor='#CCF0E3'
                 inputBackgroundColor='#F5FEF2'
                 placeholderColor='#80AA8C'
