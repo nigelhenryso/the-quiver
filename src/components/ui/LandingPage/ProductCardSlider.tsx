@@ -56,7 +56,7 @@ export const ProductCardSlider = ({
   }
 
   return (
-    <section className="w-full py-8">
+    <section className="w-full min-w-0 py-8">
       <div className="relative mx-auto w-full max-w-[900px]">
         <button type="button"
           onClick={previousPage}
@@ -75,8 +75,10 @@ export const ProductCardSlider = ({
           </svg>
         </button>
 
-        {/* Product slider viewport */}
-        <div className="w-full h-full overflow-hidden py-4 px-4">
+        {/* Product slider viewport (px-8 keeps cards clear of the arrow buttons) */}
+        <div className="w-full px-8">
+        {/* Inner: clips the other pages */}
+        <div className="w-full overflow-hidden py-4">
           {/* Sliding track */}
           <div
             className="flex transition-transform duration-500 ease-in-out"
@@ -87,7 +89,7 @@ export const ProductCardSlider = ({
             {pages.map((page, pageIndex) => (
               <div
                 key={pageIndex}
-                className="grid w-full min-w-0 flex-[0_0_100%] grid-cols-1 justify-items-center justify-around sm:grid-cols-2 lg:grid-cols-3"
+                className="grid w-full min-w-0 flex-[0_0_100%] grid-cols-3 justify-items-center gap-2 px-1 sm:gap-4"
               >
                 {page.map((product) => (
                   <ProductCard
@@ -103,6 +105,7 @@ export const ProductCardSlider = ({
             ))}
           </div>
         </div>
+      </div>
 
         {/* Next button */}
         <button
