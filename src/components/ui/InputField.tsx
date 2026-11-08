@@ -85,11 +85,12 @@ export const InputField = ({
           <select
             id={inputName}
             name={inputName}
-            value={inputValue}
+            value={value ?? inputValue}
             onChange={(e) => handleChange(e.target.value)}
             onClick={onClick}
+            disabled={disabled}
             className={`${fieldClassName} cursor-pointer appearance-none pr-10 ${
-              inputValue ? '' : 'text-[var(--placeholder-color)]'
+              (value ?? inputValue) ? '' : 'text-[var(--placeholder-color)]'
             }`}
             style={{
               ...fieldStyle,

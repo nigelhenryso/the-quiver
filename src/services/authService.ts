@@ -65,6 +65,7 @@ export async function createStudentProfile(
     student_id: userId,
     dlsu_email: email.toLowerCase(),
     dlsu_id_no: profile.idNumber,
+    college: profile.college,
     first_name: profile.firstName,
     last_name: profile.lastName,
     contact_no: profile.contactNo,

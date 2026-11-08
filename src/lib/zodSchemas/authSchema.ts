@@ -40,6 +40,9 @@ export const loginSchema = z.object({
   password: z.string().min(1, 'Password is required.'),
 });
 
+export const COLLEGES = ['BAGCED', 'CCS', 'CLA', 'COS', 'GCOE', 'RVRCOB', 'SOE'] as const;
+export type College = (typeof COLLEGES)[number];
+
 const NAME_REGEX = /^[\p{L}][\p{L}\s.'-]*$/u;
 
 const personName = (label: string) =>
@@ -60,6 +63,11 @@ export const completeProfileSchema = z.object({
     .trim()
     .min(1, 'ID number is required.')
     .regex(/^\d{8}$/, 'ID number must be exactly 8 digits.'),
+
+  college: z
+    .string()
+    .min(1, 'Please select your college.')
+    .refine((value): value is College => (COLLEGES as readonly string[]).includes(value), 'Please select a valid college.'),
 
   // Accepts 09XXXXXXXXX, +639XXXXXXXXX or 639XXXXXXXXX (spaces/dashes allowed),
   // and stores it as 09XXXXXXXXX.

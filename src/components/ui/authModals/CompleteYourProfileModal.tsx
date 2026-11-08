@@ -9,6 +9,7 @@ import { Button } from '../Button';
 import { ArrowRight, LockKeyHole } from '../logos';
 import { supabase } from '@/src/lib/supabase/client';
 import {
+  COLLEGES,
   completeProfileSchema,
   toFieldErrors,
   type CompleteProfileInput,
@@ -41,6 +42,7 @@ const EMPTY_FORM: CompleteProfileInput = {
   firstName: '',
   lastName: '',
   idNumber: '',
+  college: '',
   contactNo: '',
 };
 
@@ -143,6 +145,10 @@ export default function CompleteYourProfileModal({
         return;
       }
       console.error('[CompleteYourProfile] insert failed:', error);
+      if (error.code === 'PGRST204' && /college/i.test(error.message)) {
+        setFormError('The Student table has no "college" column yet. Add it in Supabase first.');
+        return;
+      }
       if (error.code === '42501') {
         setFormError(`You are not allowed to create this profile (${error.message}).`);
         return;
@@ -239,17 +245,31 @@ export default function CompleteYourProfileModal({
             <div className="flex w-1/2 flex-col">
               <InputField
                 {...fieldProps}
-                placeholder="09XXXXXXXXX"
+                placeholder="Select College"
                 inputType="text"
-                inputMode="tel"
-                inputName="Contact Number"
-                autoComplete="tel"
-                borderColor={borderFor('contactNo')}
-                value={formData.contactNo}
-                onChange={(v) => updateField('contactNo', v.replace(/[^\d+\s-]/g, '').slice(0, 16))}
+                inputName="College"
+                borderColor={borderFor('college')}
+                options={[...COLLEGES]}
+                value={formData.college}
+                onChange={(v) => updateField('college', v)}
               />
-              <FieldError message={errors.contactNo} />
+              <FieldError message={errors.college} />
             </div>
+          </div>
+
+          <div className="flex flex-col">
+            <InputField
+              {...fieldProps}
+              placeholder="09XXXXXXXXX"
+              inputType="text"
+              inputMode="tel"
+              inputName="Contact Number"
+              autoComplete="tel"
+              borderColor={borderFor('contactNo')}
+              value={formData.contactNo}
+              onChange={(v) => updateField('contactNo', v.replace(/[^\d+\s-]/g, '').slice(0, 16))}
+            />
+            <FieldError message={errors.contactNo} />
           </div>
 
           {formError && (
