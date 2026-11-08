@@ -1,6 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { hasEnvVars } from "../utils";
+import { STUDENT_TABLE } from "./tables";
+import { REMEMBER_COOKIE, applyRememberMe } from "./rememberMe";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -30,8 +32,13 @@ export async function updateSession(request: NextRequest) {
           supabaseResponse = NextResponse.next({
             request,
           });
+          const rememberUntil = request.cookies.get(REMEMBER_COOKIE)?.value;
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options),
+            supabaseResponse.cookies.set(
+              name,
+              value,
+              applyRememberMe(value, options, rememberUntil),
+            ),
           );
         },
       },
@@ -55,8 +62,27 @@ export async function updateSession(request: NextRequest) {
   ) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone();
-    url.pathname = "/auth/login";
+    url.pathname = "/";
+    url.search = "";
     return NextResponse.redirect(url);
+  }
+
+  // Logged-in students who already have a profile skip the public landing page.
+  if (user && request.nextUrl.pathname === "/") {
+    const { data: student } = await supabase
+      .from(STUDENT_TABLE)
+      .select("student_id")
+      .eq("student_id", user.sub)
+      .maybeSingle();
+
+    if (student) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/landing";
+      url.search = "";
+      const redirect = NextResponse.redirect(url);
+      supabaseResponse.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
+      return redirect;
+    }
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.

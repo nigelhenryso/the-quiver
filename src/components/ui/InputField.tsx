@@ -21,6 +21,10 @@ export interface InputFieldProps {
   inputBackgroundColor: string;
   fontSize: number;
   options?: string[];
+  value?: string;
+  disabled?: boolean;
+  autoComplete?: string;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>['inputMode'];
   onClick?: () => void;
   onChange?: (value: string) => void;
 }
@@ -36,6 +40,10 @@ export const InputField = ({
   inputBackgroundColor,
   fontSize = 12,
   options,
+  value,
+  disabled = false,
+  autoComplete,
+  inputMode,
   onClick,
   onChange,
 }: InputFieldProps) => {
@@ -105,10 +113,13 @@ export const InputField = ({
             name={inputName}
             placeholder={placeholder}
             maxLength={maxLength}
-            value={inputValue}
+            disabled={disabled}
+            autoComplete={autoComplete}
+            inputMode={inputMode}
+            value={value ?? ''}
             onChange={(e) => handleChange(e.target.value)}
             onClick={onClick}
-            className={`${fieldClassName} placeholder:text-[var(--placeholder-color)] ${
+            className={`${fieldClassName} placeholder:text-[var(--placeholder-color)] disabled:cursor-not-allowed disabled:opacity-70 ${
               isPassword ? 'pr-10' : ''
             }`}
             style={{
@@ -159,7 +170,7 @@ export const InputField = ({
             fontSize: `${fontSize}px`,
           }}
         >
-          {inputValue.length}/{maxLength}
+          {(value ?? inputValue).length}/{maxLength}
         </span>
       )}
     </div>
