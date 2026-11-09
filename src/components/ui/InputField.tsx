@@ -1,14 +1,6 @@
-
-import { Lato } from 'next/font/google';
 import { useState } from 'react';
 import { OpenEye, ClosedEye } from './logos';
 
-const LatoFont = Lato({
-  weight: ['400', '700'],
-  subsets: ['latin'],
-  display: 'swap',
-  adjustFontFallback: false,
-});
 
 export interface InputFieldProps {
   placeholder: string;
@@ -50,7 +42,7 @@ export const InputField = ({
     onChange?.(value);
   };
 
-  const fieldClassName = `${LatoFont.className} w-full rounded-[12px] border-2 px-3 py-2 font-bold`;
+  const fieldClassName = `font-body w-full rounded-[12px] border-2 px-3 py-2 font-bold`;
 
   const fieldStyle = {
     borderColor,
@@ -63,7 +55,7 @@ export const InputField = ({
     <div className="input-field flex w-full flex-col gap-[3px] p-[5px]">
       <label
         htmlFor={inputName}
-        className={`${LatoFont.className} pl-[6px] font-bold`}
+        className={`font-body pl-[6px] font-bold`}
         style={{
           color: inputNameColor,
           fontSize: `${fontSize}px`,
@@ -153,7 +145,7 @@ export const InputField = ({
 
       {maxLength !== undefined && !isDropdown && (
         <span
-          className={`${LatoFont.className} pr-[7px] text-right font-bold`}
+          className={`font-body pr-[7px] text-right font-bold`}
           style={{
             color: inputNameColor,
             fontSize: `${fontSize}px`,

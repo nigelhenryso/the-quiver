@@ -1,13 +1,3 @@
-import { Lato } from 'next/font/google';
-
-const LatoFont = Lato({
-  weight: ['400', '700'],
-  style: ['normal', 'italic'],
-  subsets: ['latin'],
-  display: 'swap',
-  adjustFontFallback: false,
-});
-
 export interface OrgCardProps {
   id: number | string;
   name: string;

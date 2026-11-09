@@ -1,13 +1,5 @@
-import { Cal_Sans } from 'next/font/google';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
-
-const calSans = Cal_Sans({
-  weight: '400',
-  subsets: ['latin'],
-  display: 'swap',
-  adjustFontFallback: false,
-});
 
 export interface ButtonProps {
   primary?: boolean;
@@ -66,9 +58,9 @@ export const Button = ({
     borderWidth,
   };
 
-  var buttonClass = `${calSans.className}  w-full flex shrink-0 flex-row items-center justify-center gap-[5px] whitespace-nowrap transition-colors duration-300 ease-in-out cursor-pointer`;
+  var buttonClass = `font-heading  w-full flex shrink-0 flex-row items-center justify-center gap-[5px] whitespace-nowrap transition-colors duration-300 ease-in-out cursor-pointer`;
   if (type === "nav"){
-    buttonClass = `${calSans.className} w-fit flex shrink-0 flex-row items-center justify-center gap-[5px] whitespace-nowrap transition-colors duration-300 ease-in-out cursor-pointer`;
+    buttonClass = `font-heading w-fit flex shrink-0 flex-row items-center justify-center gap-[5px] whitespace-nowrap transition-colors duration-300 ease-in-out cursor-pointer`;
   }
   return (
     <button

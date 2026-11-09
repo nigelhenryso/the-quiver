@@ -1,24 +1,10 @@
 
 import CommonModal from './CommonModal';
-import { Cal_Sans, Lato } from 'next/font/google';
 import { InputField } from '../InputField';
 import { Button } from '../Button';
 import { ArrowRight, LockKeyHole } from '../logos';
 
 
-const calSans = Cal_Sans({
-  weight: '400',
-  subsets: ['latin'],
-  display: 'swap',
-  adjustFontFallback: false,
-});
-
-const LatoFont = Lato({
-  weight: ['400', '700'],
-  subsets: ['latin'],
-  display: 'swap',
-  adjustFontFallback: false,
-});
 
 interface CompleteYourProfileModalProps {
   isOpen: boolean;
@@ -33,10 +19,10 @@ export default function CompleteYourProfileModal({
     <CommonModal isOpen={isOpen} onClose={onClose}>
       <div className="flex flex-col gap-[4px] ">
         <div className="flex flex-col p-[12px] gap-[6px]">
-          <h1 className={`items-center ${calSans.className} text-[40px] font-normal leading-[52px] text-[#E6FAF2] ${calSans.className}`} >
+          <h1 className={`items-center font-heading text-[40px] font-normal leading-[52px] text-[#E6FAF2]`}>
             Complete your Profile
           </h1>
-          <p className={`${LatoFont.className} text-[20px] font-normal leading-[24px] text-[#CCF0E3]`}>
+          <p className={`font-body text-[20px] font-normal leading-[24px] text-[#CCF0E3]`}>
             Set up your profile to unlock exclusive merch, organization pre-orders, and more.
           </p>
         </div>
@@ -105,25 +91,22 @@ export default function CompleteYourProfileModal({
         </div>
 
         <div className="flex w-full p-[12px] flex-col items-center gap-4">
-          <div className="p-[12px]  w-full pt-4">
-            <p className={`text-[18px] font-normal text-center text-[#145B46] ${LatoFont.className}`}>
-                <button
-                type="button"
-                onClick={() => console.log('Log In clicked')}
-                className="font-bold underline underline-offset-2 hover:opacity-70"
-                >
-                Skip for now, I’ll complete this later
-                </button>
-            </p>
-            </div> 
+          <p className={`text-[18px] font-normal text-center text-[#145B46] font-body`}>
+            <button
+              type="button"
+              onClick={onClose}
+              className="font-bold underline underline-offset-2 hover:opacity-70"
+            >
+              Skip for now, I’ll complete this later
+            </button>
+          </p>
         </div>
 
         <div className="p-[12px]  w-full border-t border-[#199E72] pt-4">
         </div> 
 
         <div className="flex w-full items-center justify-center">
-            
-            <p className={`${LatoFont.className} text-center text-[14px] font-normal text-[#008A58]`} >
+          <p className={`font-body text-center text-[14px] font-normal text-[#008A58]`}>
             <LockKeyHole
                 width={16}
                 height={16}

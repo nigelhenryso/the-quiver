@@ -1,16 +1,8 @@
-
 'use client';
 
 import { useState } from 'react';
 import { OrgCard } from './OrgCard';
-import { Cal_Sans, Braah_One, Lato } from 'next/font/google';
 
-
-const braahOne = Braah_One({
-  weight: '400',
-  subsets: ['latin'],
-  display: 'swap',
-});
 
 export interface Org {
   id: number | string;
@@ -55,7 +47,7 @@ export const OrgSlider = ({
 
   return (
     <section className="w-full py-8">
-        <h1 className={`${braahOne.className} justify-center flex flex-row items-center whitespace-nowrap text-[40px] font-normal text-[#000000]`}>
+        <h1 className={`font-heading justify-center flex flex-row items-center whitespace-nowrap text-[40px] font-normal text-[#000000]`}>
             Partner Organizations
         </h1>
         <div className="relative flex w-full items-center justify-center">
