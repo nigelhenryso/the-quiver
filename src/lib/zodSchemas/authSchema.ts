@@ -5,31 +5,63 @@ import { z } from 'zod';
 
 Current Zod authSchema:
 
-Sign Up:
-  Student:
-  Email Input:
-  1. Expected to end with @dlsu.edu.ph
+Student:
+  Sign Up:
+    
+    Email Input:
+    1. Minimum 9 characters : VAL-INP-04, VAL-INP-06
+    2. Domain expected to end with @dlsu.edu.ph : VAL-INP-01, VAL-INP-02, VAL-INP-03, VAL-INP-07
+    3. Names are separated with _, and characters can be unicode : VAL-INP-08
+    4. Email Input is trimmed : VAL-INP-05
 
-  Password Input:
-  1. Have 8 minimum characters
-  2. Must have an uppercase letter
-  3. Must have a lowercase letter
-  4. Must contain a number
-  5. Password input must be the same as Confirm Password
+    Password Input:
+    1. Have 8 minimum characters : VAL-INP-11, VAL-INP-12, VAL-INP-14
+    2. Password input must be the same as Confirm Password
+    3. Password Inputs are trimmed : VAL-INP-13
 
+    First Name:
+    1. Minimum 1 Unicode Character : VAL-INP-19, VAL-INP-22, VAL-INP-23, VAL-INP-25, 
+    2. Rejects strings with numbers in them: VAL-INP-20
+    3. Rejects strings with punctuation charcaters that are not ',' or '.': VAL-INP-21, VAL-INP-24
+
+    Last Name:
+    1. Minimum 1 Unicode Character : VAL-INP-19, VAL-INP-22, VAL-INP-23, VAL-INP-25, 
+    2. Rejects strings with numbers in them: VAL-INP-20
+    3. Rejects strings with punctuation charcaters that are not ',' or '.': VAL-INP-21, VAL-INP-24
+
+    ID Number:
+    1. Must be between 8-9 characters.
+
+    College:
+    1. Must be in 'BAGCED', 'CCS', 'CLA', 'COS', 'GCOE', 'RVRCOB', 'SOE'
   
+    Contact No (Optional):
+    1. Should only be numerical : VAL-INP-28
+    2. Minimum one character 
+    2. Should either be 7 or 11 characters (09XX - XXX - XXXX) in length : VAL-INP-30
 
+  Log In
+    Email Input:
+    1. Minimum 1 character 
+    2. Expected to end with @dlsu.edu.ph
+
+    Password Input:
+    1. Have 1 minimum character
 
 */
 
 const dlsuEmail = z
   .string()
   .trim()
-  .min(1, 'Email is required.')
-  .email('Please enter a valid email.')
+  .min(9, 'Email is required.')
+  .email('Enter a valid email address.')
+  .regex(
+    /^[\p{L}\p{N}]+(_[\p{L}\p{N}]+)+@dlsu\.edu\.ph$/iu,
+    'Use your DLSU Email.'
+  )
   .refine(
     (email) => email.toLowerCase().endsWith('@dlsu.edu.ph'),
-    'Please use your DLSU email.'
+    'Use your DLSU Email.'
   );
 
 export const signUpSchema = z
@@ -38,10 +70,7 @@ export const signUpSchema = z
 
     password: z
       .string()
-      .min(8, 'Password must be at least 8 characters.')
-      .regex(/[A-Z]/, 'Password must contain an uppercase letter.')
-      .regex(/[a-z]/, 'Password must contain a lowercase letter.')
-      .regex(/\d/, 'Password must contain a number.'),
+      .min(8, 'Password must be at least 8 characters.'),
 
     confirmPassword: z
       .string()
@@ -57,50 +86,49 @@ export const signUpSchema = z
 
 export const loginSchema = z.object({
   email: dlsuEmail,
-  password: z.string().min(1, 'Password is required.'),
+  password: z.string().min(1, 'Enter your password.'),
 });
 
 export const COLLEGES = ['BAGCED', 'CCS', 'CLA', 'COS', 'GCOE', 'RVRCOB', 'SOE'] as const;
 export type College = (typeof COLLEGES)[number];
 
-const NAME_REGEX = /^[\p{L}][\p{L}\s.'-]*$/u;
-
-const personName = (label: string) =>
-  z
+export const completeProfileSchema = z.object({
+  firstName: z
     .string()
     .trim()
-    .min(1, `${label} is required.`)
-    .max(50, `${label} must be at most 50 characters.`)
-    .regex(NAME_REGEX, `${label} can only contain letters, spaces, hyphens, apostrophes, and periods.`);
+    .min(1, `First Name is required.`)
+    .regex(/^[\p{L}\s'.,-]+$/u, `First Name must contain only letters.`),
 
-export const completeProfileSchema = z.object({
-  firstName: personName('First name'),
-
-  lastName: personName('Last name'),
+  lastName: z
+    .string()
+    .trim()
+    .min(1, `Last Name is required.`)
+    .regex(/^[\p{L}\s'.,-]+$/u, `Last Name must contain only letters.`),
 
   idNumber: z
     .string()
     .trim()
     .min(1, 'ID number is required.')
-    .regex(/^\d{8}$/, 'ID number must be exactly 8 digits.'),
+    .regex(/^\d{8,9}$/, 'Please enter a valid ID number'),
+    
 
   college: z
     .string()
     .min(1, 'Please select your college.')
     .refine((value): value is College => (COLLEGES as readonly string[]).includes(value), 'Please select a valid college.'),
 
-  // Accepts 09XXXXXXXXX, +639XXXXXXXXX or 639XXXXXXXXX (spaces/dashes allowed),
-  // and stores it as 09XXXXXXXXX.
   contactNo: z
-    .string()
-    .trim()
-    .min(1, 'Contact number is required.')
-    .transform((value) => value.replace(/[\s-]/g, ''))
-    .refine(
-      (value) => /^(09|\+639|639)\d{9}$/.test(value),
-      'Enter a valid PH mobile number (e.g. 09171234567).'
-    )
-    .transform((value) => value.replace(/^(\+639|639)/, '09')),
+  .string()
+  .trim()
+  .transform((value) => value.replace(/[\s-]/g, ''))
+  .refine(
+    (value) =>
+      /^\d+$/.test(value) &&
+      (value.length === 7 ||
+        (value.length === 11 && value.startsWith('09'))),
+    'Enter a valid contact number.'
+  )
+  .optional(),
 });
 
 export type SignUpInput = z.input<typeof signUpSchema>;
