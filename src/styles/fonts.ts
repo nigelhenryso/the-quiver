@@ -5,6 +5,7 @@ export const calSans = Cal_Sans({
   subsets: ['latin'],
   display: "swap",
   variable: "--font-cal-sans",
+  fallback: ['system-ui', 'sans-serif']
 });
 
 export const lato = Lato({
