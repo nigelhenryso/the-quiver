@@ -1,22 +1,6 @@
-
 import { useState } from 'react';
-import { Lato, Cal_Sans } from 'next/font/google';
 import { ChevronDown, ChevronUp } from '../logos';
 
-const LatoFont = Lato({
-  weight: ['400', '700'],
-  style: ['normal', 'italic'],
-  subsets: ['latin'],
-  display: 'swap',
-  adjustFontFallback: false,
-});
-
-const calSans = Cal_Sans({
-  weight: '400',
-  subsets: ['latin'],
-  display: 'swap',
-  adjustFontFallback: false,
-});
 
 export interface FAQCardProps {
   question: string;
@@ -37,7 +21,7 @@ export const FAQCard = ({
             aria-expanded={isOpen}
             className="flex w-full items-center justify-between gap-4 text-left"
             >
-            <span className={`${calSans.className} text-[18px] leading-[24px]`}>
+            <span className={`font-heading text-[18px] leading-[24px]`}>
                 {question}
             </span>
 
@@ -54,7 +38,7 @@ export const FAQCard = ({
         }`}
       >
         <div className="overflow-hidden">
-          <p className={`${LatoFont.className} mt-[10px] pr-[12px] text-[14px] leading-[16px] text-white/90`}>
+          <p className={`font-heading mt-[10px] pr-[12px] text-[14px] leading-[16px] text-white/90`}>
             {description}
           </p>
         </div>

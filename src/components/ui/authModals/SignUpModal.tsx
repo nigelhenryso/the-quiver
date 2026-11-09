@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import CommonModal from './CommonModal';
-import { Cal_Sans, Lato } from 'next/font/google';
 import { InputField } from '../InputField';
 import { Button } from '../Button';
 import { GoogleLogo, ArrowRight } from '../logos';
@@ -14,19 +13,6 @@ import {
 import { setRememberMe } from '@/src/lib/supabase/client';
 import { signInWithGoogle, signUpWithPassword } from '@/src/services/authService';
 
-const calSans = Cal_Sans({
-  weight: '400',
-  subsets: ['latin'],
-  display: 'swap',
-  adjustFontFallback: false,
-});
-
-const LatoFont = Lato({
-  weight: ['400', '700'],
-  subsets: ['latin'],
-  display: 'swap',
-  adjustFontFallback: false,
-});
 
 interface SignUpModalProps {
   isOpen: boolean;
@@ -45,7 +31,7 @@ const EMPTY_FORM: SignUpInput = { email: '', password: '', confirmPassword: '' }
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
   return (
-    <p role="alert" className={`${LatoFont.className} -mt-1 pl-[11px] text-sm font-bold text-[#7A1010]`}>
+    <p role="alert" className={`font-body -mt-1 pl-[11px] text-sm font-bold text-[#7A1010]`}>
       {message}
     </p>
   );
@@ -135,10 +121,10 @@ export default function SignUpModal({
     return (
       <CommonModal isOpen={isOpen} onClose={handleClose}>
         <div className="flex flex-col gap-[12px] p-[12px]">
-          <h1 className={`${calSans.className} text-[36px] font-normal leading-[44px] text-[#E6FAF2]`}>
+          <h1 className={`font-heading text-[36px] font-normal leading-[44px] text-[#E6FAF2]`}>
             Check your inbox
           </h1>
-          <p className={`${LatoFont.className} text-[18px] leading-[24px] text-[#CCF0E3]`}>
+          <p className={`font-body text-[18px] leading-[24px] text-[#CCF0E3]`}>
             We sent a confirmation link to <span className="font-bold text-white">{confirmEmailSentTo}</span>.
             Open it in this browser to verify your account and complete your profile.
           </p>
@@ -171,10 +157,10 @@ export default function SignUpModal({
         {/* lets Enter submit the form */}
         <button type="submit" className="sr-only" tabIndex={-1} aria-hidden="true" />
         <div className="flex flex-col p-[12px] gap-[6px]">
-          <h1 className={`${calSans.className} text-[36px] font-normal leading-[44px] text-[#E6FAF2]`}>
+          <h1 className={`font-heading text-[36px] font-normal leading-[44px] text-[#E6FAF2]`}>
             Sign Up
           </h1>
-          <p className={`${LatoFont.className} text-[18px] font-normal leading-[22px] text-[#CCF0E3]`}>
+          <p className={`font-body text-[18px] font-normal leading-[22px] text-[#CCF0E3]`}>
             Provide your school email and account details to get started.
           </p>
         </div>
@@ -213,7 +199,7 @@ export default function SignUpModal({
             />
             <FieldError message={errors.password} />
             {!errors.password && (
-              <p className={`${LatoFont.className} -mt-1 pl-[11px] text-xs text-[#E6FAF2]`}>
+              <p className={`font-body -mt-1 pl-[11px] text-xs text-[#E6FAF2]`}>
                 At least 8 characters with an uppercase letter, a lowercase letter, and a number.
               </p>
             )}
@@ -237,14 +223,14 @@ export default function SignUpModal({
           </div>
 
           {shownError && (
-            <p role="alert" className={`${LatoFont.className} mt-2 rounded-[10px] bg-[#FDECEC] px-3 py-2 text-[15px] font-bold text-[#B91C1C]`}>
+            <p role="alert" className={`font-body mt-2 rounded-[10px] bg-[#FDECEC] px-3 py-2 text-[15px] font-bold text-[#B91C1C]`}>
               {shownError}
             </p>
           )}
         </div>
 
         <div className="flex flex-col p-[12px] items-center gap-[12px]">
-          <p className={`${LatoFont.className} text-[16px] font-normal text-[#CCF0E3]`}>
+          <p className={`font-body text-[16px] font-normal text-[#CCF0E3]`}>
             By signing up, you agree to our Terms of Service &amp; Privacy Policy.
           </p>
 
@@ -267,7 +253,7 @@ export default function SignUpModal({
         <div className="flex w-full p-[12px] flex-col items-center gap-4">
           <div className="flex w-full items-center gap-6">
             <div className="h-px flex-1 bg-[#35B991]" />
-            <span className={`${LatoFont.className} shrink-0 text-[14px] font-normal text-[#CCF0E3]`}>
+            <span className={`font-body shrink-0 text-[14px] font-normal text-[#CCF0E3]`}>
               OR CONTINUE WITH
             </span>
             <div className="h-px flex-1 bg-[#35B991]" />
@@ -289,7 +275,7 @@ export default function SignUpModal({
         </div>
 
         <div className="p-[12px] w-full border-t border-[#199E72] pt-4">
-          <p className={`${LatoFont.className} text-[18px] font-normal text-center text-[#145B46]`}>
+          <p className={`font-body text-[18px] font-normal text-center text-[#145B46]`}>
             Already have a Quiver account?{' '}
             <button
               type="button"

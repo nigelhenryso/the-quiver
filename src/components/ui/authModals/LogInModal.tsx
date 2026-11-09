@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import CommonModal from './CommonModal';
-import { Cal_Sans, Lato } from 'next/font/google';
 import { InputField } from '../InputField';
 import { Button } from '../Button';
 import { GoogleLogo, ArrowRight } from '../logos';
@@ -14,19 +13,6 @@ import {
   signInWithPassword,
 } from '@/src/services/authService';
 
-const calSans = Cal_Sans({
-  weight: '400',
-  subsets: ['latin'],
-  display: 'swap',
-  adjustFontFallback: false,
-});
-
-const LatoFont = Lato({
-  weight: ['400', '700'],
-  subsets: ['latin'],
-  display: 'swap',
-  adjustFontFallback: false,
-});
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -42,7 +28,7 @@ type Field = keyof LoginInput;
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
   return (
-    <p role="alert" className={`${LatoFont.className} -mt-1 pl-[11px] text-sm font-bold text-[#7A1010]`}>
+    <p role="alert" className={`font-heading -mt-1 pl-[11px] text-sm font-bold text-[#7A1010]`}>
       {message}
     </p>
   );
@@ -130,10 +116,10 @@ export default function LoginModal({
         {/* lets Enter submit the form */}
         <button type="submit" className="sr-only" tabIndex={-1} aria-hidden="true" />
         <div className="flex flex-col p-[12px] gap-[6px]">
-          <h1 className={`items-center ${calSans.className} text-[40px] font-normal leading-[52px] text-[#E6FAF2]`}>
+          <h1 className={`items-center font-heading text-[40px] font-normal leading-[52px] text-[#E6FAF2]`}>
             Welcome Back
           </h1>
-          <p className={`${LatoFont.className} text-[20px] font-normal leading-[24px] text-[#CCF0E3]`}>
+          <p className={`font-body text-[20px] font-normal leading-[24px] text-[#CCF0E3]`}>
             Login to your Quiver account to access exclusive campus merch drops and view exciting offers.
           </p>
         </div>
@@ -173,7 +159,7 @@ export default function LoginModal({
             <FieldError message={errors.password} />
           </div>
 
-          <label className={`p-[10px] flex w-fit cursor-pointer items-center gap-2 text-[18px] font-bold text-[#008A58] ${LatoFont.className}`}>
+          <label className={`p-[10px] flex w-fit cursor-pointer items-center gap-2 text-[18px] font-bold text-[#008A58] font-body`}>
             <input
               type="checkbox"
               checked={rememberMe}
@@ -184,7 +170,7 @@ export default function LoginModal({
           </label>
 
           {shownError && (
-            <p role="alert" className={`${LatoFont.className} rounded-[10px] bg-[#FDECEC] px-3 py-2 text-[15px] font-bold text-[#B91C1C]`}>
+            <p role="alert" className={`font-heading rounded-[10px] bg-[#FDECEC] px-3 py-2 text-[15px] font-bold text-[#B91C1C]`}>
               {shownError}
             </p>
           )}
@@ -210,7 +196,7 @@ export default function LoginModal({
         <div className="flex w-full p-[12px] flex-col items-center gap-4">
           <div className="flex w-full items-center gap-6">
             <div className="h-px flex-1 bg-[#35B991]" />
-            <span className={`${LatoFont.className} shrink-0 text-[14px] font-normal text-[#CCF0E3]`}>
+            <span className={`font-body shrink-0 text-[14px] font-normal text-[#CCF0E3]`}>
               OR CONTINUE WITH
             </span>
             <div className="h-px flex-1 bg-[#35B991]" />
@@ -232,7 +218,7 @@ export default function LoginModal({
         </div>
 
         <div className="p-[12px] w-full border-t border-[#199E72] pt-4">
-          <p className={`text-[18px] font-normal text-center text-[#145B46] ${LatoFont.className}`}>
+          <p className={`text-[18px] font-normal text-center text-[#145B46] font-body`}>
             Don’t have a Quiver account yet?{' '}
             <button
               type="button"

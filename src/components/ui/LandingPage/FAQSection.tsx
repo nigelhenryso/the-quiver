@@ -1,20 +1,13 @@
 'use client';
 
 import { FAQCard } from "./FAQCard";
-import { Braah_One } from 'next/font/google';
 
-
-const braahOne = Braah_One({
-  weight: '400',
-  subsets: ['latin'],
-  display: 'swap',
-});
 
 export const FAQSection = () => {
     return (
         <>
         <div className="flex flex-col w-full gap-6 items-center pl-4">
-            <h1 className={`${braahOne.className} justify-center flex flex-row items-center whitespace-nowrap text-[40px] font-normal text-[#000000]`}>
+            <h1 className={`font-heading justify-center flex flex-row items-center whitespace-nowrap text-[40px] font-normal text-[#000000]`}>
                 Frequently Asked Questions
             </h1>
             <FAQCard 

@@ -1,7 +1,6 @@
 'use client';
 
 import { Button } from './Button';
-import { Braah_One } from 'next/font/google';
 import { QuiverLogo, ShoppingCartLogo, NotificationBellLogo, UserLogo, MarketLogo } from './logos';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -18,12 +17,6 @@ const AUTH_ERRORS: Record<string, string> = {
   cancelled: 'Google sign-in was cancelled. Please try again.',
   failed: 'Sign-in failed or the link has expired. Please try again.',
 };
-
-const braahOne = Braah_One({
-  weight: '400',
-  subsets: ['latin'],
-  display: 'swap',
-});
 
 export interface HeaderProps {
   loggedIn? : boolean;
@@ -156,7 +149,7 @@ export const Header = ({
                 <div className="mx-[45px] flex flex-row items-center gap-3">
                   <QuiverLogo />
                   <div className = "flex flex-row items-end">
-                    <h1 className={`${braahOne.className} flex items-center text-[21.6867px] leading-[30px] font-normal text-white`}>
+                    <h1 className={`font-heading flex items-center text-[21.6867px] leading-[30px] font-normal text-white`}>
                       The Quiver
                     </h1>
                   </div>
@@ -259,10 +252,10 @@ export const Header = ({
                 <div className="mx-[45px] flex flex-row items-center justify-between gap-3">
                   <QuiverLogo />
                   <div className = "flex flex-row items-end">
-                    <h1 className={`${braahOne.className} flex items-center text-[21.6867px] leading-[30px] font-normal text-white`}>
+                    <h1 className={`font-heading flex items-center text-[21.6867px] leading-[30px] font-normal text-white`}>
                       The Quiver
                     </h1>
-                    <h1 className={`${braahOne.className} flex items-left text-[10px] font-normal text-white`}>
+                    <h1 className={`font-heading flex items-left text-[10px] font-normal text-white`}>
                       Seller Hub
                     </h1>
                   </div>
@@ -327,7 +320,7 @@ export const Header = ({
             <div className="mx-[45px] flex flex-row items-center justify-between gap-3">
               <QuiverLogo />
               <div className = "flex flex-row items-end">
-                <h1 className={`${braahOne.className} flex items-center text-[21.6867px] leading-[30px] font-normal text-white`}>
+                <h1 className={`font-heading flex items-center text-[21.6867px] leading-[30px] font-normal text-white`}>
                   The Quiver
                 </h1>
               </div>

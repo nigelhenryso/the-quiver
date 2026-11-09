@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Braah_One } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { calSans, lato } from "../styles/fonts";
 import "../styles/globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -13,19 +13,6 @@ export const metadata: Metadata = {
   description: "DLSU Student Organization E-Commerce Site",
 };
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  display: "swap",
-  subsets: ["latin"],
-});
-
-const braahOne = Braah_One({
-  weight: "400",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -33,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.className} antialiased`}>
+      <body className={`${calSans.variable} ${lato.variable} antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

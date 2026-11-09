@@ -1,13 +1,5 @@
-import { Lato } from 'next/font/google';
 import { ProductCardStar } from '../logos';
 
-const LatoFont = Lato({
-  weight: ['400', '700'],
-  style: ['normal', 'italic'],
-  subsets: ['latin'],
-  display: 'swap',
-  adjustFontFallback: false,
-});
 
 export interface ProductCardProps {
   primary?: boolean;
@@ -49,13 +41,13 @@ export const ProductCard = ({
           ))}
         </div>
 
-        <p className={`${LatoFont.className} italic text-[clamp(8px,1vw,12px)] leading-none`}>
+        <p className={`font-body italic text-[clamp(8px,1vw,12px)] leading-none`}>
           {orgName}
         </p>
       </div>
 
-      <h1 className={`${LatoFont.className} text-[clamp(12px,1.6vw,20px)] text-[#2F4531] font-bold`}>{productName}</h1>
-      <h1 className={`${LatoFont.className} text-[clamp(12px,1.6vw,20px)] text-[#2F4531]`}>₱ {price}</h1>
+      <h1 className={`font-body text-[clamp(12px,1.6vw,20px)] text-[#2F4531] font-bold`}>{productName}</h1>
+      <h1 className={`font-body text-[clamp(12px,1.6vw,20px)] text-[#2F4531]`}>₱ {price}</h1>
     </div>
   );
 };
