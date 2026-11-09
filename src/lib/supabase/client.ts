@@ -5,8 +5,13 @@ import {
 } from "@supabase/ssr";
 import { REMEMBER_COOKIE, REMEMBER_DAYS, applyRememberMe } from "./rememberMe";
 
+// Next.js also renders client components on the server, where `document` doesn't exist.
+const isBrowser = typeof document !== "undefined";
+
 const readCookie = (name: string) =>
-  parseCookieHeader(document.cookie).find((c) => c.name === name)?.value;
+  isBrowser
+    ? parseCookieHeader(document.cookie).find((c) => c.name === name)?.value
+    : undefined;
 
 export const supabase = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -14,12 +19,14 @@ export const supabase = createBrowserClient(
   {
     cookies: {
       getAll() {
+        if (!isBrowser) return [];
         return parseCookieHeader(document.cookie).map(({ name, value }) => ({
           name,
           value: value ?? "",
         }));
       },
       setAll(cookiesToSet) {
+        if (!isBrowser) return;
         const rememberUntil = readCookie(REMEMBER_COOKIE);
         cookiesToSet.forEach(({ name, value, options }) => {
           document.cookie = serializeCookieHeader(
