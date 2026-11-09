@@ -21,7 +21,7 @@ export const HeroSection = () => {
         <div className="flex flex-row w-full gap-2 items-center pl-4">
             <div className="flex flex-col w-[45%] ">
                 <div className="flex w-full min-w-0 flex-col gap-4">
-                <h1 className={`font-heading text-[clamp(32px,4.5vw,68px)] font-bold leading-tight text-black`}>
+                <h1 className={`font-body text-[clamp(32px,4.5vw,68px)] font-bold leading-tight text-black`}>
                     Made By <span className="text-[#004D31]">Lasallians</span>, For{" "}
                     <span className="text-[#004D31]">Lasallians</span>.
                 </h1>

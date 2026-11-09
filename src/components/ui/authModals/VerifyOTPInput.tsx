@@ -1,233 +1,207 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState, type ClipboardEvent, type KeyboardEvent } from 'react';
 import CommonModal from './CommonModal';
-import { InputField } from '../InputField';
 import { Button } from '../Button';
-import { GoogleLogo, ArrowRight } from '../logos';
-import { setRememberMe } from '@/src/lib/supabase/client';
-import { loginSchema, toFieldErrors, type LoginInput } from '@/src/lib/zodSchemas/authSchema';
-import {
-  getStudentProfile,
-  signInWithGoogle,
-  signInWithPassword,
-} from '@/src/services/authService';
 
+const OTP_LENGTH = 6;
+const EMPTY_CODE = Array<string>(OTP_LENGTH).fill('');
+const RESEND_COOLDOWN_SECONDS = 60;
 
-interface LoginModalProps {
+interface VerifyOTPInputProps {
   isOpen: boolean;
   onClose: () => void;
-  onSwitchToSignUp?: () => void;
-  /** Called after login; `hasProfile` tells the parent whether to show Complete Your Profile. */
-  onLoggedIn?: (hasProfile: boolean) => void;
-  externalError?: string | null;
+  /** Address the code was sent to, shown in the subtitle. */
+  email?: string;
+  /** Called with the full 6-digit code when the user presses Submit. */
+  onSubmit?: (code: string) => void | Promise<void>;
+  onResend?: () => void | Promise<void>;
+  onBack?: () => void;
+  /** Error to show under the boxes (e.g. "Incorrect code"). */
+  error?: string | null;
+  loading?: boolean;
 }
 
-type Field = keyof LoginInput;
-
-function FieldError({ message }: { message?: string }) {
-  if (!message) return null;
-  return (
-    <p role="alert" className={`font-heading -mt-1 pl-[11px] text-sm font-bold text-[#7A1010]`}>
-      {message}
-    </p>
-  );
-}
-
-export default function LoginModal({
+export default function VerifyOTPInput({
   isOpen,
   onClose,
-  onSwitchToSignUp,
-  onLoggedIn,
-  externalError,
-}: LoginModalProps) {
-  const [formData, setFormData] = useState<LoginInput>({ email: '', password: '' });
-  const [errors, setErrors] = useState<Partial<Record<Field, string>>>({});
-  const [formError, setFormError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const [rememberMe, setRememberMeChecked] = useState(false);
+  email,
+  onSubmit,
+  onResend,
+  onBack,
+  error,
+  loading = false,
+}: VerifyOTPInputProps) {
+  const [digits, setDigits] = useState<string[]>(EMPTY_CODE);
+  const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
+  // A code was just sent when this screen appears, so start with the cooldown running.
+  const [cooldown, setCooldown] = useState(RESEND_COOLDOWN_SECONDS);
 
-  const shownError = formError ?? externalError ?? null;
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const id = setTimeout(() => setCooldown((s) => s - 1), 1000);
+    return () => clearTimeout(id);
+  }, [cooldown]);
+
+  const handleResend = async () => {
+    setDigits(EMPTY_CODE);
+    setCooldown(RESEND_COOLDOWN_SECONDS);
+    focusBox(0);
+    await onResend?.();
+  };
+
+  const code = digits.join('');
+  const isComplete = code.length === OTP_LENGTH;
+
+  const focusBox = (index: number) => {
+    inputsRef.current[Math.max(0, Math.min(OTP_LENGTH - 1, index))]?.focus();
+  };
+
+  const fillFrom = (start: number, value: string) => {
+    const chars = value.replace(/\D/g, '').slice(0, OTP_LENGTH - start).split('');
+    if (chars.length === 0) return;
+    setDigits((prev) => {
+      const next = [...prev];
+      chars.forEach((char, i) => (next[start + i] = char));
+      return next;
+    });
+    focusBox(start + chars.length);
+  };
+
+  const handleChange = (index: number, value: string) => {
+    if (value === '') {
+      setDigits((prev) => prev.map((d, i) => (i === index ? '' : d)));
+      return;
+    }
+    // Typing over a filled box or autofill can give several characters at once.
+    fillFrom(index, value);
+  };
+
+  const handleKeyDown = (index: number, e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && !digits[index] && index > 0) {
+      e.preventDefault();
+      setDigits((prev) => prev.map((d, i) => (i === index - 1 ? '' : d)));
+      focusBox(index - 1);
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      focusBox(index - 1);
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      focusBox(index + 1);
+    }
+  };
+
+  const handlePaste = (index: number, e: ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    fillFrom(index, e.clipboardData.getData('text'));
+  };
 
   const handleClose = () => {
-    setFormData({ email: '', password: '' });
-    setErrors({});
-    setFormError(null);
-    setRememberMeChecked(false);
+    setDigits(EMPTY_CODE);
     onClose();
   };
 
-  const updateField = (field: Field, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    setErrors((prev) => ({ ...prev, [field]: undefined }));
-    setFormError(null);
-  };
-
-  const handleLogin = async () => {
-    const result = loginSchema.safeParse(formData);
-    if (!result.success) {
-      setErrors(toFieldErrors<Field>(result.error.issues));
-      return;
-    }
-    setErrors({});
-    setLoading(true);
-    setRememberMe(rememberMe);
-
-    const { data, error } = await signInWithPassword(result.data.email, result.data.password);
-    if (error || !data.user) {
-      setLoading(false);
-      setFormError(
-        error?.code === 'email_not_confirmed'
-          ? 'Please confirm your email first — check your DLSU inbox.'
-          : 'Incorrect email or password.'
-      );
-      return;
-    }
-
-    const { data: student } = await getStudentProfile(data.user.id);
-    setLoading(false);
-    setFormData({ email: '', password: '' });
-    setRememberMeChecked(false);
-    onLoggedIn?.(Boolean(student));
-  };
-
-  const handleGoogleSignIn = async () => {
-    setGoogleLoading(true);
-    setFormError(null);
-    setRememberMe(rememberMe);
-    const { error } = await signInWithGoogle();
-    if (error) {
-      setFormError(error.message);
-      setGoogleLoading(false);
-    }
+  const handleSubmit = () => {
+    if (!isComplete || loading) return;
+    void onSubmit?.(code);
   };
 
   return (
     <CommonModal isOpen={isOpen} onClose={handleClose}>
       <form
         noValidate
-        className="flex flex-col gap-[4px]"
+        className="flex flex-col gap-[6px]"
         onSubmit={(e) => {
           e.preventDefault();
-          void handleLogin();
+          handleSubmit();
         }}
       >
-        {/* lets Enter submit the form */}
-        <button type="submit" className="sr-only" tabIndex={-1} aria-hidden="true" />
         <div className="flex flex-col p-[12px] gap-[6px]">
-          <h1 className={`items-center font-heading text-[40px] font-normal leading-[52px] text-[#E6FAF2]`}>
-            Welcome Back
+          <h1 className="font-heading text-[40px] font-normal leading-[52px] text-[#E6FAF2]">
+            Verify It’s You
           </h1>
-          <p className={`font-body text-[20px] font-normal leading-[24px] text-[#CCF0E3]`}>
-            Login to your Quiver account to access exclusive campus merch drops and view exciting offers.
+          <p className="font-body text-[20px] font-normal leading-[24px] text-[#E6FAF2]">
+            We sent a verification code to{' '}
+            {email ? <span className="font-bold">{email}</span> : 'your email'}. Please enter it to
+            verify your account.
           </p>
         </div>
 
-        <div className="flex flex-col p-[12px] gap-1">
-          <div className="flex flex-col">
-            <InputField
-              placeholder="e.g. juan_dela_cruz@dlsu.edu.ph"
-              inputType="email"
-              inputName="DLSU Email"
-              autoComplete="email"
-              inputNameColor="#CCF0E3"
-              inputBackgroundColor="#F5FEF2"
-              placeholderColor="#80AA8C"
-              borderColor={errors.email ? '#B91C1C' : '#A6BA9F'}
-              fontSize={16}
-              value={formData.email}
-              onChange={(v) => updateField('email', v)}
-            />
-            <FieldError message={errors.email} />
+        <div className="flex flex-col p-[12px] gap-[14px]">
+          <div className="flex w-full flex-row justify-between gap-[14px]">
+            {digits.map((digit, index) => (
+              <input
+                key={index}
+                ref={(el) => {
+                  inputsRef.current[index] = el;
+                }}
+                type="text"
+                inputMode="numeric"
+                autoComplete={index === 0 ? 'one-time-code' : 'off'}
+                aria-label={`Digit ${index + 1} of ${OTP_LENGTH}`}
+                maxLength={OTP_LENGTH}
+                value={digit}
+                disabled={loading}
+                onChange={(e) => handleChange(index, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(index, e)}
+                onPaste={(e) => handlePaste(index, e)}
+                onFocus={(e) => e.target.select()}
+                className={`font-heading aspect-[90/105] w-full min-w-0 flex-1 rounded-[12px] border-2 bg-[#F2FDF4] text-center text-[40px] text-[#004D31] outline-none transition-colors focus:border-[#004D31] disabled:opacity-70 ${
+                  error ? 'border-[#B91C1C]' : 'border-[#008A58]'
+                }`}
+              />
+            ))}
           </div>
 
-          <div className="flex flex-col">
-            <InputField
-              placeholder="Enter your password"
-              inputType="password"
-              inputName="Password"
-              autoComplete="current-password"
-              inputNameColor="#CCF0E3"
-              inputBackgroundColor="#F5FEF2"
-              placeholderColor="#80AA8C"
-              borderColor={errors.password ? '#B91C1C' : '#A6BA9F'}
-              fontSize={16}
-              value={formData.password}
-              onChange={(v) => updateField('password', v)}
-            />
-            <FieldError message={errors.password} />
-          </div>
-
-          <label className={`p-[10px] flex w-fit cursor-pointer items-center gap-2 text-[18px] font-bold text-[#008A58] font-body`}>
-            <input
-              type="checkbox"
-              checked={rememberMe}
-              onChange={(e) => setRememberMeChecked(e.target.checked)}
-              className="peer relative h-[19px] w-[19px] shrink-0 cursor-pointer appearance-none rounded-[4px] border-2 border-[#008A58] bg-transparent checked:bg-[#008A58] checked:after:absolute checked:after:inset-0 checked:after:flex checked:after:items-center checked:after:justify-center checked:after:text-[13px] checked:after:font-bold checked:after:text-white checked:after:content-['✓']"
-            />
-            <span>Remember me</span>
-          </label>
-
-          {shownError && (
-            <p role="alert" className={`font-heading rounded-[10px] bg-[#FDECEC] px-3 py-2 text-[15px] font-bold text-[#B91C1C]`}>
-              {shownError}
+          {error && (
+            <p role="alert" className="font-body rounded-[10px] bg-[#FDECEC] px-3 py-2 text-[15px] font-bold text-[#B91C1C]">
+              {error}
             </p>
           )}
+
+          <p className="font-body pl-[4px] text-[20px] font-normal leading-[24px] text-[#004D31]">
+            Didn’t receive the OTP?{' '}
+            <button
+              type="button"
+              onClick={() => void handleResend()}
+              disabled={loading || cooldown > 0}
+              className="font-bold underline underline-offset-4 hover:opacity-70 disabled:cursor-not-allowed disabled:no-underline disabled:opacity-60"
+            >
+              {cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend'}
+            </button>
+          </p>
         </div>
 
-        <div className="flex flex-col p-[12px] items-center gap-[12px]">
+        {/* lets Enter submit the form */}
+        <button type="submit" className="sr-only" tabIndex={-1} aria-hidden="true" />
+
+        <div className="flex flex-col p-[12px] gap-[16px]">
           <Button
-            label={loading ? 'Logging in…' : 'Log In'}
+            label={loading ? 'Verifying…' : 'Submit'}
             backgroundColor="#008A58"
             textColor="#ECF9F5"
             borderRadius={12}
             paddingX={10}
-            paddingY={10}
+            paddingY={14}
             hoverTextColor="#b9dccf"
-            fontSize={20}
-            logo={<ArrowRight width={20} height={20} />}
-            logoDir={true}
-            disabled={loading || googleLoading}
-            onClick={() => void handleLogin()}
+            fontSize={24}
+            disabled={!isComplete || loading}
+            onClick={handleSubmit}
           />
-        </div>
-
-        <div className="flex w-full p-[12px] flex-col items-center gap-4">
-          <div className="flex w-full items-center gap-6">
-            <div className="h-px flex-1 bg-[#35B991]" />
-            <span className={`font-body shrink-0 text-[14px] font-normal text-[#CCF0E3]`}>
-              OR CONTINUE WITH
-            </span>
-            <div className="h-px flex-1 bg-[#35B991]" />
-          </div>
-
           <Button
-            label={googleLoading ? 'Redirecting to Google…' : 'Log in With Google'}
-            backgroundColor="#FFFFFF"
-            textColor="#000000"
+            label="Back"
+            backgroundColor="#F4F4F4"
+            borderColor="#8C8C8C"
+            borderWidth={2}
+            textColor="#6E8C79"
+            hoverBackgroundColor="#E8E8E8"
             borderRadius={12}
             paddingX={10}
-            paddingY={10}
-            hoverTextColor="#8c8c8c"
-            fontSize={16}
-            logo={<GoogleLogo width={20} height={20} />}
-            disabled={loading || googleLoading}
-            onClick={() => void handleGoogleSignIn()}
+            paddingY={12}
+            fontSize={24}
+            disabled={loading}
+            onClick={onBack ?? handleClose}
           />
-        </div>
-
-        <div className="p-[12px] w-full border-t border-[#199E72] pt-4">
-          <p className={`text-[18px] font-normal text-center text-[#145B46] font-body`}>
-            Don’t have a Quiver account yet?{' '}
-            <button
-              type="button"
-              onClick={onSwitchToSignUp}
-              className="font-bold underline underline-offset-2 hover:opacity-70"
-            >
-              Sign up
-            </button>
-          </p>
         </div>
       </form>
     </CommonModal>

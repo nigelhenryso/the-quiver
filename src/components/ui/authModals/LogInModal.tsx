@@ -2,15 +2,19 @@
 
 import { useState } from 'react';
 import CommonModal from './CommonModal';
+import VerifyOTPInput from './VerifyOTPInput';
 import { InputField } from '../InputField';
 import { Button } from '../Button';
 import { GoogleLogo, ArrowRight } from '../logos';
-import { setRememberMe } from '@/src/lib/supabase/client';
+import { setRememberMe, supabase } from '@/src/lib/supabase/client';
 import { loginSchema, toFieldErrors, type LoginInput } from '@/src/lib/zodSchemas/authSchema';
 import {
   getStudentProfile,
+  otpErrorMessage,
+  resendEmailOtp,
   signInWithGoogle,
   signInWithPassword,
+  verifyEmailOtp,
 } from '@/src/services/authService';
 
 
@@ -47,6 +51,10 @@ export default function LoginModal({
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [rememberMe, setRememberMeChecked] = useState(false);
+  /** Set when the account exists but was never verified → show the OTP screen. */
+  const [verifyEmail, setVerifyEmail] = useState<string | null>(null);
+  const [otpError, setOtpError] = useState<string | null>(null);
+  const [verifying, setVerifying] = useState(false);
 
   const shownError = formError ?? externalError ?? null;
 
@@ -55,6 +63,8 @@ export default function LoginModal({
     setErrors({});
     setFormError(null);
     setRememberMeChecked(false);
+    setVerifyEmail(null);
+    setOtpError(null);
     onClose();
   };
 
@@ -75,21 +85,57 @@ export default function LoginModal({
     setRememberMe(rememberMe);
 
     const { data, error } = await signInWithPassword(result.data.email, result.data.password);
+    if (error?.code === 'email_not_confirmed') {
+      // Correct password, but sign-up was never verified → email a fresh code and ask for it.
+      const { error: resendError } = await resendEmailOtp(result.data.email);
+      setLoading(false);
+      if (resendError) {
+        setFormError(otpErrorMessage(resendError));
+        return;
+      }
+      setOtpError(null);
+      setVerifyEmail(result.data.email);
+      return;
+    }
     if (error || !data.user) {
       setLoading(false);
-      setFormError(
-        error?.code === 'email_not_confirmed'
-          ? 'Please confirm your email first — check your DLSU inbox.'
-          : 'Incorrect email or password.'
-      );
+      setFormError('Incorrect email or password.');
       return;
     }
 
-    const { data: student } = await getStudentProfile(data.user.id);
+    await finishLogin(data.user.id);
+  };
+
+  const finishLogin = async (userId: string) => {
+    const { data: student } = await getStudentProfile(userId);
     setLoading(false);
     setFormData({ email: '', password: '' });
     setRememberMeChecked(false);
+    setVerifyEmail(null);
     onLoggedIn?.(Boolean(student));
+  };
+
+  const handleVerifyOtp = async (code: string) => {
+    if (!verifyEmail) return;
+    setVerifying(true);
+    setOtpError(null);
+    const { data, error } = await verifyEmailOtp(verifyEmail, code);
+    if (error) {
+      setVerifying(false);
+      setOtpError(otpErrorMessage(error));
+      return;
+    }
+    // verifyOtp signs the user in.
+    const userId = data.user?.id ?? (await supabase.auth.getUser()).data.user?.id;
+    setVerifying(false);
+    if (userId) await finishLogin(userId);
+  };
+
+  const handleResendOtp = async () => {
+    if (!verifyEmail) return;
+    setOtpError(null);
+    const { error } = await resendEmailOtp(verifyEmail);
+    if (error) setOtpError(otpErrorMessage(error));
   };
 
   const handleGoogleSignIn = async () => {
@@ -102,6 +148,24 @@ export default function LoginModal({
       setGoogleLoading(false);
     }
   };
+
+  if (verifyEmail) {
+    return (
+      <VerifyOTPInput
+        isOpen={isOpen}
+        onClose={handleClose}
+        email={verifyEmail}
+        error={otpError}
+        loading={verifying}
+        onSubmit={handleVerifyOtp}
+        onResend={handleResendOtp}
+        onBack={() => {
+          setVerifyEmail(null);
+          setOtpError(null);
+        }}
+      />
+    );
+  }
 
   return (
     <CommonModal isOpen={isOpen} onClose={handleClose}>

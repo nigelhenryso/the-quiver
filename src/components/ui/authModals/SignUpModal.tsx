@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import CommonModal from './CommonModal';
+import VerifyOTPInput from './VerifyOTPInput';
 import { InputField } from '../InputField';
 import { Button } from '../Button';
 import { GoogleLogo, ArrowRight } from '../logos';
@@ -11,14 +12,20 @@ import {
   type SignUpInput,
 } from '@/src/lib/zodSchemas/authSchema';
 import { setRememberMe } from '@/src/lib/supabase/client';
-import { signInWithGoogle, signUpWithPassword } from '@/src/services/authService';
+import {
+  otpErrorMessage,
+  resendEmailOtp,
+  signInWithGoogle,
+  signUpWithPassword,
+  verifyEmailOtp,
+} from '@/src/services/authService';
 
 
 interface SignUpModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSwitchToLogin?: () => void;
-  /** Called when sign-up produced a session right away (email confirmation off). */
+  /** Called once the email is verified with the OTP (or right away if email confirmation is off). */
   onSignedUp?: () => void;
   /** Error passed in from the OAuth callback redirect (e.g. non-DLSU Google account). */
   externalError?: string | null;
@@ -51,6 +58,8 @@ export default function SignUpModal({
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [confirmEmailSentTo, setConfirmEmailSentTo] = useState<string | null>(null);
+  const [otpError, setOtpError] = useState<string | null>(null);
+  const [verifying, setVerifying] = useState(false);
 
   const shownError = formError ?? externalError ?? null;
 
@@ -74,6 +83,7 @@ export default function SignUpModal({
     setFormError(null);
     setSubmitted(false);
     setConfirmEmailSentTo(null);
+    setOtpError(null);
     onClose();
   };
 
@@ -95,6 +105,7 @@ export default function SignUpModal({
         setErrors((prev) => ({ ...prev, email: 'An account with this email already exists. Log in instead.' }));
         return;
       case 'confirm_email':
+        setOtpError(null);
         setConfirmEmailSentTo(result.data.email);
         return;
       case 'signed_in':
@@ -117,30 +128,45 @@ export default function SignUpModal({
     }
   };
 
+  const handleVerifyOtp = async (code: string) => {
+    if (!confirmEmailSentTo) return;
+    setVerifying(true);
+    setOtpError(null);
+    const { error } = await verifyEmailOtp(confirmEmailSentTo, code);
+    setVerifying(false);
+    if (error) {
+      setOtpError(otpErrorMessage(error));
+      return;
+    }
+    // Verified and signed in → continue to Complete Your Profile.
+    setFormData(EMPTY_FORM);
+    setSubmitted(false);
+    setConfirmEmailSentTo(null);
+    onSignedUp?.();
+  };
+
+  const handleResendOtp = async () => {
+    if (!confirmEmailSentTo) return;
+    setOtpError(null);
+    const { error } = await resendEmailOtp(confirmEmailSentTo);
+    if (error) setOtpError(otpErrorMessage(error));
+  };
+
   if (confirmEmailSentTo) {
     return (
-      <CommonModal isOpen={isOpen} onClose={handleClose}>
-        <div className="flex flex-col gap-[12px] p-[12px]">
-          <h1 className={`font-heading text-[36px] font-normal leading-[44px] text-[#E6FAF2]`}>
-            Check your inbox
-          </h1>
-          <p className={`font-body text-[18px] leading-[24px] text-[#CCF0E3]`}>
-            We sent a confirmation link to <span className="font-bold text-white">{confirmEmailSentTo}</span>.
-            Open it in this browser to verify your account and complete your profile.
-          </p>
-          <Button
-            label="Got it"
-            backgroundColor="#008A58"
-            textColor="#ECF9F5"
-            borderRadius={12}
-            paddingX={10}
-            paddingY={10}
-            hoverTextColor="#b9dccf"
-            fontSize={20}
-            onClick={handleClose}
-          />
-        </div>
-      </CommonModal>
+      <VerifyOTPInput
+        isOpen={isOpen}
+        onClose={handleClose}
+        email={confirmEmailSentTo}
+        error={otpError}
+        loading={verifying}
+        onSubmit={handleVerifyOtp}
+        onResend={handleResendOtp}
+        onBack={() => {
+          setConfirmEmailSentTo(null);
+          setOtpError(null);
+        }}
+      />
     );
   }
 

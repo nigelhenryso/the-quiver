@@ -41,6 +41,32 @@ export async function signUpWithPassword(email: string, password: string): Promi
   return { status: 'confirm_email' };
 }
 
+/** Checks the 6-digit code from the "Confirm signup" email. On success the user is signed in. */
+export async function verifyEmailOtp(email: string, token: string) {
+  return supabase.auth.verifyOtp({
+    email: email.trim().toLowerCase(),
+    token,
+    type: 'email',
+  });
+}
+
+/** Emails a new sign-up code (also used when an unverified account tries to log in). */
+export async function resendEmailOtp(email: string) {
+  return supabase.auth.resend({
+    type: 'signup',
+    email: email.trim().toLowerCase(),
+  });
+}
+
+/** Turns Supabase OTP errors into messages for the verify screen. */
+export function otpErrorMessage(error: { code?: string; message: string }) {
+  if (error.code === 'otp_expired' || /expired|invalid/i.test(error.message))
+    return 'That code is incorrect or has expired. Check your latest email or resend a new code.';
+  if (error.code === 'over_email_send_rate_limit' || /rate limit/i.test(error.message))
+    return 'Too many codes requested. Please wait a minute and try again.';
+  return error.message;
+}
+
 export async function signInWithPassword(email: string, password: string) {
   return supabase.auth.signInWithPassword({
     email: email.trim().toLowerCase(),
