@@ -178,6 +178,7 @@ export default function SignUpModal({
               borderColor={errors.email ? '#EF4444' : '#A6BA9F'}
               fontSize={16}
               value={formData.email}
+              required={true}
               onChange={(v) => updateField('email', v)}
             />
             <FieldError message={errors.email} />
@@ -195,6 +196,7 @@ export default function SignUpModal({
               borderColor={errors.password ? '#EF4444' : '#A6BA9F'}
               fontSize={16}
               value={formData.password}
+              required={true}
               onChange={(v) => updateField('password', v)}
             />
             <FieldError message={errors.password} />
@@ -213,6 +215,7 @@ export default function SignUpModal({
               borderColor={errors.confirmPassword ? '#EF4444' : '#A6BA9F'}
               fontSize={16}
               value={formData.confirmPassword}
+              required={true}
               onChange={(v) => updateField('confirmPassword', v)}
             />
             <FieldError message={errors.confirmPassword} />

@@ -196,6 +196,7 @@ export default function CompleteYourProfileModal({
                 autoComplete="given-name"
                 borderColor={borderFor('firstName')}
                 value={formData.firstName}
+                required={true}
                 onChange={(v) => updateField('firstName', v)}
               />
               <FieldError message={errors.firstName} />
@@ -209,6 +210,7 @@ export default function CompleteYourProfileModal({
                 autoComplete="family-name"
                 borderColor={borderFor('lastName')}
                 value={formData.lastName}
+                required={true}
                 onChange={(v) => updateField('lastName', v)}
               />
               <FieldError message={errors.lastName} />
@@ -225,6 +227,7 @@ export default function CompleteYourProfileModal({
                 inputName="ID Number"
                 borderColor={borderFor('idNumber')}
                 value={formData.idNumber}
+                required={true}
                 onChange={(v) => updateField('idNumber', v.replace(/\D/g, '').slice(0, 8))}
               />
               <FieldError message={errors.idNumber} />
@@ -238,6 +241,7 @@ export default function CompleteYourProfileModal({
                 borderColor={borderFor('college')}
                 options={[...COLLEGES]}
                 value={formData.college}
+                required={true}
                 onChange={(v) => updateField('college', v)}
               />
               <FieldError message={errors.college} />

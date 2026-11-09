@@ -16,6 +16,7 @@ export interface InputFieldProps {
   value?: string;
   disabled?: boolean;
   autoComplete?: string;
+  required?: boolean;
   inputMode?: React.HTMLAttributes<HTMLInputElement>['inputMode'];
   onClick?: () => void;
   onChange?: (value: string) => void;
@@ -36,6 +37,7 @@ export const InputField = ({
   disabled = false,
   autoComplete,
   inputMode,
+  required,
   onClick,
   onChange,
 }: InputFieldProps) => {
@@ -64,15 +66,16 @@ export const InputField = ({
     <div className="input-field flex w-full flex-col gap-[3px] p-[5px]">
       <label
         htmlFor={inputName}
-        className={`font-body pl-[6px] font-bold`}
+        className="font-body pl-[6px] font-bold"
         style={{
           color: inputNameColor,
           fontSize: `${fontSize}px`,
         }}
       >
         {inputName}
+        {required && <span className="text-[#EF4444]"> *</span>}
       </label>
-
+      
       <div className="relative w-full">
         {isDropdown ? (
           <select
