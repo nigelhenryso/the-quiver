@@ -6,5 +6,6 @@ export type Student ={
     last_name: string;
     dlsu_email: string;
     contact_no: string;
+    birthday: string;
     date_joined: string;
 }

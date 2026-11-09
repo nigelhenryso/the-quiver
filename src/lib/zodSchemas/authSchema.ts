@@ -35,6 +35,10 @@ Student:
     College:
     1. Must be in 'BAGCED', 'CCS', 'CLA', 'COS', 'GCOE', 'RVRCOB', 'SOE'
   
+    Birthday:
+    1. Required, in YYYY-MM-DD format (from the date picker)
+    2. Must be a real date, not in the future, and not before 1900
+
     Contact No (Optional):
     1. Should only be numerical : VAL-INP-28
     2. Minimum one character 
@@ -116,6 +120,19 @@ export const completeProfileSchema = z.object({
     .string()
     .min(1, 'Please select your college.')
     .refine((value): value is College => (COLLEGES as readonly string[]).includes(value), 'Please select a valid college.'),
+
+  birthday: z
+    .string()
+    .min(1, 'Birthday is required.')
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Enter a valid birthday.')
+    .refine((value) => {
+      // Rejects impossible dates like 2004-02-31 (JS would silently roll them over).
+      const [y, m, d] = value.split('-').map(Number);
+      const date = new Date(y, m - 1, d);
+      return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
+    }, 'Enter a valid birthday.')
+    .refine((value) => new Date(`${value}T00:00:00`) <= new Date(), 'Birthday cannot be in the future.')
+    .refine((value) => Number(value.slice(0, 4)) >= 1900, 'Enter a valid birthday.'),
 
   contactNo: z
   .string()

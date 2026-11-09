@@ -69,6 +69,7 @@ export async function createStudentProfile(
     first_name: profile.firstName,
     last_name: profile.lastName,
     contact_no: profile.contactNo,
+    birthday: profile.birthday,
   });
 }
 

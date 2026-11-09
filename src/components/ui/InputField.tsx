@@ -43,6 +43,7 @@ export const InputField = ({
   const [showPassword, setShowPassword] = useState(false);
 
   const isPassword = inputType === 'password';
+  const isDate = inputType === 'date';
   const isDropdown = options !== undefined;
 
   const handleChange = (value: string) => {
@@ -111,10 +112,20 @@ export const InputField = ({
             inputMode={inputMode}
             value={value ?? ''}
             onChange={(e) => handleChange(e.target.value)}
-            onClick={onClick}
+            onClick={(e) => {
+              // Date inputs only open the calendar from the small icon; open it on any click.
+              if (isDate && !disabled) {
+                try {
+                  e.currentTarget.showPicker?.();
+                } catch {
+                  /* unsupported browser: falls back to the native icon */
+                }
+              }
+              onClick?.();
+            }}
             className={`${fieldClassName} placeholder:text-[var(--placeholder-color)] disabled:cursor-not-allowed disabled:opacity-70 ${
               isPassword ? 'pr-10' : ''
-            }`}
+            } ${isDate ? 'cursor-pointer' : ''}`}
             style={{
               ...fieldStyle,
               '--placeholder-color': placeholderColor,

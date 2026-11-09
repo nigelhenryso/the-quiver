@@ -175,7 +175,7 @@ export default function SignUpModal({
               inputNameColor="#CCF0E3"
               inputBackgroundColor="#F5FEF2"
               placeholderColor="#80AA8C"
-              borderColor={errors.email ? '#B91C1C' : '#A6BA9F'}
+              borderColor={errors.email ? '#EF4444' : '#A6BA9F'}
               fontSize={16}
               value={formData.email}
               onChange={(v) => updateField('email', v)}
@@ -192,17 +192,13 @@ export default function SignUpModal({
               inputNameColor="#CCF0E3"
               inputBackgroundColor="#F5FEF2"
               placeholderColor="#80AA8C"
-              borderColor={errors.password ? '#B91C1C' : '#A6BA9F'}
+              borderColor={errors.password ? '#EF4444' : '#A6BA9F'}
               fontSize={16}
               value={formData.password}
               onChange={(v) => updateField('password', v)}
             />
             <FieldError message={errors.password} />
-            {!errors.password && (
-              <p className={`font-body -mt-1 pl-[11px] text-xs text-[#E6FAF2]`}>
-                At least 8 characters with an uppercase letter, a lowercase letter, and a number.
-              </p>
-            )}
+            {!errors.password}
           </div>
 
           <div className="flex flex-col">
@@ -214,7 +210,7 @@ export default function SignUpModal({
               inputNameColor="#CCF0E3"
               inputBackgroundColor="#F5FEF2"
               placeholderColor="#80AA8C"
-              borderColor={errors.confirmPassword ? '#B91C1C' : '#A6BA9F'}
+              borderColor={errors.confirmPassword ? '#EF4444' : '#A6BA9F'}
               fontSize={16}
               value={formData.confirmPassword}
               onChange={(v) => updateField('confirmPassword', v)}

@@ -7,8 +7,7 @@ import { InputField } from '../InputField';
 import { Button } from '../Button';
 import { ArrowRight, LockKeyHole } from '../logos';
 import { supabase } from '@/src/lib/supabase/client';
-import {
-  COLLEGES,
+import { COLLEGES,
   completeProfileSchema,
   toFieldErrors,
   type CompleteProfileInput,
@@ -30,6 +29,7 @@ const EMPTY_FORM: CompleteProfileInput = {
   idNumber: '',
   college: '',
   contactNo: '',
+  birthday: '',
 };
 
 const fieldProps = {
@@ -42,7 +42,7 @@ const fieldProps = {
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
   return (
-    <p role="alert" className={`font-heading -mt-1 pl-[11px] text-sm font-bold text-[#7A1010]`}>
+    <p role="alert" className={`font-heading -mt-1 pl-[11px] text-sm font-bold text-[#EF4444]`}>
       {message}
     </p>
   );
@@ -131,8 +131,9 @@ export default function CompleteYourProfileModal({
         return;
       }
       console.error('[CompleteYourProfile] insert failed:', error);
-      if (error.code === 'PGRST204' && /college/i.test(error.message)) {
-        setFormError('The Student table has no "college" column yet. Add it in Supabase first.');
+      if (error.code === 'PGRST204') {
+        const column = /'(\w+)' column/.exec(error.message)?.[1] ?? 'a required';
+        setFormError(`The Student table has no "${column}" column yet. Add it in Supabase first.`);
         return;
       }
       if (error.code === '42501') {
@@ -149,7 +150,7 @@ export default function CompleteYourProfileModal({
     router.replace('/landing');
   };
 
-  const borderFor = (field: Field) => (errors[field] ? '#B91C1C' : '#A6BA9F');
+  const borderFor = (field: Field) => (errors[field] ? '#e82b2b' : '#A6BA9F');
 
   return (
     <CommonModal isOpen={isOpen} onClose={onClose}>
@@ -243,20 +244,37 @@ export default function CompleteYourProfileModal({
             </div>
           </div>
 
-          <div className="flex flex-col">
-            <InputField
-              {...fieldProps}
-              placeholder="09XXXXXXXXX"
-              inputType="text"
-              inputMode="tel"
-              inputName="Contact Number"
-              autoComplete="tel"
-              borderColor={borderFor('contactNo')}
-              value={formData.contactNo}
-              onChange={(v) => updateField('contactNo', v.replace(/[^\d+\s-]/g, '').slice(0, 16))}
-            />
-            <FieldError message={errors.contactNo} />
+          <div className="flex flex-row gap-1">
+            <div className="flex w-1/2 flex-col">
+              <InputField
+                {...fieldProps}
+                placeholder="09XXXXXXXXX"
+                inputType="text"
+                inputMode="tel"
+                inputName="Contact Number"
+                autoComplete="tel"
+                borderColor={borderFor('contactNo')}
+                value={formData.contactNo}
+                onChange={(v) => updateField('contactNo', v.replace(/[^\d+\s-]/g, '').slice(0, 16))}
+              />
+              <FieldError message={errors.contactNo} />
+            </div>
+            <div className="flex w-1/2 flex-col">
+              <InputField
+                {...fieldProps}
+                placeholder="YYYY-MM-DD"
+                inputType="date"
+                inputName="Birthday"
+                autoComplete="bday"
+                borderColor={borderFor('birthday')}
+                value={formData.birthday}
+                onChange={(v) => updateField('birthday', v)}
+              />
+              <FieldError message={errors.birthday} />
+            </div>
           </div>
+
+
 
           {formError && (
             <p role="alert" className={`font-heading mt-2 rounded-[10px] bg-[#FDECEC] px-3 py-2 text-[15px] font-bold text-[#B91C1C]`}>
