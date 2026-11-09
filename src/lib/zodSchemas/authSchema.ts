@@ -1,6 +1,27 @@
 
 import { z } from 'zod';
 
+/*
+
+Current Zod authSchema:
+
+Sign Up:
+  Student:
+  Email Input:
+  1. Expected to end with @dlsu.edu.ph
+
+  Password Input:
+  1. Have 8 minimum characters
+  2. Must have an uppercase letter
+  3. Must have a lowercase letter
+  4. Must contain a number
+  5. Password input must be the same as Confirm Password
+
+  
+
+
+*/
+
 const dlsuEmail = z
   .string()
   .trim()
@@ -18,7 +39,6 @@ export const signUpSchema = z
     password: z
       .string()
       .min(8, 'Password must be at least 8 characters.')
-      .max(72, 'Password must be at most 72 characters.')
       .regex(/[A-Z]/, 'Password must contain an uppercase letter.')
       .regex(/[a-z]/, 'Password must contain a lowercase letter.')
       .regex(/\d/, 'Password must contain a number.'),
