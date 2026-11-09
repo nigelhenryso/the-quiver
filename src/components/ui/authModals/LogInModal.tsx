@@ -1,23 +1,9 @@
 import CommonModal from './CommonModal';
-import { Cal_Sans, Lato } from 'next/font/google';
 import { InputField } from '../InputField';
 import { Button } from '../Button';
 import { GoogleLogo, ArrowRight } from '../logos';
 
 
-const calSans = Cal_Sans({
-  weight: '400',
-  subsets: ['latin'],
-  display: 'swap',
-  adjustFontFallback: false,
-});
-
-const LatoFont = Lato({
-  weight: ['400', '700'],
-  subsets: ['latin'],
-  display: 'swap',
-  adjustFontFallback: false,
-});
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -35,10 +21,10 @@ export default function LoginModal({
     <CommonModal isOpen={isOpen} onClose={onClose}>
       <div className="flex flex-col gap-[4px] ">
         <div className="flex flex-col p-[12px] gap-[6px]">
-          <h1 className={`items-center ${calSans.className} text-[40px] font-normal leading-[52px] text-[#E6FAF2] ${calSans.className}`} >
+          <h1 className={`items-center font-heading text-[40px] font-normal leading-[52px] text-[#E6FAF2]`}>
             Welcome Back
           </h1>
-          <p className={`${LatoFont.className} text-[20px] font-normal leading-[24px] text-[#CCF0E3]`}>
+          <p className={`font-body text-[20px] font-normal leading-[24px] text-[#CCF0E3]`}>
             Login to your Quiver account to access exclusive campus merch drops and view exciting offers.
           </p>
         </div>
@@ -63,7 +49,7 @@ export default function LoginModal({
               borderColor='#A6BA9F'
               fontSize={16}/>
             
-            <label className={`p-[10px] flex w-fit cursor-pointer items-center gap-2 text-[18px] font-bold text-[#008A58] ${LatoFont.className}`}>
+            <label className={`p-[10px] flex w-fit cursor-pointer items-center gap-2 text-[18px] font-bold text-[#008A58] font-body`}>
               <input
                 type="checkbox"
                 className="peer relative h-[19px] w-[19px] shrink-0 cursor-pointer appearance-none rounded-[4px] border-2 border-[#008A58] bg-transparent checked:bg-[#008A58] checked:after:absolute checked:after:inset-0 checked:after:flex checked:after:items-center checked:after:justify-center checked:after:text-[13px] checked:after:font-bold checked:after:text-white checked:after:content-['✓']"
@@ -89,8 +75,7 @@ export default function LoginModal({
         <div className="flex w-full p-[12px] flex-col items-center gap-4">
           <div className="flex w-full items-center gap-6">
             <div className="h-px flex-1 bg-[#35B991]" />
-
-            <span className={`${LatoFont.className} shrink-0 text-[14px] font-normal text-[#CCF0E3]`}>
+            <span className={`font-body shrink-0 text-[14px] font-normal text-[#CCF0E3]`}>
               OR CONTINUE WITH
             </span>
 
@@ -110,8 +95,8 @@ export default function LoginModal({
           />
         </div>
 
-        <div className="p-[12px]  w-full border-t border-[#199E72] pt-4">
-          <p className={`text-[18px] font-normal text-center text-[#145B46] ${LatoFont.className}`}>
+        <div className="p-[12px] w-full border-t border-[#199E72] pt-4">
+          <p className={`text-[18px] font-normal text-center text-[#145B46] font-body`}>
             Don’t have a Quiver account yet?{' '}
             <button
               type="button"
