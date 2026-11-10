@@ -1,4 +1,6 @@
+import { serializeCookieHeader } from '@supabase/ssr';
 import { supabase, clearAuthCookies, clearRememberMe } from '@/src/lib/supabase/client';
+import { OAUTH_INTENT_COOKIE, type OAuthIntent } from '@/src/lib/supabase/oauthIntent';
 import type { CompleteProfileOutput } from '@/src/lib/zodSchemas/authSchema';
 import { STUDENT_TABLE } from '@/src/lib/supabase/tables';
 
@@ -11,11 +13,21 @@ const callbackUrl = () => `${window.location.origin}/auth/callback`;
  * Sends the browser to Google's account picker ("Sign up / Log in with Google" buttons).
  * Google then returns the user to `/auth/callback`, which finishes the login.
  *
+ * @param intent - `login` ("Log in with Google"): the callback rejects Google accounts
+ *                 with no Student/Organization profile. `signup`: new accounts are allowed.
+ *
  * @returns `{ data, error }` (never throws):
  * - success: the page navigates away to Google.
  * - failure: `error` is set (the redirect couldn't start).
  */
-export async function signInWithGoogle() {
+export async function signInWithGoogle(intent: OAuthIntent) {
+  // Short-lived cookie so the callback knows which button was used (cleared there).
+  document.cookie = serializeCookieHeader(OAUTH_INTENT_COOKIE, intent, {
+    path: '/',
+    sameSite: 'lax',
+    maxAge: 10 * 60,
+  });
+
   return supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {

@@ -18,6 +18,7 @@ const AUTH_ERRORS: Record<string, string> = {
   domain: 'Please use your DLSU Google account (@dlsu.edu.ph).',
   cancelled: 'Google sign-in was cancelled. Please try again.',
   failed: 'Sign-in failed or the link has expired. Please try again.',
+  no_account: 'No account found for this Google account. Please sign up first.',
 };
 
 export interface HeaderProps {

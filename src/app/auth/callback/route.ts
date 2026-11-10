@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { createClient } from '@/src/lib/supabase/server';
+import { OAUTH_INTENT_COOKIE } from '@/src/lib/supabase/oauthIntent';
 import { getAccountType } from '@/src/services/accountService';
 import { HOME_ROUTE } from '@/src/lib/routes';
 
@@ -21,6 +23,11 @@ export async function GET(request: Request) {
   //    Fails if the code was already used or the link was opened in a
   //    different browser than the one that started sign-up.
 
+  // Which Google button was used ("login" or "signup"); missing for email-confirmation links.
+  const cookieStore = await cookies();
+  const intent = cookieStore.get(OAUTH_INTENT_COOKIE)?.value;
+  cookieStore.delete(OAUTH_INTENT_COOKIE);
+
   const supabase = await createClient();
   const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
@@ -40,6 +47,16 @@ export async function GET(request: Request) {
   //    Student row → /landing.
   //    Neither (only exists in auth.users) → back to "/" with the Complete Your Profile modal open.
   const account = await getAccountType(supabase, data.user.id);
+
+  // "Log in with Google" with no Student/Organization profile → treat it like a wrong
+  // email/password: remove the auth user Google just created (if it's brand new),
+  // sign out, and show "No account found". Never opens Complete Your Profile.
+  if (intent === 'login' && account === 'new') {
+    await supabase.rpc('delete_new_oauth_user'); // no-op if the SQL function isn't set up
+    await supabase.auth.signOut({ scope: 'local' });
+    return NextResponse.redirect(`${origin}/?auth_error=no_account`);
+  }
+
   const destination = account === 'new' ? '/?complete_profile=1' : HOME_ROUTE[account];
 
   return NextResponse.redirect(`${origin}${destination}`);

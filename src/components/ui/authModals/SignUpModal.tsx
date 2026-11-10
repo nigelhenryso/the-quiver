@@ -38,7 +38,7 @@ const EMPTY_FORM: SignUpInput = { email: '', password: '', confirmPassword: '' }
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
   return (
-    <p role="alert" className={`font-body -mt-1 pl-[11px] text-sm font-bold text-[#7A1010]`}>
+    <p role="alert" className={`font-body -mt-1 pl-[11px] text-sm text-[#EF4444]`}>
       {message}
     </p>
   );
@@ -125,7 +125,7 @@ export default function SignUpModal({
     setGoogleLoading(true);
     setFormError(null);
     setRememberMe(true);
-    const { error } = await signInWithGoogle();
+    const { error } = await signInWithGoogle('signup');
     // On success the browser navigates away to Google, so only handle failure.
     if (error) {
       setFormError(error.message);

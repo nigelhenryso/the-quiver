@@ -32,7 +32,7 @@ type Field = keyof LoginInput;
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
   return (
-    <p role="alert" className={`font-heading -mt-1 pl-[11px] text-sm font-bold text-[#7A1010]`}>
+    <p role="alert" className={`font-heading -mt-1 pl-[11px] text-sm text-[#EF4444]`}>
       {message}
     </p>
   );
@@ -149,7 +149,7 @@ export default function LoginModal({
     setGoogleLoading(true);
     setFormError(null);
     setRememberMe(rememberMe);
-    const { error } = await signInWithGoogle();
+    const { error } = await signInWithGoogle('login');
     if (error) {
       setFormError(error.message);
       setGoogleLoading(false);
@@ -205,7 +205,7 @@ export default function LoginModal({
               inputNameColor="#CCF0E3"
               inputBackgroundColor="#F5FEF2"
               placeholderColor="#80AA8C"
-              borderColor={errors.email ? '#B91C1C' : '#A6BA9F'}
+              borderColor={errors.email ? '#EF4444' : '#A6BA9F'}
               fontSize={16}
               value={formData.email}
               onChange={(v) => updateField('email', v)}
@@ -222,7 +222,7 @@ export default function LoginModal({
               inputNameColor="#CCF0E3"
               inputBackgroundColor="#F5FEF2"
               placeholderColor="#80AA8C"
-              borderColor={errors.password ? '#B91C1C' : '#A6BA9F'}
+              borderColor={errors.password ? '#EF4444' : '#A6BA9F'}
               fontSize={16}
               value={formData.password}
               onChange={(v) => updateField('password', v)}
