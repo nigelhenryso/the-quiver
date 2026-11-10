@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/src/lib/supabase/server';
-import { STUDENT_TABLE } from '@/src/lib/supabase/tables';
+import { HOME_ROUTE, getAccountType } from '@/src/lib/supabase/accountType';
 
 // Handles both the Google OAuth redirect and the email-confirmation OTP
 // (both arrive here with a PKCE `?code=`).
@@ -34,16 +34,12 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/?auth_error=domain`);
   }
 
-  // 5. If user exists in Student table, means that user is authenticated and has a profile → /landing. 
-  //    Only exists in auth.users (no student profile yet) → back to "/" with the Complete Your Profile modal open.
+  // 5. Send the user where their account type belongs:
+  //    Organization row → /dashboard (in case an org's email is also a Google account).
+  //    Student row → /landing.
+  //    Neither (only exists in auth.users) → back to "/" with the Complete Your Profile modal open.
+  const account = await getAccountType(supabase, data.user.id);
+  const destination = account === 'new' ? '/?complete_profile=1' : HOME_ROUTE[account];
 
-  const { data: student } = await supabase  
-    .from(STUDENT_TABLE)
-    .select('student_id')
-    .eq('student_id', data.user.id)
-    .maybeSingle();
-
-  return NextResponse.redirect(
-    `${origin}${student ? '/landing' : '/?complete_profile=1'}` 
-  );
+  return NextResponse.redirect(`${origin}${destination}`);
 }

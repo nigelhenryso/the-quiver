@@ -8,7 +8,8 @@ import SignUpModal from './authModals/SignUpModal';
 import LoginModal  from './authModals/LogInModal';
 import CompleteYourProfileModal from './authModals/CompleteYourProfileModal';
 import { supabase } from '@/src/lib/supabase/client';
-import { getStudentProfile, signOut } from '@/src/services/authService';
+import { signOut } from '@/src/services/authService';
+import { HOME_ROUTE, getAccountType } from '@/src/lib/supabase/accountType';
 
 type AuthModal = 'login' | 'signup' | 'profile' | null;
 
@@ -53,20 +54,20 @@ export const Header = ({
     window.history.replaceState({}, document.title, window.location.pathname);
   }, []);
 
-  // Keep logged-out tabs in sync: if the student logs in from another tab
-  // (password or Google), this tab moves to /landing as well.
+  // Keep logged-out tabs in sync: if a student or org logs in from another tab
+  // (password or Google), this tab moves to their home page as well.
   useEffect(() => {
     if (loggedIn) return;
     let checking = false;
 
-    const redirectIfStudent = async () => {
+    const redirectIfLoggedIn = async () => {
       if (checking || document.visibilityState !== 'visible') return;
       checking = true;
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
-        const { data: student } = await getStudentProfile(user.id);
-        if (student) router.replace('/landing');
+        const account = await getAccountType(supabase, user.id);
+        if (account !== 'new') router.replace(HOME_ROUTE[account]);
       } finally {
         checking = false;
       }
@@ -75,17 +76,17 @@ export const Header = ({
     // Fires across tabs for password logins (Supabase broadcasts auth changes).
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       // defer: calling Supabase inside this callback can deadlock its auth lock
-      if (event === 'SIGNED_IN') setTimeout(() => void redirectIfStudent(), 0);
+      if (event === 'SIGNED_IN') setTimeout(() => void redirectIfLoggedIn(), 0);
     });
     // Google logins finish server-side and aren't broadcast, so also re-check
     // whenever the user comes back to this tab.
-    document.addEventListener('visibilitychange', redirectIfStudent);
-    window.addEventListener('focus', redirectIfStudent);
+    document.addEventListener('visibilitychange', redirectIfLoggedIn);
+    window.addEventListener('focus', redirectIfLoggedIn);
 
     return () => {
       subscription.unsubscribe();
-      document.removeEventListener('visibilitychange', redirectIfStudent);
-      window.removeEventListener('focus', redirectIfStudent);
+      document.removeEventListener('visibilitychange', redirectIfLoggedIn);
+      window.removeEventListener('focus', redirectIfLoggedIn);
     };
   }, [loggedIn, router]);
 
@@ -399,12 +400,12 @@ export const Header = ({
       onClose={() => openModal(null)}
       externalError={authError}
       onSwitchToSignUp={() => openModal('signup')}
-      onLoggedIn={(hasProfile) => {
-        if (hasProfile) {
-          openModal(null);
-          router.replace('/landing');
-        } else {
+      onLoggedIn={(account) => {
+        if (account === 'new') {
           openModal('profile');
+        } else {
+          openModal(null);
+          router.replace(HOME_ROUTE[account]);
         }
       }}
     />

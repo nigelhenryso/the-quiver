@@ -1,7 +1,13 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { hasEnvVars } from "../utils";
-import { STUDENT_TABLE } from "./tables";
+import {
+  HOME_ROUTE,
+  ORG_ROUTES,
+  STUDENT_ROUTES,
+  getAccountType,
+  isInRoutes,
+} from "./accountType";
 import { REMEMBER_COOKIE, applyRememberMe } from "./rememberMe";
 
 export async function updateSession(request: NextRequest) {
@@ -54,35 +60,41 @@ export async function updateSession(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const user = data?.claims;
 
+  const pathname = request.nextUrl.pathname;
+
+  // Sends the user to `to`, keeping any refreshed auth cookies.
+  const redirectTo = (to: string) => {
+    const url = request.nextUrl.clone();
+    url.pathname = to;
+    url.search = "";
+    const redirect = NextResponse.redirect(url);
+    supabaseResponse.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
+    return redirect;
+  };
+
   if (
-    request.nextUrl.pathname !== "/" &&
+    pathname !== "/" &&
     !user &&
-    !request.nextUrl.pathname.startsWith("/login") &&
-    !request.nextUrl.pathname.startsWith("/auth")
+    !pathname.startsWith("/login") &&
+    !pathname.startsWith("/auth")
   ) {
     // no user, potentially respond by redirecting the user to the login page
-    const url = request.nextUrl.clone();
-    url.pathname = "/";
-    url.search = "";
-    return NextResponse.redirect(url);
+    return redirectTo("/");
   }
 
-  // Logged-in students who already have a profile skip the public landing page.
-  if (user && request.nextUrl.pathname === "/") {
-    const { data: student } = await supabase
-      .from(STUDENT_TABLE)
-      .select("student_id")
-      .eq("student_id", user.sub)
-      .maybeSingle();
+  // Keep each account type on its own pages:
+  // - organization → org pages only (anything else, including "/", goes to /dashboard)
+  // - student      → never on org pages; "/" skips the public landing page
+  // - new student  → never on org pages (still completing their profile on "/")
+  const isOrgRoute = isInRoutes(pathname, ORG_ROUTES);
+  const isStudentRoute = isInRoutes(pathname, STUDENT_ROUTES);
 
-    if (student) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/landing";
-      url.search = "";
-      const redirect = NextResponse.redirect(url);
-      supabaseResponse.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
-      return redirect;
-    }
+  if (user && (pathname === "/" || isOrgRoute || isStudentRoute)) {
+    const account = await getAccountType(supabase, user.sub);
+
+    if (account === "organization" && !isOrgRoute) return redirectTo(HOME_ROUTE.organization);
+    if (account === "student" && !isStudentRoute) return redirectTo(HOME_ROUTE.student);
+    if (account === "new" && isOrgRoute) return redirectTo("/");
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.

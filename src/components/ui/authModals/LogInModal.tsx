@@ -8,8 +8,8 @@ import { Button } from '../Button';
 import { GoogleLogo, ArrowRight } from '../logos';
 import { setRememberMe, supabase } from '@/src/lib/supabase/client';
 import { loginSchema, toFieldErrors, type LoginInput } from '@/src/lib/zodSchemas/authSchema';
+import { getAccountType, type AccountType } from '@/src/lib/supabase/accountType';
 import {
-  getStudentProfile,
   otpErrorMessage,
   resendEmailOtp,
   signInWithGoogle,
@@ -22,8 +22,8 @@ interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSwitchToSignUp?: () => void;
-  /** Called after login; `hasProfile` tells the parent whether to show Complete Your Profile. */
-  onLoggedIn?: (hasProfile: boolean) => void;
+  /** Called after login with the account type, so the parent knows where to send the user. */
+  onLoggedIn?: (account: AccountType) => void;
   externalError?: string | null;
 }
 
@@ -107,12 +107,12 @@ export default function LoginModal({
   };
 
   const finishLogin = async (userId: string) => {
-    const { data: student } = await getStudentProfile(userId);
+    const account = await getAccountType(supabase, userId);
     setLoading(false);
     setFormData({ email: '', password: '' });
     setRememberMeChecked(false);
     setVerifyEmail(null);
-    onLoggedIn?.(Boolean(student));
+    onLoggedIn?.(account);
   };
 
   const handleVerifyOtp = async (code: string) => {

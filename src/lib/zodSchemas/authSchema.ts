@@ -4,9 +4,6 @@ import { z } from 'zod';
 /*
 
 Current Zod authSchema:
-
-Student:
-  Sign Up:
     
     Email Input:
     1. Minimum 9 characters : VAL-INP-04, VAL-INP-06
@@ -44,14 +41,6 @@ Student:
     2. Minimum one character 
     2. Should either be 7 or 11 characters (09XX - XXX - XXXX) in length : VAL-INP-30
 
-  Log In
-    Email Input:
-    1. Minimum 1 character 
-    2. Expected to end with @dlsu.edu.ph
-
-    Password Input:
-    1. Have 1 minimum character
-
 */
 
 const dlsuEmail = z
@@ -88,8 +77,23 @@ export const signUpSchema = z
     }
   );
 
+/**
+ * Log in accepts any @dlsu.edu.ph address (no `first_last` underscore rule),
+ * because organization accounts also log in here and org emails like
+ * `lscs@dlsu.edu.ph` don't follow the student format.
+ */
+const loginEmail = z
+  .string()
+  .trim()
+  .min(1, 'Email is required.')
+  .email('Enter a valid email address.')
+  .refine(
+    (email) => email.toLowerCase().endsWith('@dlsu.edu.ph'),
+    'Use your DLSU Email.'
+  );
+
 export const loginSchema = z.object({
-  email: dlsuEmail,
+  email: loginEmail,
   password: z.string().min(1, 'Enter your password.'),
 });
 
