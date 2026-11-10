@@ -11,13 +11,10 @@ const RESEND_COOLDOWN_SECONDS = 60;
 interface VerifyOTPInputProps {
   isOpen: boolean;
   onClose: () => void;
-  /** Address the code was sent to, shown in the subtitle. */
   email?: string;
-  /** Called with the full 6-digit code when the user presses Submit. */
   onSubmit?: (code: string) => void | Promise<void>;
   onResend?: () => void | Promise<void>;
   onBack?: () => void;
-  /** Error to show under the boxes (e.g. "Incorrect code"). */
   error?: string | null;
   loading?: boolean;
 }

@@ -10,33 +10,24 @@ import { STUDENT_TABLE } from '@/src/lib/supabase/tables';
 const callbackUrl = () => `${window.location.origin}/auth/callback`;
 
 /**
- * Starts "Sign in with Google" by redirecting the browser to Google.
+ * Sends the browser to Google's account picker ("Sign up / Log in with Google" buttons).
+ * Google then returns the user to `/auth/callback`, which finishes the login.
  *
- * The account picker is pre-filtered to `dlsu.edu.ph`, but that is only a hint;
- * the real domain check happens in `/auth/callback`, which signs out non-DLSU accounts.
- * Call `setRememberMe()` before this so the session cookies get the right lifetime.
- *
- * @returns Supabase's `{ data, error }`. `error` is set only if the redirect couldn't start;
- *          on success the page navigates away.
+ * @returns `{ data, error }` (never throws):
+ * - success: the page navigates away to Google.
+ * - failure: `error` is set (the redirect couldn't start).
  */
 export async function signInWithGoogle() {
   return supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
       redirectTo: callbackUrl(),
-      // `hd` only pre-filters the Google account picker; the callback route enforces the domain.
       queryParams: { hd: 'dlsu.edu.ph', prompt: 'select_account' },
     },
   });
 }
 
-/**
- * Outcome of {@link signUpWithPassword}:
- * - `error`: sign-up failed; `message` is shown to the user.
- * - `exists`: an account with this email already exists.
- * - `confirm_email`: account created; a 6-digit code was emailed (see {@link verifyEmailOtp}).
- * - `signed_in`: email confirmation is off, so the user is already logged in.
- */
+/** Result of `signUpWithPassword()`, simplified so the modal can switch on `status`. */
 export type SignUpResult =
   | { status: 'error'; message: string }
   | { status: 'exists' }
@@ -44,13 +35,13 @@ export type SignUpResult =
   | { status: 'signed_in' };
 
 /**
- * Creates an email + password account. Does NOT create the `Student` row;
- * that happens later in {@link createStudentProfile}.
+ * Creates an email + password account. Does not create the `Student` row.
  *
- * @param email - Trimmed and lower-cased before sending.
- * @param password - Sent as-is; validate it with the Zod schema first.
- * @returns A {@link SignUpResult} instead of the raw Supabase response, so the modal
- *          can switch on `status`.
+ * @returns A `SignUpResult` (not `{ data, error }`):
+ * - `error`: sign-up failed; `message` explains why.
+ * - `exists`: an account with this email already exists.
+ * - `confirm_email`: account created, a 6-digit code was emailed.
+ * - `signed_in`: email confirmation is off, so the user is already logged in.
  */
 export async function signUpWithPassword(email: string, password: string): Promise<SignUpResult> {
   const { data, error } = await supabase.auth.signUp({
@@ -63,20 +54,19 @@ export async function signUpWithPassword(email: string, password: string): Promi
     if (/already registered|already exists/i.test(error.message)) return { status: 'exists' };
     return { status: 'error', message: error.message };
   }
-  // With email confirmation on, Supabase returns a user with no identities for an existing email.
   if (data.user && data.user.identities?.length === 0) return { status: 'exists' };
-  // Email confirmation off → session is returned immediately.
   if (data.session) return { status: 'signed_in' };
   return { status: 'confirm_email' };
 }
 
 /**
- * Checks the 6-digit code from the "Confirm signup" email. On success the user is signed in
+ * Checks the 6-digit code from the sign-up email. On success the user is logged in.
  *
- * @param email - The address the code was sent to; trimmed and lower-cased.
- * @param token - The 6-digit code the user typed.
- * @returns Supabase's `{ data, error }`. Pass `error` to {@link otpErrorMessage} for display.
+ * @returns `{ data, error }` (never throws):
+ * - correct code: `data.user` and `data.session` are set, `error` is `null`.
+ * - wrong or expired code: `data.user` and `data.session` are `null`, and `error` is set
  */
+
 export async function verifyEmailOtp(email: string, token: string) {
   return supabase.auth.verifyOtp({
     email: email.trim().toLowerCase(),
@@ -86,10 +76,11 @@ export async function verifyEmailOtp(email: string, token: string) {
 }
 
 /**
- * Emails a new sign-up code. Also used when an unconfirmed account tries to log in.
+ * Emails a new sign-up code. Does not log the user in.
  *
- * @param email - Trimmed and lower-cased.
- * @returns Supabase's `{ data, error }`. Pass `error` to {@link otpErrorMessage} for display.
+ * @returns `{ data, error }` (never throws):
+ * - sent: `error` is `null`.
+ * - not sent: `error` is set, usually `over_email_send_rate_limit` (requested too soon).
  */
 export async function resendEmailOtp(email: string) {
   return supabase.auth.resend({
@@ -99,12 +90,11 @@ export async function resendEmailOtp(email: string) {
 }
 
 /**
- * Turns a Supabase OTP error into a user-friendly message for the verify screen.
- * Handles expired/invalid codes and the email rate limit; anything else returns
- * Supabase's original message.
+ * Turns an error from `verifyEmailOtp()` / `resendEmailOtp()` into text for the user.
  *
- * @param error - The `error` from {@link verifyEmailOtp} or {@link resendEmailOtp}.
- * @returns Text to show under the code input.
+ * @returns A string (not a Promise):
+ * - wrong/expired code or rate limit: a friendly message.
+ * - anything else: Supabase's original message.
  */
 export function otpErrorMessage(error: { code?: string; message: string }) {
   if (error.code === 'otp_expired' || /expired|invalid/i.test(error.message))
@@ -115,13 +105,12 @@ export function otpErrorMessage(error: { code?: string; message: string }) {
 }
 
 /**
- * Logs in with email + password. On success the session cookies are written.
- * Call `setRememberMe()` first so the cookies get the right lifetime.
- * If the email isn't confirmed yet this returns an error; `LogInModal` then resends a code.
+ * Logs in with email + password.
  *
- * @param email - Trimmed and lower-cased.
- * @param password - Sent as-is.
- * @returns Supabase's `{ data, error }`; `data.user` is the logged-in auth user.
+ * @returns `{ data, error }` (never throws):
+ * - success: `data.user` and `data.session` are set, `error` is `null`.
+ * - failure: `data.user` and `data.session` are `null`, and `error` is set
+ *   (wrong password, or email not confirmed yet).
  */
 export async function signInWithPassword(email: string, password: string) {
   return supabase.auth.signInWithPassword({
@@ -131,12 +120,12 @@ export async function signInWithPassword(email: string, password: string) {
 }
 
 /**
- * Checks whether a user has finished their profile (has a `Student` row).
- * Only `student_id` is selected, so use it as an existence check, not to load the profile.
+ * Checks whether a user has a `Student` row (finished "Complete your profile").
  *
- * @param userId - The auth user's id (`user.id`), which equals `Student.student_id`.
- * @returns `{ data, error }`; `data` is `null` when no profile exists yet.
- *          Needs an RLS select policy on `Student` for `auth.uid() = student_id`.
+ * @returns `{ data, error }` (never throws):
+ * - row exists: `data` is `{ student_id }`.
+ * - no row: `data` is `null`.
+ * - query failed: `error` is set.
  */
 export async function getStudentProfile(userId: string) {
   return supabase
@@ -149,11 +138,9 @@ export async function getStudentProfile(userId: string) {
 /**
  * Inserts the logged-in user's `Student` row from the "Complete your profile" form.
  *
- * @param userId - The auth user's id; becomes `Student.student_id`. Must be the logged-in user, or the RLS insert policy (`auth.uid() = student_id`) rejects it.
- * @param email - The auth email; lower-cased and saved as `dlsu_email`.
- * @param profile - Form values already validated by `completeProfileSchema`.
- * @returns Supabase's `{ data, error }`. Inserting twice for the same user fails
- *          because `student_id` is the primary key.
+ * @returns `{ data, error }` (never throws). `data` is always `null`:
+ * - saved: `error` is `null`.
+ * - failed: `error` is set (row already exists, or RLS blocked it).
  */
 export async function createStudentProfile(
   userId: string,
@@ -173,12 +160,11 @@ export async function createStudentProfile(
 }
 
 /**
- * Logs out on this device: ends the Supabase session, deletes all auth cookies
- * (even if the network call fails) and resets the "Remember me" choice.
- * `scope: 'local'` keeps the user's sessions on other devices logged in.
+ * Logs out on this device: ends the session, deletes the auth cookies and resets "Remember me".
  *
- * @returns `{ error }` from Supabase. The cookies are cleared either way, so the user
- *          is logged out in this browser even when `error` is set.
+ * @returns `{ error }` only (no `data`):
+ * - `error` is `null` or set, but the cookies are cleared either way,
+ *   so the user is logged out in this browser.
  */
 export async function signOut() {
   const { error } = await supabase.auth.signOut({ scope: 'local' });
