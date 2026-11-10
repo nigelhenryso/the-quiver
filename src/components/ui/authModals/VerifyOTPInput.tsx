@@ -40,6 +40,7 @@ export default function VerifyOTPInput({
     return () => clearTimeout(id);
   }, [cooldown]);
 
+  /** Clears the boxes, restarts the 60s cooldown, and asks the parent to send a new code. */
   const handleResend = async () => {
     setDigits(EMPTY_CODE);
     setCooldown(RESEND_COOLDOWN_SECONDS);
@@ -50,10 +51,12 @@ export default function VerifyOTPInput({
   const code = digits.join('');
   const isComplete = code.length === OTP_LENGTH;
 
+  /** Moves the cursor to a box (kept within the first and last box). */
   const focusBox = (index: number) => {
     inputsRef.current[Math.max(0, Math.min(OTP_LENGTH - 1, index))]?.focus();
   };
 
+  /** Fills boxes starting at `start` with the digits in `value` (ignores non-digits), then moves the cursor after them. */
   const fillFrom = (start: number, value: string) => {
     const chars = value.replace(/\D/g, '').slice(0, OTP_LENGTH - start).split('');
     if (chars.length === 0) return;
@@ -65,6 +68,7 @@ export default function VerifyOTPInput({
     focusBox(start + chars.length);
   };
 
+  /** Handles typing in a box: clears it, or fills from it (autofill can give several digits at once). */
   const handleChange = (index: number, value: string) => {
     if (value === '') {
       setDigits((prev) => prev.map((d, i) => (i === index ? '' : d)));
@@ -74,6 +78,7 @@ export default function VerifyOTPInput({
     fillFrom(index, value);
   };
 
+  /** Backspace on an empty box clears the previous one; arrow keys move between boxes. */
   const handleKeyDown = (index: number, e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Backspace' && !digits[index] && index > 0) {
       e.preventDefault();
@@ -88,16 +93,19 @@ export default function VerifyOTPInput({
     }
   };
 
+  /** Pastes a code into the boxes starting at the current one. */
   const handlePaste = (index: number, e: ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
     fillFrom(index, e.clipboardData.getData('text'));
   };
 
+  /** Clears the boxes and closes the modal. */
   const handleClose = () => {
     setDigits(EMPTY_CODE);
     onClose();
   };
 
+  /** Sends the code to the parent once all 6 digits are filled (and not already loading). */
   const handleSubmit = () => {
     if (!isComplete || loading) return;
     void onSubmit?.(code);

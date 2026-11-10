@@ -9,7 +9,8 @@ import LoginModal  from './authModals/LogInModal';
 import CompleteYourProfileModal from './authModals/CompleteYourProfileModal';
 import { supabase } from '@/src/lib/supabase/client';
 import { signOut } from '@/src/services/authService';
-import { HOME_ROUTE, getAccountType } from '@/src/lib/supabase/accountType';
+import { getAccountType } from '@/src/services/accountService';
+import { HOME_ROUTE } from '@/src/lib/routes';
 
 type AuthModal = 'login' | 'signup' | 'profile' | null;
 
@@ -23,7 +24,6 @@ export interface HeaderProps {
   loggedIn? : boolean;
   student?: boolean;
   onLogin?: () => void;
-  onLogout?: () => void;
   onCreateAccount?: () => void;
 }
 
@@ -31,7 +31,6 @@ export const Header = ({
   student,
   loggedIn,
   onLogin,
-  onLogout,
   onCreateAccount,
 }: HeaderProps) => {
   const router = useRouter();
@@ -60,6 +59,7 @@ export const Header = ({
     if (loggedIn) return;
     let checking = false;
 
+    /** If someone logged in (e.g. from another tab), sends this tab to their home page. Skips new students. */
     const redirectIfLoggedIn = async () => {
       if (checking || document.visibilityState !== 'visible') return;
       checking = true;
@@ -97,6 +97,7 @@ export const Header = ({
   // Close the user menu on outside click.
   useEffect(() => {
     if (!isUserMenuOpen) return;
+    /** Closes the user menu when clicking anywhere outside it. */
     const onClick = (e: MouseEvent) => {
       if (!userMenuRef.current?.contains(e.target as Node)) setIsUserMenuOpen(false);
     };
@@ -104,6 +105,7 @@ export const Header = ({
     return () => document.removeEventListener('mousedown', onClick);
   }, [isUserMenuOpen]);
 
+  /** Logs out, closes the user menu and returns to the public home page. */
   const handleLogout = async () => {
     setIsLoggingOut(true);
     await signOut();
@@ -117,6 +119,7 @@ export const Header = ({
   useEffect(() => {
     if (!loggedIn) return;
 
+    /** Sends this tab to "/" if the user is no longer logged in (e.g. logged out in another tab). */
     const goHomeIfLoggedOut = async () => {
       if (document.visibilityState !== 'visible') return;
       const { data: { user } } = await supabase.auth.getUser();
@@ -136,6 +139,7 @@ export const Header = ({
     };
   }, [loggedIn, router]);
 
+  /** Opens an auth modal (or closes all with `null`) and clears any old auth error. */
   const openModal = (modal: AuthModal) => {
     setAuthError(null);
     setActiveModal(modal);
@@ -314,6 +318,45 @@ export const Header = ({
                     logo={<NotificationBellLogo width={16} height={16}/>}
                     fontSize={20}
                   />
+                  <div ref={userMenuRef} className="relative">
+                    <Button
+                      primary
+                      size="small"
+                      type='nav'
+                      textColor='#FFFFFF'
+                      hoverTextColor='#b9dccf'
+                      onClick={() => setIsUserMenuOpen((open) => !open)}
+                      logo={<UserLogo width={16} height={16}/>}
+                      fontSize={20}
+                    />
+                    {isUserMenuOpen && (
+                      <div
+                        role="menu"
+                        className="absolute right-0 top-[calc(100%+12px)] z-50 flex w-[180px] flex-col overflow-hidden rounded-[12px] bg-white py-1 shadow-[0px_4px_8.8px_rgba(0,0,0,0.25)]"
+                      >
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={() => {
+                            setIsUserMenuOpen(false);
+                            router.push('/orgProfile');
+                          }}
+                          className="px-4 py-2 text-left text-[16px] text-[#145B46] hover:bg-[#E6FAF2]"
+                        >
+                          Org Profile
+                        </button>
+                        <button
+                          type="button"
+                          role="menuitem"
+                          disabled={isLoggingOut}
+                          onClick={() => void handleLogout()}
+                          className="px-4 py-2 text-left text-[16px] font-bold text-[#B91C1C] hover:bg-[#FDECEC] disabled:opacity-60"
+                        >
+                          {isLoggingOut ? 'Logging out…' : 'Log out'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
             </>
         ) : (

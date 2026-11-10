@@ -9,6 +9,7 @@ export const HeroSection = () => {
     const [btnFont, setBtnFont] = useState(20);
 
     useEffect(() => {
+        /** Scales the button font with the window width (between 12px and 20px). */
         const update = () =>
             setBtnFont(Math.round(Math.min(20, Math.max(12, window.innerWidth * 0.014))));
         update();

@@ -48,6 +48,7 @@ export const InputField = ({
   const isDate = inputType === 'date';
   const isDropdown = options !== undefined;
 
+  /** Updates the field's own value and passes it up to the parent's `onChange`. */
   const handleChange = (value: string) => {
     setInputValue(value);
     onChange?.(value);

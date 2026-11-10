@@ -3,9 +3,7 @@ import { cookies } from "next/headers";
 import { REMEMBER_COOKIE, applyRememberMe } from "./rememberMe";
 
 /**
- * Especially important if using Fluid compute: Don't put this client in a
- * global variable. Always create a new client within each function when using
- * it.
+ * Do not make global!
  */
 export async function createClient() {
   const cookieStore = await cookies();

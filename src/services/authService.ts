@@ -1,10 +1,7 @@
 import { supabase, clearAuthCookies, clearRememberMe } from '@/src/lib/supabase/client';
-import type { Student } from '@/src/types/Student';
-import type { Organization } from '@/src/types/Organization';
-
 import type { CompleteProfileOutput } from '@/src/lib/zodSchemas/authSchema';
+import { STUDENT_TABLE } from '@/src/lib/supabase/tables';
 
-import { STUDENT_TABLE, ORGANIZATION_TABLE } from '@/src/lib/supabase/tables';
 /**
  * Full URL of the auth callback route (`/auth/callback`) on the current site.
  */
@@ -118,38 +115,6 @@ export async function signInWithPassword(email: string, password: string) {
     email: email.trim().toLowerCase(),
     password,
   });
-}
-
-/**
- * Checks whether a user has a `Student` row (finished "Complete your profile").
- *
- * @returns `{ data, error }` (never throws):
- * - row exists: `data` is `{ student_id }`.
- * - no row: `data` is `null`.
- * - query failed: `error` is set.
- */
-export async function getStudentProfile(userId: string) {
-  return supabase
-    .from(STUDENT_TABLE)
-    .select('student_id')
-    .eq('student_id', userId)
-    .maybeSingle<Pick<Student, 'student_id'>>();
-}
-
-/**
- * Checks whether a user has a `Organization` row (finished "Complete your profile").
- *
- * @returns `{ data, error }` (never throws):
- * - row exists: `data` is `{ student_id }`.
- * - no row: `data` is `null`.
- * - query failed: `error` is set.
- */
-export async function getOrganizationProfile(userId: string) {
-  return supabase
-    .from(ORGANIZATION_TABLE)
-    .select('organization_id')
-    .eq('organization_id', userId)
-    .maybeSingle<Pick<Organization, 'organization_id'>>();
 }
 
 /**

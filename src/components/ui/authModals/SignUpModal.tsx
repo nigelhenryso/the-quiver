@@ -63,12 +63,14 @@ export default function SignUpModal({
 
   const shownError = formError ?? externalError ?? null;
 
+  /** Checks the form with `signUpSchema` and shows any field errors. Returns the parse result. */
   const validate = (data: SignUpInput) => {
     const result = signUpSchema.safeParse(data);
     setErrors(result.success ? {} : toFieldErrors<Field>(result.error.issues));
     return result;
   };
 
+  /** Updates one field. After the first submit it re-validates live; before that it just clears that field's error. */
   const updateField = (field: Field, value: string) => {
     const next = { ...formData, [field]: value };
     setFormData(next);
@@ -77,6 +79,7 @@ export default function SignUpModal({
     else setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
+  /** Resets the whole form (including the code screen) and closes the modal. */
   const handleClose = () => {
     setFormData(EMPTY_FORM);
     setErrors({});
@@ -87,6 +90,7 @@ export default function SignUpModal({
     onClose();
   };
 
+  /** Validates the form and creates the account, then shows the code screen, an error, or continues if already signed in. */
   const handleSignUp = async () => {
     setSubmitted(true);
     const result = validate(formData);
@@ -116,6 +120,7 @@ export default function SignUpModal({
     }
   };
 
+  /** Starts "Sign up with Google". Sign-ups are always remembered for 30 days. */
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
     setFormError(null);
@@ -128,6 +133,7 @@ export default function SignUpModal({
     }
   };
 
+  /** Checks the 6-digit code. On success the user is signed in and moves on to Complete Your Profile. */
   const handleVerifyOtp = async (code: string) => {
     if (!confirmEmailSentTo) return;
     setVerifying(true);
@@ -145,6 +151,7 @@ export default function SignUpModal({
     onSignedUp?.();
   };
 
+  /** Emails a new sign-up code to the address on the code screen. */
   const handleResendOtp = async () => {
     if (!confirmEmailSentTo) return;
     setOtpError(null);

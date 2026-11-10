@@ -8,7 +8,7 @@ import { Button } from '../Button';
 import { GoogleLogo, ArrowRight } from '../logos';
 import { setRememberMe, supabase } from '@/src/lib/supabase/client';
 import { loginSchema, toFieldErrors, type LoginInput } from '@/src/lib/zodSchemas/authSchema';
-import { getAccountType, type AccountType } from '@/src/lib/supabase/accountType';
+import { getAccountType, type AccountType } from '@/src/services/accountService';
 import {
   otpErrorMessage,
   resendEmailOtp,
@@ -58,6 +58,7 @@ export default function LoginModal({
 
   const shownError = formError ?? externalError ?? null;
 
+  /** Resets the whole form (including the code screen) and closes the modal. */
   const handleClose = () => {
     setFormData({ email: '', password: '' });
     setErrors({});
@@ -68,12 +69,14 @@ export default function LoginModal({
     onClose();
   };
 
+  /** Updates one field and clears its error and the form error. */
   const updateField = (field: Field, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: undefined }));
     setFormError(null);
   };
 
+  /** Validates the form and logs in. Unconfirmed accounts get a new code and the code screen. */
   const handleLogin = async () => {
     const result = loginSchema.safeParse(formData);
     if (!result.success) {
@@ -106,6 +109,7 @@ export default function LoginModal({
     await finishLogin(data.user.id);
   };
 
+  /** Finds the account type, resets the form and tells the Header where to send the user. */
   const finishLogin = async (userId: string) => {
     const account = await getAccountType(supabase, userId);
     setLoading(false);
@@ -115,6 +119,7 @@ export default function LoginModal({
     onLoggedIn?.(account);
   };
 
+  /** Checks the 6-digit code for an unconfirmed account. On success the user is logged in. */
   const handleVerifyOtp = async (code: string) => {
     if (!verifyEmail) return;
     setVerifying(true);
@@ -131,6 +136,7 @@ export default function LoginModal({
     if (userId) await finishLogin(userId);
   };
 
+  /** Emails a new code to the address on the code screen. */
   const handleResendOtp = async () => {
     if (!verifyEmail) return;
     setOtpError(null);
@@ -138,6 +144,7 @@ export default function LoginModal({
     if (error) setOtpError(otpErrorMessage(error));
   };
 
+  /** Starts "Log in with Google", using the "Remember me" checkbox. */
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
     setFormError(null);

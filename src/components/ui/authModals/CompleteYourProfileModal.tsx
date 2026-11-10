@@ -85,12 +85,14 @@ export default function CompleteYourProfileModal({
     };
   }, [isOpen]);
 
+  /** Checks the form with `completeProfileSchema` and shows any field errors. Returns the parse result. */
   const validate = (data: CompleteProfileInput) => {
     const result = completeProfileSchema.safeParse(data);
     setErrors(result.success ? {} : toFieldErrors<Field>(result.error.issues));
     return result;
   };
 
+  /** Updates one field. After the first submit it re-validates live; before that it just clears that field's error. */
   const updateField = (field: Field, value: string) => {
     const next = { ...formData, [field]: value };
     setFormData(next);
@@ -100,6 +102,7 @@ export default function CompleteYourProfileModal({
     else setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
+  /** Validates the form, inserts the `Student` row, then goes to /landing. Shows a message for duplicate IDs and database errors. */
   const handleSubmit = async () => {
     setSubmitted(true);
     const result = validate(formData);
@@ -145,6 +148,7 @@ export default function CompleteYourProfileModal({
     router.replace('/landing');
   };
 
+  /** Red border if the field has an error, normal border otherwise. */
   const borderFor = (field: Field) => (errors[field] ? '#e82b2b' : '#A6BA9F');
 
   return (

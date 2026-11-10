@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/src/lib/supabase/server';
-import { HOME_ROUTE, getAccountType } from '@/src/lib/supabase/accountType';
+import { getAccountType } from '@/src/services/accountService';
+import { HOME_ROUTE } from '@/src/lib/routes';
 
 // Handles both the Google OAuth redirect and the email-confirmation OTP
 // (both arrive here with a PKCE `?code=`).

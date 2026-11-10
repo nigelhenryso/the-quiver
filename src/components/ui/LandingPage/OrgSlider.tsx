@@ -37,10 +37,12 @@ export const OrgSlider = ({
     const visibleCards = 5;
     const maxIndex = Math.max(0, orgs.length - visibleCards);
 
+    /** Shows the next org card; stops at the last one. */
     const nextPage = () => {
     setCurrentIndex((index) => Math.min(index + 1, maxIndex));
     };
 
+    /** Shows the previous org card; stops at the first one. */
     const previousPage = () => {
     setCurrentIndex((index) => Math.max(index - 1, 0));
     };

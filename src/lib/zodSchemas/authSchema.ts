@@ -2,7 +2,6 @@
 import { z } from 'zod';
 
 /*
-
 Current Zod authSchema:
     
     Email Input:
