@@ -7,13 +7,8 @@ import { InputField } from '../InputField';
 import { Button } from '../Button';
 import { ArrowRight, LockKeyHole } from '../logos';
 import { supabase } from '@/src/lib/supabase/client';
-import { COLLEGES,
-  completeProfileSchema,
-  toFieldErrors,
-  type CompleteProfileInput,
-} from '@/src/lib/zodSchemas/authSchema';
+import { COLLEGES, completeProfileSchema, toFieldErrors, type CompleteProfileInput } from '@/src/lib/zodSchemas/authSchema';
 import { createStudentProfile } from '@/src/services/authService';
-
 
 interface CompleteYourProfileModalProps {
   isOpen: boolean;
@@ -302,18 +297,6 @@ export default function CompleteYourProfileModal({
             disabled={submitting}
             onClick={() => void handleSubmit()}
           />
-        </div>
-
-        <div className="flex w-full p-[12px] flex-col items-center gap-4">
-          <p className={`text-[18px] font-normal text-center text-[#145B46] font-body`}>
-            <button
-              type="button"
-              onClick={onClose}
-              className="font-bold underline underline-offset-2 hover:opacity-70"
-            >
-              Skip for now, I’ll complete this later
-            </button>
-          </p>
         </div>
 
         <div className="p-[12px] w-full border-t border-[#199E72] pt-4" />

@@ -1,24 +1,24 @@
-import {
-  createBrowserClient,
-  parseCookieHeader,
-  serializeCookieHeader,
-} from "@supabase/ssr";
+import { createBrowserClient, parseCookieHeader, serializeCookieHeader } from "@supabase/ssr";
 import { REMEMBER_COOKIE, REMEMBER_DAYS, applyRememberMe } from "./rememberMe";
 
 // Next.js also renders client components on the server, where `document` doesn't exist.
 const isBrowser = typeof document !== "undefined";
 
-const readCookie = (name: string) =>
-  isBrowser
+const readCookie = (name: string) => isBrowser
     ? parseCookieHeader(document.cookie).find((c) => c.name === name)?.value
     : undefined;
+
+/**
+ * Global import for services to use import in building queries
+ * Gets 
+ */
 
 export const supabase = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
   {
     cookies: {
-      getAll() {
+      getAll() { // 
         if (!isBrowser) return [];
         return parseCookieHeader(document.cookie).map(({ name, value }) => ({
           name,
