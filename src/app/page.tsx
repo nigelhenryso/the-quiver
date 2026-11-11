@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from "react";
 import { Header } from "../components/ui/Header";
 import { HeroSection } from "../components/ui/LandingPage/HeroSection";
 import { OrgSlider } from "../components/ui/LandingPage/OrgSlider";
@@ -7,13 +8,15 @@ import { FAQSection } from "../components/ui/LandingPage/FAQSection";
 import { Footer } from "../components/ui/Footer";
 
 export default function Home() {
+  const [modal, setModal] = useState<"login" | "signup" | null>(null);
+
   return (
     <main className="flex flex-col w-full">
       <header className="fixed top-0 left-0 z-50 w-full">
         <Header
           loggedIn={false}
-          onLogin={() => console.log("Log in clicked")}
-          onCreateAccount={() => console.log("Sign up clicked")}
+          onLogin={() => setModal("login")}
+          onCreateAccount={() => setModal("signup")}
         />
       </header>
       

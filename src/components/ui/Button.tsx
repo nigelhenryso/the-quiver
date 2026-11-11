@@ -18,6 +18,7 @@ export interface ButtonProps {
   hoverBackgroundColor?: string;
   fontSize: number
   logoDir?: boolean //0 if left; 1 if right
+  disabled?: boolean;
   onClick?: () => void;
 }
 
@@ -38,6 +39,7 @@ export const Button = ({
   hoverTextColor,
   fontSize,
   logoDir,
+  disabled = false,
   onClick,
 }: ButtonProps) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -66,9 +68,10 @@ export const Button = ({
     <button
       type="button"
       onClick={onClick}
+      disabled={disabled}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={buttonClass}
+      className={`${buttonClass} disabled:cursor-not-allowed disabled:opacity-60`}
       style={buttonStyle}
     >
       {Logo && !logoDir && (

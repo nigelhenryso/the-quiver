@@ -2,7 +2,6 @@
 
 import { FAQCard } from "./FAQCard";
 
-
 export const FAQSection = () => {
     return (
         <>

@@ -43,10 +43,12 @@ export const ProductCardSlider = ({
     ),
   );
 
+  /** Goes to the next page of products; stops at the last page. */
   const nextPage = () => {
     setCurrentPage((page) => Math.min(page + 1, pageCount - 1));
   };
 
+  /** Goes to the previous page of products; stops at the first page. */
   const previousPage = () => {
     setCurrentPage((page) => Math.max(page - 1, 0));
   };

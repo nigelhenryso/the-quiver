@@ -13,6 +13,11 @@ export interface InputFieldProps {
   inputBackgroundColor: string;
   fontSize: number;
   options?: string[];
+  value?: string;
+  disabled?: boolean;
+  autoComplete?: string;
+  required?: boolean;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>['inputMode'];
   onClick?: () => void;
   onChange?: (value: string) => void;
 }
@@ -28,6 +33,11 @@ export const InputField = ({
   inputBackgroundColor,
   fontSize = 12,
   options,
+  value,
+  disabled = false,
+  autoComplete,
+  inputMode,
+  required,
   onClick,
   onChange,
 }: InputFieldProps) => {
@@ -35,8 +45,10 @@ export const InputField = ({
   const [showPassword, setShowPassword] = useState(false);
 
   const isPassword = inputType === 'password';
+  const isDate = inputType === 'date';
   const isDropdown = options !== undefined;
 
+  /** Updates the field's own value and passes it up to the parent's `onChange`. */
   const handleChange = (value: string) => {
     setInputValue(value);
     onChange?.(value);
@@ -55,25 +67,27 @@ export const InputField = ({
     <div className="input-field flex w-full flex-col gap-[3px] p-[5px]">
       <label
         htmlFor={inputName}
-        className={`font-body pl-[6px] font-bold`}
+        className="font-body pl-[6px] font-bold"
         style={{
           color: inputNameColor,
           fontSize: `${fontSize}px`,
         }}
       >
         {inputName}
+        {required && <span className="text-[#EF4444]"> *</span>}
       </label>
-
+      
       <div className="relative w-full">
         {isDropdown ? (
           <select
             id={inputName}
             name={inputName}
-            value={inputValue}
+            value={value ?? inputValue}
             onChange={(e) => handleChange(e.target.value)}
             onClick={onClick}
+            disabled={disabled}
             className={`${fieldClassName} cursor-pointer appearance-none pr-10 ${
-              inputValue ? '' : 'text-[var(--placeholder-color)]'
+              (value ?? inputValue) ? '' : 'text-[var(--placeholder-color)]'
             }`}
             style={{
               ...fieldStyle,
@@ -97,12 +111,25 @@ export const InputField = ({
             name={inputName}
             placeholder={placeholder}
             maxLength={maxLength}
-            value={inputValue}
+            disabled={disabled}
+            autoComplete={autoComplete}
+            inputMode={inputMode}
+            value={value ?? ''}
             onChange={(e) => handleChange(e.target.value)}
-            onClick={onClick}
-            className={`${fieldClassName} placeholder:text-[var(--placeholder-color)] ${
+            onClick={(e) => {
+              // Date inputs only open the calendar from the small icon; open it on any click.
+              if (isDate && !disabled) {
+                try {
+                  e.currentTarget.showPicker?.();
+                } catch {
+                  /* unsupported browser: falls back to the native icon */
+                }
+              }
+              onClick?.();
+            }}
+            className={`${fieldClassName} placeholder:text-[var(--placeholder-color)] disabled:cursor-not-allowed disabled:opacity-70 ${
               isPassword ? 'pr-10' : ''
-            }`}
+            } ${isDate ? 'cursor-pointer' : ''}`}
             style={{
               ...fieldStyle,
               '--placeholder-color': placeholderColor,
@@ -151,7 +178,7 @@ export const InputField = ({
             fontSize: `${fontSize}px`,
           }}
         >
-          {inputValue.length}/{maxLength}
+          {(value ?? inputValue).length}/{maxLength}
         </span>
       )}
     </div>

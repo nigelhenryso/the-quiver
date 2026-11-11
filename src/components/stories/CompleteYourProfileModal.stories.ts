@@ -8,7 +8,7 @@ const meta = {
   args: {
     isOpen: true,
     onClose: () => {},
-    onContinue: () => console.log('Continue clicked'),
+    onComplete: () => console.log('Profile completed'),
   },
 } satisfies Meta<typeof CompleteYourProfileModal>;
 
