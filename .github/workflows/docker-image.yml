@@ -1,71 +1,68 @@
-name: Build and Push Docker Image
+name: Deploy Docker App to Vercel
 
 on:
   push:
-    branches: [ "dev" ]
-  pull_request:
-    branches: [ "dev" ]
+    branches:
+      - dev
 
 jobs:
-
-  publish_image:
+  build-container:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Create .env file
-      run: |
-          echo "DB_URL=${{ secrets.DATABASE_URL }}" >> .env
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-          echo "NODE_ENV=development" >> .env
-    - name: Build the Docker image
-      run: docker build -t nigelso/devops_thequiver:latest .
-    - name: Login to Docker
-      uses: docker/login-action@v3
-      with:
-          username: nigelso
-          password: ${{ secrets.Docker_Hub_Token }}
-    - name: Push Image
-      run: docker push nigelso/devops_thequiver:latest
+      - name: Check out repository
+        uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
 
-  deploy:
-      needs: publish_image
-      runs-on: ubuntu-latest
-      steps:
-        - name: Check out repository
-          uses: actions/checkout@v4
-  
-        # 1. Install pnpm on the GitHub runner
-        - name: Install pnpm
-          uses: pnpm/action-setup@v4
-          with:
-            version: 10 # Match the pnpm version detected by Vercel
-  
-        # 2. Setup Node.js environment
-        - name: Setup Node.js
-          uses: actions/setup-node@v4
-          with:
-            node-version: 20
-            cache: 'pnpm'
-  
-        # 3. Install Vercel CLI
-        - name: Install Vercel CLI
-          run: npm install -g vercel@latest
-  
-        - name: Pull Vercel Environment Information
-          run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-          env:
-            VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-            VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-  
-        - name: Build Project Artifacts
-          run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-          env:
-            VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-            VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-  
-        - name: Deploy to Vercel
-          run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
-          env:
-            VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-            VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Build Project Artifacts
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Save Vercel Build Output
+        uses: actions/upload-artifact@v4
+        with:
+          name: vercel-build-output
+          path: .vercel
+          retention-days: 1
+
+  deploy-to-vercel:
+    needs: build-container
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Download Vercel Build Output
+        uses: actions/download-artifact@v4
+        with:
+          name: vercel-build-output
+          path: .vercel
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Deploy to Vercel
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
