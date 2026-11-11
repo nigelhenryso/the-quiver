@@ -1,4 +1,4 @@
-import { formatPesoDecimals, type Order } from "./data";
+import { formatPesoDecimals, type Order } from "../../../../app/(organization)/dashboard/data";
 
 type RecentOrdersProps = {
   orders: Order[];

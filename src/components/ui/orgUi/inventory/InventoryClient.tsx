@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { X } from "lucide-react";
-import { lato } from "../../../../../../../../../Downloads/the-quiver-dashboard-updates-new/the-quiver-dashboard-updates-new/the-quiver-feat-dashboard/src/lib/fonts";
 import ConfirmModal, { type ModalMode } from "./ConfirmModal";
 import FilterBar, { defaultFilters, type Filters } from "./FilterBar";
 import PageNav from "./PageNav";
@@ -14,7 +13,7 @@ import {
   type Category,
   type Product,
   type StockStatus,
-} from "./data";
+} from "../../../../app/(organization)/inventory/data";
 
 type Tab = "all" | "live" | "unpublished";
 
@@ -159,7 +158,7 @@ export default function InventoryClient({ initialProducts }: { initialProducts: 
               role="tab"
               aria-selected={tab === key}
               onClick={() => changeTab(key)}
-              className={`${lato.className} rounded-full px-5 py-2 text-[15px] font-bold transition-all duration-200 ease-in-out hover:scale-105 active:scale-100 ${
+              className={`font-body rounded-full px-5 py-2 text-[15px] font-bold transition-all duration-200 ease-in-out hover:scale-105 active:scale-100 ${
                 tab === key
                   ? "bg-[#004D31] text-white"
                   : "text-[#1E3A2C] hover:bg-[#E3F5EA] hover:shadow-[0_2px_4px_rgba(0,0,0,0.15)]"
@@ -188,7 +187,7 @@ export default function InventoryClient({ initialProducts }: { initialProducts: 
         <div
           role="region"
           aria-label="Bulk actions"
-          className={`${lato.className} fixed bottom-6 left-1/2 z-40 flex max-w-[calc(100vw-2rem)] -translate-x-1/2 flex-wrap items-center justify-center gap-x-4 gap-y-2 rounded-[10px] bg-[#004D31] px-5 py-3 text-[13px] text-white shadow-[0_4px_12px_rgba(0,0,0,0.3)]`}
+          className={`font-body fixed bottom-6 left-1/2 z-40 flex max-w-[calc(100vw-2rem)] -translate-x-1/2 flex-wrap items-center justify-center gap-x-4 gap-y-2 rounded-[10px] bg-[#004D31] px-5 py-3 text-[13px] text-white shadow-[0_4px_12px_rgba(0,0,0,0.3)]`}
         >
           <span>
             {selected.size} {selected.size === 1 ? "Product" : "Products"} Selected
@@ -228,7 +227,7 @@ export default function InventoryClient({ initialProducts }: { initialProducts: 
       {/* table card */}
       <section className="mt-5 overflow-hidden rounded-[10px] border border-[#C9D6CE] bg-white shadow-[0_2px_4px_rgba(0,0,0,0.25)]">
         {pageRows.length === 0 ? (
-          <p className={`${lato.className} px-6 py-16 text-center text-[14px] text-[#7C8A82]`}>
+          <p className={`font-body px-6 py-16 text-center text-[14px] text-[#7C8A82]`}>
             No products match your filters.
           </p>
         ) : (
@@ -244,7 +243,7 @@ export default function InventoryClient({ initialProducts }: { initialProducts: 
         )}
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#C9D6CE] px-6 py-4">
-          <p className={`${lato.className} text-[14px] text-[#3F4B54]`}>
+          <p className={`font-body text-[14px] text-[#3F4B54]`}>
             {filtered.length === 0 ? (
               "Showing 0 products"
             ) : (
@@ -271,7 +270,7 @@ export default function InventoryClient({ initialProducts }: { initialProducts: 
       <div aria-live="polite" className="pointer-events-none fixed bottom-6 right-6 z-50">
         {toast && (
           <p
-            className={`${lato.className} rounded-[8px] bg-[#004D31] px-4 py-2.5 text-[13px] font-bold text-white shadow-lg`}
+            className={`font-body rounded-[8px] bg-[#004D31] px-4 py-2.5 text-[13px] font-bold text-white shadow-lg`}
           >
             {toast}
           </p>

@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import StatCard from "./StatCard";
-import { formatPeso, type SalesByPeriod, type SalesPeriod } from "./data";
+import { formatPeso, type SalesByPeriod, type SalesPeriod } from "@/src/app/(organization)/dashboard/data";
+
 
 const periods: SalesPeriod[] = ["Monthly", "Weekly", "Yearly"];
 
