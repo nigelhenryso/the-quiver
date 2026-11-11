@@ -1,9 +1,9 @@
-name: Deploy Docker Image to Vercel
+name: Deploy Docker App to Vercel
 
 on:
   push:
     branches:
-      - dev 
+      - main
 
 jobs:
   deploy:
@@ -12,6 +12,20 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      # 1. Install pnpm on the GitHub runner
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10 # Match the pnpm version detected by Vercel
+
+      # 2. Setup Node.js environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      # 3. Install Vercel CLI
       - name: Install Vercel CLI
         run: npm install -g vercel@latest
 
