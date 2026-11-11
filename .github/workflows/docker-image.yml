@@ -26,3 +26,46 @@ jobs:
           password: ${{ secrets.Docker_Hub_Token }}
     - name: Push Image
       run: docker push nigelso/devops_thequiver:latest
+
+
+  deploy:
+      needs: publish_image
+      runs-on: ubuntu-latest
+      steps:
+        - name: Check out repository
+          uses: actions/checkout@v4
+  
+        # 1. Install pnpm on the GitHub runner
+        - name: Install pnpm
+          uses: pnpm/action-setup@v4
+          with:
+            version: 10 # Match the pnpm version detected by Vercel
+  
+        # 2. Setup Node.js environment
+        - name: Setup Node.js
+          uses: actions/setup-node@v4
+          with:
+            node-version: 20
+            cache: 'pnpm'
+  
+        # 3. Install Vercel CLI
+        - name: Install Vercel CLI
+          run: npm install -g vercel@latest
+  
+        - name: Pull Vercel Environment Information
+          run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+          env:
+            VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+            VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  
+        - name: Build Project Artifacts
+          run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+          env:
+            VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+            VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  
+        - name: Deploy to Vercel
+          run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+          env:
+            VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+            VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
