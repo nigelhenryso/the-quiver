@@ -43,6 +43,7 @@ jobs:
         with:
           name: vercel-build-output
           path: .vercel
+          include-hidden-files: true
           retention-days: 1
 
   deploy-to-vercel:
