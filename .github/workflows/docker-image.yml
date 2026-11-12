@@ -1,0 +1,28 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches: [ "dev" ]
+  pull_request:
+    branches: [ "dev" ]
+
+jobs:
+
+  publish_image:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Create .env file
+      run: |
+          echo "DB_URL=${{ secrets.DATABASE_URL }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "NODE_ENV=development" >> .env
+    - name: Build the Docker image
+      run: docker build -t nigelso/devops_thequiver:latest .
+    - name: Login to Docker
+      uses: docker/login-action@v3
+      with:
+          username: nigelso
+          password: ${{ secrets.Docker_Hub_Token }}
+    - name: Push Image
+      run: docker push nigelso/devops_thequiver:latest
