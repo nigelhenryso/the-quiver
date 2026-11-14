@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Plus, X } from "lucide-react";
-import { lato } from "../../../../../../../../../../../Downloads/the-quiver-dashboard-updates-new/the-quiver-dashboard-updates-new/the-quiver-feat-dashboard/src/lib/fonts";
+import { lato } from "@/src/styles/fonts";
 
 type UploadSlotProps = {
   kind: "image" | "video";

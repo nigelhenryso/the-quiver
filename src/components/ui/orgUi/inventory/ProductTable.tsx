@@ -3,9 +3,9 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react";
-import { lato } from "../../../../../../../../../Downloads/the-quiver-dashboard-updates-new/the-quiver-dashboard-updates-new/the-quiver-feat-dashboard/src/lib/fonts";
+import { lato } from "@/src/styles/fonts";
 import { StatusPill, StockBadge } from "./badges";
-import { formatPhp, type Product } from "./data";
+import { formatPhp, type Product } from "@/src/app/(organization)/inventory/data";
 
 export type StockSort = "asc" | "desc" | null;
 

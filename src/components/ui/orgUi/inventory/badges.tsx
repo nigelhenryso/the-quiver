@@ -1,5 +1,5 @@
-import { lato } from "../../../../../../../../../../Downloads/the-quiver-dashboard-updates-new/the-quiver-dashboard-updates-new/the-quiver-feat-dashboard/src/lib/fonts";
-import { getStockStatus, stockStatusLabel } from "./data";
+import { lato } from "@/src/styles/fonts";
+import { getStockStatus, stockStatusLabel } from "@/src/app/(organization)/inventory/data";
 
 const stockColors = {
   in: "border-[#9EE2C0] bg-[#E9FBF2] text-[#008A58]",

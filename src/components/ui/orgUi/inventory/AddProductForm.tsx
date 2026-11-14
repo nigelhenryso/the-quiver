@@ -2,8 +2,8 @@
 
 import { useState, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
-import { calSans, lato } from "../../../../../../../../../../../Downloads/the-quiver-dashboard-updates-new/the-quiver-dashboard-updates-new/the-quiver-feat-dashboard/src/lib/fonts";
-import { categories, type Category } from "../data";
+import { calSans, lato } from "@/src/styles/fonts";
+import { categories, type Category } from "@/src/app/(organization)/inventory/data";
 import UploadSlot from "./UploadSlot";
 
 const IMAGE_CAPTIONS = ["Cover Photo", "Image 1", "Image 2", "Image 3", "Image 4", "Image 5"];

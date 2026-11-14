@@ -273,7 +273,7 @@ export const Header = ({
                     type='nav'
                     textColor='#FFFFFF'
                     hoverTextColor='#b9dccf'
-                    onClick={onLogin}
+                    onClick={() => router.push('/dashboard')}
                     label="Dashboard"
                     fontSize={20}
                   />
@@ -283,7 +283,7 @@ export const Header = ({
                     type='nav'
                     textColor='#FFFFFF'
                     hoverTextColor='#b9dccf'
-                    onClick={onCreateAccount}
+                    onClick={() => router.push('/inventory')}
                     label="Inventory"
                     fontSize={20}
                   />
@@ -293,7 +293,7 @@ export const Header = ({
                     type='nav'
                     textColor='#FFFFFF'
                     hoverTextColor='#b9dccf'
-                    onClick={onCreateAccount}
+                    onClick={() => router.push('/orgOrders')}
                     label="Orders"
                     fontSize={20}
                   />
