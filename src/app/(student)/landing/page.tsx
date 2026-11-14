@@ -1,7 +1,20 @@
-// Figma Page: Student - Home
+import Home from "@/src/components/ui/studentUi/home/Home";
+import { getStudentHomeData } from "./data";
 
-'use client';
+export const metadata = {
+  title: "Home | The Quiver",
+};
 
-export default function Home() {
-  return <main className="p-8 font-heading text-2xl">Student Landing</main>;
+export default function StudentHomePage() {
+  // dummy data for now
+  const { forYou, fromYourOrgs, exploreMore, promoSlides } = getStudentHomeData();
+
+  return (
+    <Home
+      forYou={forYou}
+      fromYourOrgs={fromYourOrgs}
+      exploreMore={exploreMore}
+      promoSlides={promoSlides}
+    />
+  );
 }
