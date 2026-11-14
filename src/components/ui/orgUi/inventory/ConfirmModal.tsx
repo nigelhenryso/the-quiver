@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { AlertTriangle, Info, Upload, X } from "lucide-react";
-import { calSans, lato } from "../../../../../../../../../Downloads/the-quiver-dashboard-updates-new/the-quiver-dashboard-updates-new/the-quiver-feat-dashboard/src/lib/fonts";
-import { getStockStatus, type Product } from "./data";
+import { calSans, lato } from "@/src/styles/fonts";
+import { getStockStatus, type Product } from "@/src/app/(organization)/inventory/data";
 
 export type ModalMode = "publish" | "unpublish";
 

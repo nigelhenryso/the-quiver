@@ -1,6 +1,5 @@
-import { Header } from "../../../../../../../../../../Downloads/the-quiver-dashboard-updates-new/the-quiver-dashboard-updates-new/the-quiver-feat-dashboard/src/app/components/ui/Header";
-import { braahOne, lato } from "../../../../../../../../../../Downloads/the-quiver-dashboard-updates-new/the-quiver-dashboard-updates-new/the-quiver-feat-dashboard/src/lib/fonts";
-import AddProductForm from "./AddProductForm";
+import { calSans, lato } from "@/src/styles/fonts";
+import AddProductForm from "@/src/components/ui/orgUi/inventory/AddProductForm";
 
 export const metadata = {
   title: "Add New Product | The Quiver Seller Hub",
@@ -9,10 +8,8 @@ export const metadata = {
 export default function OrgAddProductPage() {
   return (
     <div className="flex min-h-screen flex-col bg-[#FDFFFC]">
-      <Header loggedIn />
-
       <main className="mx-auto w-full max-w-[1440px] flex-1 px-6 pb-16 pt-10 lg:px-10">
-        <h1 className={`${braahOne.className} text-[32px] text-[#004D31] sm:text-[36px]`}>
+        <h1 className={`${calSans.className} text-[32px] text-[#004D31] sm:text-[36px]`}>
           Add New Product
         </h1>
         <p className={`${lato.className} mt-1 text-[14px] text-[#5C8F78]`}>
@@ -24,7 +21,7 @@ export default function OrgAddProductPage() {
       </main>
 
       <footer className="border-t border-[#C9D6CE] bg-[#F3FFF6] py-4 text-center">
-        <p className={`${braahOne.className} text-[12px] text-[#199E72]`}>
+        <p className={`${calSans.className} text-[12px] text-[#199E72]`}>
           © 2026 The Quiver. All rights reserved.
         </p>
       </footer>

@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Check, ChevronDown, Search } from "lucide-react";
-import { lato } from "../../../../../../../../../../Downloads/the-quiver-dashboard-updates-new/the-quiver-dashboard-updates-new/the-quiver-feat-dashboard/src/lib/fonts";
-import { categories, stockStatusLabel, type Category, type StockStatus } from "./data";
+import { lato } from "@/src/styles/fonts";
+import { categories, stockStatusLabel, type Category, type StockStatus } from "@/src/app/(organization)/inventory/data";
 
 export type PerformanceSort = "default" | "sales-asc" | "sales-desc" | "l30d-asc" | "l30d-desc";
 
