@@ -68,7 +68,10 @@ export async function updateSession(request: NextRequest) {
     pathname !== "/" &&
     !user &&
     !pathname.startsWith("/login") &&
-    !pathname.startsWith("/auth")
+    !pathname.startsWith("/auth") &&
+    // test-mode QR scan pages (refuse to run with a live Xendit key)
+    !pathname.startsWith("/dev/pay/") &&
+    !pathname.startsWith("/api/dev/scan/")
   ) {
     // no user, potentially respond by redirecting the user to the login page
     return redirectTo("/");

@@ -1,4 +1,6 @@
 // Figma Page: Student - Order Success Message
+import { Suspense } from "react";
+import PaymentResult from "@/src/components/ui/studentUi/success/PaymentResult";
 
 export const metadata = {
   title: "Dashboard | The Quiver Seller Hub",
@@ -10,6 +12,9 @@ export default function StudentSuccessPage() {
         <h1 className={`font-heading text-[32px] text-[#004D31] sm:text-[36px]`}>
             Student Success
         </h1>
+        <Suspense>
+          <PaymentResult />
+        </Suspense>
     </div>
   );
 }

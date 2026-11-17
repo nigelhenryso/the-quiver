@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import MayaCheckoutButton from "@/src/components/ui/studentUi/orders/MayaCheckoutButton";
+import PaymentStatusBanner from "@/src/components/ui/studentUi/orders/PaymentStatusBanner";
 
 export const metadata = {
   title: "Dashboard | The Quiver Seller Hub",
@@ -9,6 +12,10 @@ export default function StudentOrdersPage() {
         <h1 className={`font-heading text-[32px] text-[#004D31] sm:text-[36px]`}>
             Student Orders
         </h1>
+        <Suspense>
+          <PaymentStatusBanner />
+        </Suspense>
+        <MayaCheckoutButton />
     </div>
   );
 }
