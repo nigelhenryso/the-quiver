@@ -7,13 +7,12 @@ import OrgBrowser from "./OrgBrowser";
 
 type CampusOrgsProps = {
   yourOrgs: Org[];
-  collegeOrgs: Org[];
-  allOrgs: Org[];
+  otherOrgs: Org[];
 };
 
 // the whole campus orgs page: header (with search), title, org sections, footer
 // this is a client component because the search lives in the header (same as the home page)
-export default function CampusOrgs({ yourOrgs, collegeOrgs, allOrgs }: CampusOrgsProps) {
+export default function CampusOrgs({ yourOrgs, otherOrgs }: CampusOrgsProps) {
   const [search, setSearch] = useState("");
 
   return (
@@ -31,8 +30,7 @@ export default function CampusOrgs({ yourOrgs, collegeOrgs, allOrgs }: CampusOrg
         <OrgBrowser
           search={search}
           yourOrgs={yourOrgs}
-          collegeOrgs={collegeOrgs}
-          allOrgs={allOrgs}
+          otherOrgs={otherOrgs}
         />
       </main>
 

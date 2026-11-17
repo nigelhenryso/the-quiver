@@ -1,35 +1,69 @@
-// dummy data for the student campus orgs page
-// NOTE: replace this with real data from supabase
+// data for the student campus orgs page (from supabase)
+
+import { connection } from "next/server";
+import { createClient } from "@/src/lib/supabase/server";
+import {
+  ORGANIZATION_IMAGE_TABLE,
+  ORGANIZATION_TABLE,
+  STUDENT_AFFILIATION_TABLE,
+} from "@/src/lib/supabase/tables";
 
 export type Org = {
-  id: number;
+  id: string; // organization_id
   name: string;
-  college: string; // college the org belongs to, ex: "CCS"
-  logoUrl?: string; // leave out for now, the card shows a placeholder
+  acronym: string;
+  logoUrl?: string; // first OrganizationImage of the org, card shows a placeholder if none
 };
 
-// pretend this is the logged in student
-const studentCollege = "CCS";
-const joinedOrgIds = [1, 5, 7, 10];
+type OrgRow = {
+  organization_id: string;
+  name: string;
+  acronym: string;
+  OrganizationImage: { image_url: string }[] | null;
+};
 
-const allOrgs: Org[] = [
-  { id: 1, name: "Animo Tech Society", college: "CCS" },
-  { id: 2, name: "Green Archers Fanclub", college: "CLA" },
-  { id: 3, name: "Lasallian Business Circle", college: "COB" },
-  { id: 4, name: "Science Majors Guild", college: "COS" },
-  { id: 5, name: "Game Dev Collective", college: "CCS" },
-  { id: 6, name: "Engineering Council", college: "GCOE" },
-  { id: 7, name: "Cyber Security Club", college: "CCS" },
-  { id: 8, name: "Education Majors United", college: "BAGCED" },
-  { id: 9, name: "Writers' Society", college: "CLA" },
-  { id: 10, name: "Data Science Hub", college: "CCS" },
-  { id: 11, name: "Entrepreneurs' Society", college: "COB" },
-  { id: 12, name: "Robotics Circle", college: "GCOE" },
-];
+export async function getCampusOrgsData() {
+  // opt out of prerendering first: supabase auth reads Date.now() internally
+  await connection();
 
-export function getCampusOrgsData() {
-  const yourOrgs = allOrgs.filter((org) => joinedOrgIds.includes(org.id));
-  const collegeOrgs = allOrgs.filter((org) => org.college === studentCollege);
+  const supabase = await createClient();
 
-  return { yourOrgs, collegeOrgs, allOrgs };
+  const [{ data: orgRows, error: orgError }, { data: userData }] = await Promise.all([
+    supabase
+      .from(ORGANIZATION_TABLE)
+      .select(`organization_id, name, acronym, ${ORGANIZATION_IMAGE_TABLE}(image_url)`)
+      .order("name")
+      .returns<OrgRow[]>(),
+    supabase.auth.getUser(),
+  ]);
+
+  if (orgError) console.error("Failed to load organizations:", orgError.message);
+
+  const allOrgs: Org[] = (orgRows ?? []).map((row) => ({
+    id: row.organization_id,
+    name: row.name,
+    acronym: row.acronym,
+    logoUrl: row.OrganizationImage?.[0]?.image_url,
+  }));
+
+  // orgs the logged in student is affiliated with
+  let yourOrgs: Org[] = [];
+  const userId = userData.user?.id;
+  if (userId) {
+    const { data: affiliations, error: affError } = await supabase
+      .from(STUDENT_AFFILIATION_TABLE)
+      .select("organization_id")
+      .eq("student_id", userId);
+
+    if (affError) console.error("Failed to load affiliations:", affError.message);
+
+    const joinedIds = new Set((affiliations ?? []).map((a) => a.organization_id));
+    yourOrgs = allOrgs.filter((org) => joinedIds.has(org.id));
+  }
+
+  // every org the student isn't in (all of them if they have none)
+  const yourIds = new Set(yourOrgs.map((org) => org.id));
+  const otherOrgs = allOrgs.filter((org) => !yourIds.has(org.id));
+
+  return { yourOrgs, otherOrgs };
 }

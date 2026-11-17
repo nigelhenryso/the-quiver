@@ -8,13 +8,12 @@ import OrgSection from "./OrgSection";
 type OrgBrowserProps = {
   search: string; // comes from the search bar in the header
   yourOrgs: Org[];
-  collegeOrgs: Org[];
-  allOrgs: Org[];
+  otherOrgs: Org[];
 };
 
-// filter / sort buttons + the three org sections
+// filter / sort buttons + the org sections
 // this is a client component because of the sort
-export default function OrgBrowser({ search, yourOrgs, collegeOrgs, allOrgs }: OrgBrowserProps) {
+export default function OrgBrowser({ search, yourOrgs, otherOrgs }: OrgBrowserProps) {
   const [sortAZ, setSortAZ] = useState(false); // false = original order
 
   // keeps only the orgs that match the search, then sorts if needed
@@ -29,17 +28,16 @@ export default function OrgBrowser({ search, yourOrgs, collegeOrgs, allOrgs }: O
   }
 
   const shownYourOrgs = applySearchAndSort(yourOrgs);
-  const shownCollegeOrgs = applySearchAndSort(collegeOrgs);
-  const shownAllOrgs = applySearchAndSort(allOrgs);
+  const shownOtherOrgs = applySearchAndSort(otherOrgs);
 
   const nothingFound =
-    shownYourOrgs.length === 0 && shownCollegeOrgs.length === 0 && shownAllOrgs.length === 0;
+    shownYourOrgs.length === 0 && shownOtherOrgs.length === 0;
 
   return (
     <>
       {/* the icon buttons (search is in the header now) */}
       <div className="mt-8 flex items-center justify-end gap-4 text-[#6CC832]">
-        {/* TODO: filter by college once we have real data */}
+        {/* TODO: filter by college (Organization has no college column yet) */}
         <button
           type="button"
           aria-label="Filter"
@@ -63,14 +61,16 @@ export default function OrgBrowser({ search, yourOrgs, collegeOrgs, allOrgs }: O
       {/* the sections (hidden if the search has no matches in them) */}
       <div className="mt-8 flex flex-col gap-12">
         {shownYourOrgs.length > 0 && <OrgSection title="Your Orgs" orgs={shownYourOrgs} />}
-        {shownCollegeOrgs.length > 0 && (
-          <OrgSection title="Your College's Orgs" orgs={shownCollegeOrgs} />
+        {shownOtherOrgs.length > 0 && (
+          <OrgSection
+            title={yourOrgs.length > 0 ? "Other Orgs" : "Orgs"}
+            orgs={shownOtherOrgs}
+          />
         )}
-        {shownAllOrgs.length > 0 && <OrgSection title="All Orgs" orgs={shownAllOrgs} />}
 
         {nothingFound && (
           <p className={`font-body text-center text-[14px] text-[#8DBBA6]`}>
-            No orgs found for &quot;{search}&quot;.
+            {search.trim() ? <>No orgs found for &quot;{search}&quot;.</> : "No orgs yet."}
           </p>
         )}
       </div>

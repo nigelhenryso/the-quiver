@@ -6,7 +6,7 @@ type OrgSectionProps = {
   orgs: Org[];
 };
 
-// a heading + a grid of org cards (Your Orgs, Your College's Orgs, All Orgs)
+// a heading + a grid of org cards (Your Orgs, Other Orgs / Orgs)
 export default function OrgSection({ title, orgs }: OrgSectionProps) {
   return (
     <section>
