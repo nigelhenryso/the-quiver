@@ -3,15 +3,23 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import StatCard from "./StatCard";
-import { formatPeso, type SalesByPeriod, type SalesPeriod } from "@/src/app/(organization)/dashboard/data";
+import { ORG_LINKS } from "@/src/lib/routes";
+import { formatPeso } from "@/src/lib/utils";
+import type { SalesByPeriod, SalesPeriod } from "@/src/types/Dashboard";
 
 
-const periods: SalesPeriod[] = ["Monthly", "Weekly", "Yearly"];
+const periods: SalesPeriod[] = ["Weekly", "Monthly", "Yearly"];
 
 // the Total Monthly Sales card, the badge is a dropdown that changes the period
 // this is a client component because of the dropdown
-export default function SalesStatCard({ salesByPeriod }: { salesByPeriod: SalesByPeriod }) {
-  const [period, setPeriod] = useState<SalesPeriod>("Monthly");
+export default function SalesStatCard({
+  salesByPeriod,
+  initialPeriod = "Monthly",
+}: {
+  salesByPeriod: SalesByPeriod;
+  initialPeriod?: SalesPeriod;
+}) {
+  const [period, setPeriod] = useState<SalesPeriod>(initialPeriod);
 
   const dropdown = (
     <div className="relative">
@@ -19,7 +27,7 @@ export default function SalesStatCard({ salesByPeriod }: { salesByPeriod: SalesB
         value={period}
         onChange={(e) => setPeriod(e.target.value as SalesPeriod)}
         aria-label="Sales period"
-        className={`$font-body cursor-pointer appearance-none rounded-full border border-[#BFE3C9] bg-[#E8F7EE] py-[2px] pl-2 pr-5 text-[9px] font-bold text-[#2F4531] outline-none`}
+        className="font-body cursor-pointer appearance-none rounded-full border border-[#BFE3C9] bg-[#E8F7EE] py-[2px] pl-2 pr-5 text-[9px] font-bold text-[#2F4531] outline-none"
       >
         {periods.map((p) => (
           <option key={p} value={p}>
@@ -40,7 +48,7 @@ export default function SalesStatCard({ salesByPeriod }: { salesByPeriod: SalesB
       label={`Total ${period} Sales`}
       badge={dropdown}
       linkLabel="View Sales Data"
-      href="#" // TODO: link to the sales page once it exists
+      href={ORG_LINKS.sales}
     />
   );
 }

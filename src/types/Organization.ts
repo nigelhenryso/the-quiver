@@ -6,4 +6,5 @@ export type Organization ={
     contact_person: string;
     contact_number: string;
     date_joined: string;
+    social_media_link: string;
 }

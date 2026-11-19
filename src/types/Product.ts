@@ -1,9 +1,9 @@
-export type Product ={
+export type Product = {
     product_id: string;
     organization_id: string;
     name: string;
     price: number;
-    description: string;
+    description: string | null;
     is_active: boolean;
     is_member_exclusive: boolean;
     created_at: string;

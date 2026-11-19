@@ -1,5 +1,7 @@
-export type PaymentMode ={
+import type { PaymentModeType } from "./enums";
+
+export type PaymentMode = {
     payment_mode_id: string;
     name: string;
-    type: string;
+    type: PaymentModeType;
 }
