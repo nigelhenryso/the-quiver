@@ -1,0 +1,166 @@
+organization_id,name,price,description,is_active,is_member_exclusive
+0a3c2a8b-540b-4747-a87f-efe181e28d07,Baller,60,"Show off your style with this exclusive Baller merchandise, perfect for representing your organization wherever you go.",TRUE,FALSE
+0a3c2a8b-540b-4747-a87f-efe181e28d07,Pin,30,"A stylish collectible pin that lets you proudly showcase your organization. Perfect for bags, jackets, and other accessories.",TRUE,FALSE
+0a3c2a8b-540b-4747-a87f-efe181e28d07,T - Shirt 1,300,"A comfortable and stylish organization shirt, perfect for everyday wear and showing your org pride.",TRUE,FALSE
+0a3c2a8b-540b-4747-a87f-efe181e28d07,T - Shirt 2,350,"Represent your organization with this uniquely designed shirt, combining comfort and style for any occasion.",TRUE,FALSE
+0a3c2a8b-540b-4747-a87f-efe181e28d07,T - Shirt 3,400,Add this exclusive organization shirt to your wardrobe and bring your org spirit wherever you go.,TRUE,FALSE
+0a3c2a8b-540b-4747-a87f-efe181e28d07,ID Lace 1,120,Keep your ID secure and accessible with this durable and stylish organization-themed lanyard.,TRUE,FALSE
+0a3c2a8b-540b-4747-a87f-efe181e28d07,ID Lace 2,100,"Carry your school ID in style with this uniquely designed lanyard, perfect for everyday campus use.",TRUE,FALSE
+0a3c2a8b-540b-4747-a87f-efe181e28d07,Keychain,50,Take a piece of your organization with you wherever you go with this compact and collectible keychain.,TRUE,FALSE
+0a3c2a8b-540b-4747-a87f-efe181e28d07,Keychain Bundle,120,Get more of your favorite organization-themed keychains in one bundle. A great addition to your collection or a gift for fellow members.,TRUE,FALSE
+0a3c2a8b-540b-4747-a87f-efe181e28d07,Tote Bag 1,400,"A versatile everyday tote bag, perfect for carrying your essentials while representing your organization.",TRUE,FALSE
+0a3c2a8b-540b-4747-a87f-efe181e28d07,Tote Bag 2,350,"Combine practicality and org pride with this stylish tote bag, ideal for school, errands, and everyday use.",TRUE,FALSE
+0da772aa-b519-4749-a3d7-614d5ea5b4ab,Baller,60,"Show off your style with this exclusive Baller merchandise, perfect for representing your organization wherever you go.",TRUE,TRUE
+0da772aa-b519-4749-a3d7-614d5ea5b4ab,Pin,30,"A stylish collectible pin that lets you proudly showcase your organization. Perfect for bags, jackets, and other accessories.",TRUE,TRUE
+0da772aa-b519-4749-a3d7-614d5ea5b4ab,T - Shirt 1,300,"A comfortable and stylish organization shirt, perfect for everyday wear and showing your org pride.",TRUE,TRUE
+0da772aa-b519-4749-a3d7-614d5ea5b4ab,T - Shirt 2,350,"Represent your organization with this uniquely designed shirt, combining comfort and style for any occasion.",TRUE,TRUE
+0da772aa-b519-4749-a3d7-614d5ea5b4ab,T - Shirt 3,400,Add this exclusive organization shirt to your wardrobe and bring your org spirit wherever you go.,TRUE,TRUE
+0da772aa-b519-4749-a3d7-614d5ea5b4ab,ID Lace 1,120,Keep your ID secure and accessible with this durable and stylish organization-themed lanyard.,TRUE,TRUE
+0da772aa-b519-4749-a3d7-614d5ea5b4ab,ID Lace 2,100,"Carry your school ID in style with this uniquely designed lanyard, perfect for everyday campus use.",TRUE,TRUE
+0da772aa-b519-4749-a3d7-614d5ea5b4ab,Keychain,50,Take a piece of your organization with you wherever you go with this compact and collectible keychain.,TRUE,TRUE
+0da772aa-b519-4749-a3d7-614d5ea5b4ab,Keychain Bundle,120,Get more of your favorite organization-themed keychains in one bundle. A great addition to your collection or a gift for fellow members.,TRUE,TRUE
+0da772aa-b519-4749-a3d7-614d5ea5b4ab,Tote Bag 1,400,"A versatile everyday tote bag, perfect for carrying your essentials while representing your organization.",TRUE,TRUE
+0da772aa-b519-4749-a3d7-614d5ea5b4ab,Tote Bag 2,350,"Combine practicality and org pride with this stylish tote bag, ideal for school, errands, and everyday use.",TRUE,TRUE
+2ffa2d55-cfe8-43bb-89a9-bcf63c9cdab2,Baller,60,"Show off your style with this exclusive Baller merchandise, perfect for representing your organization wherever you go.",TRUE,FALSE
+2ffa2d55-cfe8-43bb-89a9-bcf63c9cdab2,Pin,30,"A stylish collectible pin that lets you proudly showcase your organization. Perfect for bags, jackets, and other accessories.",TRUE,FALSE
+2ffa2d55-cfe8-43bb-89a9-bcf63c9cdab2,T - Shirt 1,300,"A comfortable and stylish organization shirt, perfect for everyday wear and showing your org pride.",TRUE,FALSE
+2ffa2d55-cfe8-43bb-89a9-bcf63c9cdab2,T - Shirt 2,350,"Represent your organization with this uniquely designed shirt, combining comfort and style for any occasion.",TRUE,FALSE
+2ffa2d55-cfe8-43bb-89a9-bcf63c9cdab2,T - Shirt 3,400,Add this exclusive organization shirt to your wardrobe and bring your org spirit wherever you go.,TRUE,FALSE
+2ffa2d55-cfe8-43bb-89a9-bcf63c9cdab2,ID Lace 1,120,Keep your ID secure and accessible with this durable and stylish organization-themed lanyard.,TRUE,FALSE
+2ffa2d55-cfe8-43bb-89a9-bcf63c9cdab2,ID Lace 2,100,"Carry your school ID in style with this uniquely designed lanyard, perfect for everyday campus use.",TRUE,FALSE
+2ffa2d55-cfe8-43bb-89a9-bcf63c9cdab2,Keychain,50,Take a piece of your organization with you wherever you go with this compact and collectible keychain.,TRUE,FALSE
+2ffa2d55-cfe8-43bb-89a9-bcf63c9cdab2,Keychain Bundle,120,Get more of your favorite organization-themed keychains in one bundle. A great addition to your collection or a gift for fellow members.,TRUE,FALSE
+2ffa2d55-cfe8-43bb-89a9-bcf63c9cdab2,Tote Bag 1,400,"A versatile everyday tote bag, perfect for carrying your essentials while representing your organization.",TRUE,FALSE
+2ffa2d55-cfe8-43bb-89a9-bcf63c9cdab2,Tote Bag 2,350,"Combine practicality and org pride with this stylish tote bag, ideal for school, errands, and everyday use.",TRUE,FALSE
+3e29bff6-e1ce-4e2b-ad69-5051bbfcf835,Baller,60,"Show off your style with this exclusive Baller merchandise, perfect for representing your organization wherever you go.",TRUE,FALSE
+3e29bff6-e1ce-4e2b-ad69-5051bbfcf835,Pin,30,"A stylish collectible pin that lets you proudly showcase your organization. Perfect for bags, jackets, and other accessories.",TRUE,FALSE
+3e29bff6-e1ce-4e2b-ad69-5051bbfcf835,T - Shirt 1,300,"A comfortable and stylish organization shirt, perfect for everyday wear and showing your org pride.",TRUE,FALSE
+3e29bff6-e1ce-4e2b-ad69-5051bbfcf835,T - Shirt 2,350,"Represent your organization with this uniquely designed shirt, combining comfort and style for any occasion.",TRUE,FALSE
+3e29bff6-e1ce-4e2b-ad69-5051bbfcf835,T - Shirt 3,400,Add this exclusive organization shirt to your wardrobe and bring your org spirit wherever you go.,TRUE,FALSE
+3e29bff6-e1ce-4e2b-ad69-5051bbfcf835,ID Lace 1,120,Keep your ID secure and accessible with this durable and stylish organization-themed lanyard.,TRUE,FALSE
+3e29bff6-e1ce-4e2b-ad69-5051bbfcf835,ID Lace 2,100,"Carry your school ID in style with this uniquely designed lanyard, perfect for everyday campus use.",TRUE,FALSE
+3e29bff6-e1ce-4e2b-ad69-5051bbfcf835,Keychain,50,Take a piece of your organization with you wherever you go with this compact and collectible keychain.,TRUE,FALSE
+3e29bff6-e1ce-4e2b-ad69-5051bbfcf835,Keychain Bundle,120,Get more of your favorite organization-themed keychains in one bundle. A great addition to your collection or a gift for fellow members.,TRUE,FALSE
+3e29bff6-e1ce-4e2b-ad69-5051bbfcf835,Tote Bag 1,400,"A versatile everyday tote bag, perfect for carrying your essentials while representing your organization.",TRUE,FALSE
+3e29bff6-e1ce-4e2b-ad69-5051bbfcf835,Tote Bag 2,350,"Combine practicality and org pride with this stylish tote bag, ideal for school, errands, and everyday use.",TRUE,FALSE
+6b7f4299-51f8-450a-b041-4b6fed61a7ed,Baller,60,"Show off your style with this exclusive Baller merchandise, perfect for representing your organization wherever you go.",TRUE,FALSE
+6b7f4299-51f8-450a-b041-4b6fed61a7ed,Pin,30,"A stylish collectible pin that lets you proudly showcase your organization. Perfect for bags, jackets, and other accessories.",TRUE,FALSE
+6b7f4299-51f8-450a-b041-4b6fed61a7ed,T - Shirt 1,300,"A comfortable and stylish organization shirt, perfect for everyday wear and showing your org pride.",TRUE,FALSE
+6b7f4299-51f8-450a-b041-4b6fed61a7ed,T - Shirt 2,350,"Represent your organization with this uniquely designed shirt, combining comfort and style for any occasion.",TRUE,FALSE
+6b7f4299-51f8-450a-b041-4b6fed61a7ed,T - Shirt 3,400,Add this exclusive organization shirt to your wardrobe and bring your org spirit wherever you go.,TRUE,FALSE
+6b7f4299-51f8-450a-b041-4b6fed61a7ed,ID Lace 1,120,Keep your ID secure and accessible with this durable and stylish organization-themed lanyard.,TRUE,FALSE
+6b7f4299-51f8-450a-b041-4b6fed61a7ed,ID Lace 2,100,"Carry your school ID in style with this uniquely designed lanyard, perfect for everyday campus use.",TRUE,FALSE
+6b7f4299-51f8-450a-b041-4b6fed61a7ed,Keychain,50,Take a piece of your organization with you wherever you go with this compact and collectible keychain.,TRUE,FALSE
+6b7f4299-51f8-450a-b041-4b6fed61a7ed,Keychain Bundle,120,Get more of your favorite organization-themed keychains in one bundle. A great addition to your collection or a gift for fellow members.,TRUE,FALSE
+6b7f4299-51f8-450a-b041-4b6fed61a7ed,Tote Bag 1,400,"A versatile everyday tote bag, perfect for carrying your essentials while representing your organization.",TRUE,FALSE
+6b7f4299-51f8-450a-b041-4b6fed61a7ed,Tote Bag 2,350,"Combine practicality and org pride with this stylish tote bag, ideal for school, errands, and everyday use.",TRUE,FALSE
+77c7581e-5959-41d1-bf12-42b5d2fbc7e7,Baller,60,"Show off your style with this exclusive Baller merchandise, perfect for representing your organization wherever you go.",TRUE,FALSE
+77c7581e-5959-41d1-bf12-42b5d2fbc7e7,Pin,30,"A stylish collectible pin that lets you proudly showcase your organization. Perfect for bags, jackets, and other accessories.",TRUE,FALSE
+77c7581e-5959-41d1-bf12-42b5d2fbc7e7,T - Shirt 1,300,"A comfortable and stylish organization shirt, perfect for everyday wear and showing your org pride.",TRUE,FALSE
+77c7581e-5959-41d1-bf12-42b5d2fbc7e7,T - Shirt 2,350,"Represent your organization with this uniquely designed shirt, combining comfort and style for any occasion.",TRUE,FALSE
+77c7581e-5959-41d1-bf12-42b5d2fbc7e7,T - Shirt 3,400,Add this exclusive organization shirt to your wardrobe and bring your org spirit wherever you go.,TRUE,FALSE
+77c7581e-5959-41d1-bf12-42b5d2fbc7e7,ID Lace 1,120,Keep your ID secure and accessible with this durable and stylish organization-themed lanyard.,TRUE,FALSE
+77c7581e-5959-41d1-bf12-42b5d2fbc7e7,ID Lace 2,100,"Carry your school ID in style with this uniquely designed lanyard, perfect for everyday campus use.",TRUE,FALSE
+77c7581e-5959-41d1-bf12-42b5d2fbc7e7,Keychain,50,Take a piece of your organization with you wherever you go with this compact and collectible keychain.,TRUE,FALSE
+77c7581e-5959-41d1-bf12-42b5d2fbc7e7,Keychain Bundle,120,Get more of your favorite organization-themed keychains in one bundle. A great addition to your collection or a gift for fellow members.,TRUE,FALSE
+77c7581e-5959-41d1-bf12-42b5d2fbc7e7,Tote Bag 1,400,"A versatile everyday tote bag, perfect for carrying your essentials while representing your organization.",TRUE,FALSE
+77c7581e-5959-41d1-bf12-42b5d2fbc7e7,Tote Bag 2,350,"Combine practicality and org pride with this stylish tote bag, ideal for school, errands, and everyday use.",TRUE,FALSE
+797f3e78-1911-47ec-9151-02a7b87c64ad,Baller,60,"Show off your style with this exclusive Baller merchandise, perfect for representing your organization wherever you go.",TRUE,FALSE
+797f3e78-1911-47ec-9151-02a7b87c64ad,Pin,30,"A stylish collectible pin that lets you proudly showcase your organization. Perfect for bags, jackets, and other accessories.",TRUE,FALSE
+797f3e78-1911-47ec-9151-02a7b87c64ad,T - Shirt 1,300,"A comfortable and stylish organization shirt, perfect for everyday wear and showing your org pride.",TRUE,FALSE
+797f3e78-1911-47ec-9151-02a7b87c64ad,T - Shirt 2,350,"Represent your organization with this uniquely designed shirt, combining comfort and style for any occasion.",TRUE,FALSE
+797f3e78-1911-47ec-9151-02a7b87c64ad,T - Shirt 3,400,Add this exclusive organization shirt to your wardrobe and bring your org spirit wherever you go.,TRUE,FALSE
+797f3e78-1911-47ec-9151-02a7b87c64ad,ID Lace 1,120,Keep your ID secure and accessible with this durable and stylish organization-themed lanyard.,TRUE,FALSE
+797f3e78-1911-47ec-9151-02a7b87c64ad,ID Lace 2,100,"Carry your school ID in style with this uniquely designed lanyard, perfect for everyday campus use.",TRUE,FALSE
+797f3e78-1911-47ec-9151-02a7b87c64ad,Keychain,50,Take a piece of your organization with you wherever you go with this compact and collectible keychain.,TRUE,FALSE
+797f3e78-1911-47ec-9151-02a7b87c64ad,Keychain Bundle,120,Get more of your favorite organization-themed keychains in one bundle. A great addition to your collection or a gift for fellow members.,TRUE,FALSE
+797f3e78-1911-47ec-9151-02a7b87c64ad,Tote Bag 1,400,"A versatile everyday tote bag, perfect for carrying your essentials while representing your organization.",TRUE,FALSE
+797f3e78-1911-47ec-9151-02a7b87c64ad,Tote Bag 2,350,"Combine practicality and org pride with this stylish tote bag, ideal for school, errands, and everyday use.",TRUE,FALSE
+7d71882e-5029-4ae8-adfe-e92c513bda79,Baller,60,"Show off your style with this exclusive Baller merchandise, perfect for representing your organization wherever you go.",TRUE,FALSE
+7d71882e-5029-4ae8-adfe-e92c513bda79,Pin,30,"A stylish collectible pin that lets you proudly showcase your organization. Perfect for bags, jackets, and other accessories.",TRUE,FALSE
+7d71882e-5029-4ae8-adfe-e92c513bda79,T - Shirt 1,300,"A comfortable and stylish organization shirt, perfect for everyday wear and showing your org pride.",TRUE,FALSE
+7d71882e-5029-4ae8-adfe-e92c513bda79,T - Shirt 2,350,"Represent your organization with this uniquely designed shirt, combining comfort and style for any occasion.",TRUE,FALSE
+7d71882e-5029-4ae8-adfe-e92c513bda79,T - Shirt 3,400,Add this exclusive organization shirt to your wardrobe and bring your org spirit wherever you go.,TRUE,FALSE
+7d71882e-5029-4ae8-adfe-e92c513bda79,ID Lace 1,120,Keep your ID secure and accessible with this durable and stylish organization-themed lanyard.,TRUE,FALSE
+7d71882e-5029-4ae8-adfe-e92c513bda79,ID Lace 2,100,"Carry your school ID in style with this uniquely designed lanyard, perfect for everyday campus use.",TRUE,FALSE
+7d71882e-5029-4ae8-adfe-e92c513bda79,Keychain,50,Take a piece of your organization with you wherever you go with this compact and collectible keychain.,TRUE,FALSE
+7d71882e-5029-4ae8-adfe-e92c513bda79,Keychain Bundle,120,Get more of your favorite organization-themed keychains in one bundle. A great addition to your collection or a gift for fellow members.,TRUE,FALSE
+7d71882e-5029-4ae8-adfe-e92c513bda79,Tote Bag 1,400,"A versatile everyday tote bag, perfect for carrying your essentials while representing your organization.",TRUE,FALSE
+7d71882e-5029-4ae8-adfe-e92c513bda79,Tote Bag 2,350,"Combine practicality and org pride with this stylish tote bag, ideal for school, errands, and everyday use.",TRUE,FALSE
+7d7addba-cda5-439e-852f-85dc98bc69dd,Baller,60,"Show off your style with this exclusive Baller merchandise, perfect for representing your organization wherever you go.",TRUE,FALSE
+7d7addba-cda5-439e-852f-85dc98bc69dd,Pin,30,"A stylish collectible pin that lets you proudly showcase your organization. Perfect for bags, jackets, and other accessories.",TRUE,FALSE
+7d7addba-cda5-439e-852f-85dc98bc69dd,T - Shirt 1,300,"A comfortable and stylish organization shirt, perfect for everyday wear and showing your org pride.",TRUE,FALSE
+7d7addba-cda5-439e-852f-85dc98bc69dd,T - Shirt 2,350,"Represent your organization with this uniquely designed shirt, combining comfort and style for any occasion.",TRUE,FALSE
+7d7addba-cda5-439e-852f-85dc98bc69dd,T - Shirt 3,400,Add this exclusive organization shirt to your wardrobe and bring your org spirit wherever you go.,TRUE,FALSE
+7d7addba-cda5-439e-852f-85dc98bc69dd,ID Lace 1,120,Keep your ID secure and accessible with this durable and stylish organization-themed lanyard.,TRUE,FALSE
+7d7addba-cda5-439e-852f-85dc98bc69dd,ID Lace 2,100,"Carry your school ID in style with this uniquely designed lanyard, perfect for everyday campus use.",TRUE,FALSE
+7d7addba-cda5-439e-852f-85dc98bc69dd,Keychain,50,Take a piece of your organization with you wherever you go with this compact and collectible keychain.,TRUE,FALSE
+7d7addba-cda5-439e-852f-85dc98bc69dd,Keychain Bundle,120,Get more of your favorite organization-themed keychains in one bundle. A great addition to your collection or a gift for fellow members.,TRUE,FALSE
+7d7addba-cda5-439e-852f-85dc98bc69dd,Tote Bag 1,400,"A versatile everyday tote bag, perfect for carrying your essentials while representing your organization.",TRUE,FALSE
+7d7addba-cda5-439e-852f-85dc98bc69dd,Tote Bag 2,350,"Combine practicality and org pride with this stylish tote bag, ideal for school, errands, and everyday use.",TRUE,FALSE
+a29994cd-754e-4ca8-9916-89589182a603,Baller,60,"Show off your style with this exclusive Baller merchandise, perfect for representing your organization wherever you go.",TRUE,FALSE
+a29994cd-754e-4ca8-9916-89589182a603,Pin,30,"A stylish collectible pin that lets you proudly showcase your organization. Perfect for bags, jackets, and other accessories.",TRUE,FALSE
+a29994cd-754e-4ca8-9916-89589182a603,T - Shirt 1,300,"A comfortable and stylish organization shirt, perfect for everyday wear and showing your org pride.",TRUE,FALSE
+a29994cd-754e-4ca8-9916-89589182a603,T - Shirt 2,350,"Represent your organization with this uniquely designed shirt, combining comfort and style for any occasion.",TRUE,FALSE
+a29994cd-754e-4ca8-9916-89589182a603,T - Shirt 3,400,Add this exclusive organization shirt to your wardrobe and bring your org spirit wherever you go.,TRUE,FALSE
+a29994cd-754e-4ca8-9916-89589182a603,ID Lace 1,120,Keep your ID secure and accessible with this durable and stylish organization-themed lanyard.,TRUE,FALSE
+a29994cd-754e-4ca8-9916-89589182a603,ID Lace 2,100,"Carry your school ID in style with this uniquely designed lanyard, perfect for everyday campus use.",TRUE,FALSE
+a29994cd-754e-4ca8-9916-89589182a603,Keychain,50,Take a piece of your organization with you wherever you go with this compact and collectible keychain.,TRUE,FALSE
+a29994cd-754e-4ca8-9916-89589182a603,Keychain Bundle,120,Get more of your favorite organization-themed keychains in one bundle. A great addition to your collection or a gift for fellow members.,TRUE,FALSE
+a29994cd-754e-4ca8-9916-89589182a603,Tote Bag 1,400,"A versatile everyday tote bag, perfect for carrying your essentials while representing your organization.",TRUE,FALSE
+a29994cd-754e-4ca8-9916-89589182a603,Tote Bag 2,350,"Combine practicality and org pride with this stylish tote bag, ideal for school, errands, and everyday use.",TRUE,FALSE
+aec27dc3-ffb8-453b-8af8-d2f1834317ab,Baller,60,"Show off your style with this exclusive Baller merchandise, perfect for representing your organization wherever you go.",TRUE,FALSE
+aec27dc3-ffb8-453b-8af8-d2f1834317ab,Pin,30,"A stylish collectible pin that lets you proudly showcase your organization. Perfect for bags, jackets, and other accessories.",TRUE,FALSE
+aec27dc3-ffb8-453b-8af8-d2f1834317ab,T - Shirt 1,300,"A comfortable and stylish organization shirt, perfect for everyday wear and showing your org pride.",TRUE,FALSE
+aec27dc3-ffb8-453b-8af8-d2f1834317ab,T - Shirt 2,350,"Represent your organization with this uniquely designed shirt, combining comfort and style for any occasion.",TRUE,FALSE
+aec27dc3-ffb8-453b-8af8-d2f1834317ab,T - Shirt 3,400,Add this exclusive organization shirt to your wardrobe and bring your org spirit wherever you go.,TRUE,FALSE
+aec27dc3-ffb8-453b-8af8-d2f1834317ab,ID Lace 1,120,Keep your ID secure and accessible with this durable and stylish organization-themed lanyard.,TRUE,FALSE
+aec27dc3-ffb8-453b-8af8-d2f1834317ab,ID Lace 2,100,"Carry your school ID in style with this uniquely designed lanyard, perfect for everyday campus use.",TRUE,FALSE
+aec27dc3-ffb8-453b-8af8-d2f1834317ab,Keychain,50,Take a piece of your organization with you wherever you go with this compact and collectible keychain.,TRUE,FALSE
+aec27dc3-ffb8-453b-8af8-d2f1834317ab,Keychain Bundle,120,Get more of your favorite organization-themed keychains in one bundle. A great addition to your collection or a gift for fellow members.,TRUE,FALSE
+aec27dc3-ffb8-453b-8af8-d2f1834317ab,Tote Bag 1,400,"A versatile everyday tote bag, perfect for carrying your essentials while representing your organization.",TRUE,FALSE
+aec27dc3-ffb8-453b-8af8-d2f1834317ab,Tote Bag 2,350,"Combine practicality and org pride with this stylish tote bag, ideal for school, errands, and everyday use.",TRUE,FALSE
+af1bd7c8-3bd2-4698-bb40-c89b7f721a0c,Baller,60,"Show off your style with this exclusive Baller merchandise, perfect for representing your organization wherever you go.",TRUE,FALSE
+af1bd7c8-3bd2-4698-bb40-c89b7f721a0c,Pin,30,"A stylish collectible pin that lets you proudly showcase your organization. Perfect for bags, jackets, and other accessories.",TRUE,FALSE
+af1bd7c8-3bd2-4698-bb40-c89b7f721a0c,T - Shirt 1,300,"A comfortable and stylish organization shirt, perfect for everyday wear and showing your org pride.",TRUE,FALSE
+af1bd7c8-3bd2-4698-bb40-c89b7f721a0c,T - Shirt 2,350,"Represent your organization with this uniquely designed shirt, combining comfort and style for any occasion.",TRUE,FALSE
+af1bd7c8-3bd2-4698-bb40-c89b7f721a0c,T - Shirt 3,400,Add this exclusive organization shirt to your wardrobe and bring your org spirit wherever you go.,TRUE,FALSE
+af1bd7c8-3bd2-4698-bb40-c89b7f721a0c,ID Lace 1,120,Keep your ID secure and accessible with this durable and stylish organization-themed lanyard.,TRUE,FALSE
+af1bd7c8-3bd2-4698-bb40-c89b7f721a0c,ID Lace 2,100,"Carry your school ID in style with this uniquely designed lanyard, perfect for everyday campus use.",TRUE,FALSE
+af1bd7c8-3bd2-4698-bb40-c89b7f721a0c,Keychain,50,Take a piece of your organization with you wherever you go with this compact and collectible keychain.,TRUE,FALSE
+af1bd7c8-3bd2-4698-bb40-c89b7f721a0c,Keychain Bundle,120,Get more of your favorite organization-themed keychains in one bundle. A great addition to your collection or a gift for fellow members.,TRUE,FALSE
+af1bd7c8-3bd2-4698-bb40-c89b7f721a0c,Tote Bag 1,400,"A versatile everyday tote bag, perfect for carrying your essentials while representing your organization.",TRUE,FALSE
+af1bd7c8-3bd2-4698-bb40-c89b7f721a0c,Tote Bag 2,350,"Combine practicality and org pride with this stylish tote bag, ideal for school, errands, and everyday use.",TRUE,FALSE
+cbea98a1-cdd6-407d-a226-27e9dd950ca8,Baller,60,"Show off your style with this exclusive Baller merchandise, perfect for representing your organization wherever you go.",TRUE,FALSE
+cbea98a1-cdd6-407d-a226-27e9dd950ca8,Pin,30,"A stylish collectible pin that lets you proudly showcase your organization. Perfect for bags, jackets, and other accessories.",TRUE,FALSE
+cbea98a1-cdd6-407d-a226-27e9dd950ca8,T - Shirt 1,300,"A comfortable and stylish organization shirt, perfect for everyday wear and showing your org pride.",TRUE,FALSE
+cbea98a1-cdd6-407d-a226-27e9dd950ca8,T - Shirt 2,350,"Represent your organization with this uniquely designed shirt, combining comfort and style for any occasion.",TRUE,FALSE
+cbea98a1-cdd6-407d-a226-27e9dd950ca8,T - Shirt 3,400,Add this exclusive organization shirt to your wardrobe and bring your org spirit wherever you go.,TRUE,FALSE
+cbea98a1-cdd6-407d-a226-27e9dd950ca8,ID Lace 1,120,Keep your ID secure and accessible with this durable and stylish organization-themed lanyard.,TRUE,FALSE
+cbea98a1-cdd6-407d-a226-27e9dd950ca8,ID Lace 2,100,"Carry your school ID in style with this uniquely designed lanyard, perfect for everyday campus use.",TRUE,FALSE
+cbea98a1-cdd6-407d-a226-27e9dd950ca8,Keychain,50,Take a piece of your organization with you wherever you go with this compact and collectible keychain.,TRUE,FALSE
+cbea98a1-cdd6-407d-a226-27e9dd950ca8,Keychain Bundle,120,Get more of your favorite organization-themed keychains in one bundle. A great addition to your collection or a gift for fellow members.,TRUE,FALSE
+cbea98a1-cdd6-407d-a226-27e9dd950ca8,Tote Bag 1,400,"A versatile everyday tote bag, perfect for carrying your essentials while representing your organization.",TRUE,FALSE
+cbea98a1-cdd6-407d-a226-27e9dd950ca8,Tote Bag 2,350,"Combine practicality and org pride with this stylish tote bag, ideal for school, errands, and everyday use.",TRUE,FALSE
+e00efae3-09f1-4c99-9793-796caff85d26,Baller,60,"Show off your style with this exclusive Baller merchandise, perfect for representing your organization wherever you go.",TRUE,FALSE
+e00efae3-09f1-4c99-9793-796caff85d26,Pin,30,"A stylish collectible pin that lets you proudly showcase your organization. Perfect for bags, jackets, and other accessories.",TRUE,FALSE
+e00efae3-09f1-4c99-9793-796caff85d26,T - Shirt 1,300,"A comfortable and stylish organization shirt, perfect for everyday wear and showing your org pride.",TRUE,FALSE
+e00efae3-09f1-4c99-9793-796caff85d26,T - Shirt 2,350,"Represent your organization with this uniquely designed shirt, combining comfort and style for any occasion.",TRUE,FALSE
+e00efae3-09f1-4c99-9793-796caff85d26,T - Shirt 3,400,Add this exclusive organization shirt to your wardrobe and bring your org spirit wherever you go.,TRUE,FALSE
+e00efae3-09f1-4c99-9793-796caff85d26,ID Lace 1,120,Keep your ID secure and accessible with this durable and stylish organization-themed lanyard.,TRUE,FALSE
+e00efae3-09f1-4c99-9793-796caff85d26,ID Lace 2,100,"Carry your school ID in style with this uniquely designed lanyard, perfect for everyday campus use.",TRUE,FALSE
+e00efae3-09f1-4c99-9793-796caff85d26,Keychain,50,Take a piece of your organization with you wherever you go with this compact and collectible keychain.,TRUE,FALSE
+e00efae3-09f1-4c99-9793-796caff85d26,Keychain Bundle,120,Get more of your favorite organization-themed keychains in one bundle. A great addition to your collection or a gift for fellow members.,TRUE,FALSE
+e00efae3-09f1-4c99-9793-796caff85d26,Tote Bag 1,400,"A versatile everyday tote bag, perfect for carrying your essentials while representing your organization.",TRUE,FALSE
+e00efae3-09f1-4c99-9793-796caff85d26,Tote Bag 2,350,"Combine practicality and org pride with this stylish tote bag, ideal for school, errands, and everyday use.",TRUE,FALSE
+e2ff844a-06af-4825-b75c-8a7982bbe48c,Baller,60,"Show off your style with this exclusive Baller merchandise, perfect for representing your organization wherever you go.",TRUE,FALSE
+e2ff844a-06af-4825-b75c-8a7982bbe48c,Pin,30,"A stylish collectible pin that lets you proudly showcase your organization. Perfect for bags, jackets, and other accessories.",TRUE,FALSE
+e2ff844a-06af-4825-b75c-8a7982bbe48c,T - Shirt 1,300,"A comfortable and stylish organization shirt, perfect for everyday wear and showing your org pride.",TRUE,FALSE
+e2ff844a-06af-4825-b75c-8a7982bbe48c,T - Shirt 2,350,"Represent your organization with this uniquely designed shirt, combining comfort and style for any occasion.",TRUE,FALSE
+e2ff844a-06af-4825-b75c-8a7982bbe48c,T - Shirt 3,400,Add this exclusive organization shirt to your wardrobe and bring your org spirit wherever you go.,TRUE,FALSE
+e2ff844a-06af-4825-b75c-8a7982bbe48c,ID Lace 1,120,Keep your ID secure and accessible with this durable and stylish organization-themed lanyard.,TRUE,FALSE
+e2ff844a-06af-4825-b75c-8a7982bbe48c,ID Lace 2,100,"Carry your school ID in style with this uniquely designed lanyard, perfect for everyday campus use.",TRUE,FALSE
+e2ff844a-06af-4825-b75c-8a7982bbe48c,Keychain,50,Take a piece of your organization with you wherever you go with this compact and collectible keychain.,TRUE,FALSE
+e2ff844a-06af-4825-b75c-8a7982bbe48c,Keychain Bundle,120,Get more of your favorite organization-themed keychains in one bundle. A great addition to your collection or a gift for fellow members.,TRUE,FALSE
+e2ff844a-06af-4825-b75c-8a7982bbe48c,Tote Bag 1,400,"A versatile everyday tote bag, perfect for carrying your essentials while representing your organization.",TRUE,FALSE
+e2ff844a-06af-4825-b75c-8a7982bbe48c,Tote Bag 2,350,"Combine practicality and org pride with this stylish tote bag, ideal for school, errands, and everyday use.",TRUE,FALSE

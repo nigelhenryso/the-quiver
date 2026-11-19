@@ -1,5 +1,6 @@
 export type VariantOption = {
     variant_id: string;
-    name: string;
-    type:string;
+    variant_type_id: string;
+    name: string | null;
+    image_url: string | null;
 }

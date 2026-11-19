@@ -1,5 +1,11 @@
-/** Supabase table that holds student profiles (see types/Student.ts). */
+/** Supabase table names (see src/types for the row shapes). */
 export const STUDENT_TABLE = 'Student';
-
-/** Supabase table that holds organization profiles (see types/Organization.ts). */
 export const ORGANIZATION_TABLE = 'Organization';
+export const PRODUCT_TABLE = 'Product';
+export const PRODUCT_IMAGE_TABLE = 'ProductImage';
+export const INVENTORY_TABLE = 'Inventory';
+export const VARIANT_OPTION_TABLE = 'VariantOption';
+export const VARIANT_TYPE_TABLE = 'VariantType';
+export const ORDER_TABLE = 'Order';
+export const PAYMENT_TABLE = 'Payment';
+export const PAYMENT_MODE_TABLE = 'PaymentMode';

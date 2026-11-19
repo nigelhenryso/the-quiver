@@ -1,15 +1,23 @@
 // dummy data for the org dashboard
 // NOTE: replace this with real data
 
-export type Order = {
-  id: number;
-  customerName: string;
-  productName: string;
-  timeAgo: string; // ex: "10 min ago"
+export type PaymentMode = "FTF" | "Online";
+
+export type OrderItem = {
+  name: string; // ex: "LSCS Shirt"
   variant: string; // leave as "" if there is no variant
   quantity: number;
+};
+
+export type Order = {
+  orderId: string; // ex: "XX01"
+  customerName: string;
+  timeAgo: string; // ex: "10 min ago"
+  items: OrderItem[];
+  paymentMode: PaymentMode;
   status: string;
   total: number;
+  imageUrl?: string; // product image, falls back to a placeholder box
 };
 
 // total sales for each choice in the "Monthly" dropdown
@@ -32,10 +40,17 @@ export function formatPesoDecimals(amount: number) {
   );
 }
 
+export type DashboardStats = {
+  pendingPaymentVerification: number;
+  pendingClaim: number;
+  completedThisMonth: number;
+  totalOrdersThisMonth: number;
+};
+
 export function getDashboardData() {
   const orgName = "Org Name";
 
-  const stats = {
+  const stats: DashboardStats = {
     pendingPaymentVerification: 48,
     pendingClaim: 21,
     completedThisMonth: 84,
@@ -50,52 +65,62 @@ export function getDashboardData() {
 
   const recentOrders: Order[] = [
     {
-      id: 1,
+      orderId: "XX01",
       customerName: "Customer Name",
-      productName: "Ordered Product",
       timeAgo: "10 min ago",
-      variant: "Variant here, if there is any",
-      quantity: 1,
+      items: [
+        { name: "LSCS Shirt", variant: "White", quantity: 1 },
+        { name: "LSCS Lanyard", variant: "Blue", quantity: 2 },
+      ],
+      paymentMode: "Online",
       status: "Pending Payment",
       total: 350,
     },
     {
-      id: 2,
+      orderId: "XX02",
       customerName: "Customer Name",
-      productName: "Ordered Product",
       timeAgo: "25 min ago",
-      variant: "Variant here, if there is any",
-      quantity: 2,
+      items: [
+        { name: "LSCS Shirt", variant: "White", quantity: 1 },
+        { name: "LSCS Lanyard", variant: "Blue", quantity: 2 },
+      ],
+      paymentMode: "FTF",
       status: "Processing",
       total: 700,
     },
     {
-      id: 3,
+      orderId: "XX03",
       customerName: "Customer Name",
-      productName: "Ordered Product",
       timeAgo: "1 hr ago",
-      variant: "",
-      quantity: 1,
+      items: [
+        { name: "LSCS Shirt", variant: "White", quantity: 1 },
+        { name: "LSCS Lanyard", variant: "Blue", quantity: 2 },
+      ],
+      paymentMode: "Online",
       status: "Ready for Pickup",
       total: 150,
     },
     {
-      id: 4,
+      orderId: "XX04",
       customerName: "Customer Name",
-      productName: "Ordered Product",
       timeAgo: "3 hrs ago",
-      variant: "Variant here, if there is any",
-      quantity: 3,
+      items: [
+        { name: "LSCS Shirt", variant: "White", quantity: 1 },
+        { name: "LSCS Lanyard", variant: "Blue", quantity: 2 },
+      ],
+      paymentMode: "FTF",
       status: "Pending Claim",
       total: 1050,
     },
     {
-      id: 5,
+      orderId: "XX05",
       customerName: "Customer Name",
-      productName: "Ordered Product",
       timeAgo: "Yesterday",
-      variant: "Variant here, if there is any",
-      quantity: 1,
+      items: [
+        { name: "LSCS Shirt", variant: "White", quantity: 1 },
+        { name: "LSCS Lanyard", variant: "Blue", quantity: 2 },
+      ],
+      paymentMode: "Online",
       status: "Completed",
       total: 250,
     },
