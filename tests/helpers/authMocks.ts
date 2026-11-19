@@ -1,5 +1,5 @@
 /**
- * Small helpers shared by the Login tests.
+ * Small helpers shared by the FRONTEND Login tests.
  * This file has no tests of its own (Jest only runs files ending in .test.ts / .test.tsx).
  */
 import type { signInWithGoogle, signInWithPassword } from '@/src/services/authService';

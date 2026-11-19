@@ -7,7 +7,10 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test:unit": "jest tests/unit",
+    "test:backend": "newman run tests/unit/Login.backend.postman_collection.json -e tests/unit/Login.backend.postman_environment.local.json",
+    "test:e2e": "jest --config jest.e2e.config.ts"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.1",
@@ -39,6 +42,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/selenium-webdriver": "^4.35.7",
     "@vitest/browser-playwright": "^4",
     "@vitest/coverage-v8": "^4",
     "autoprefixer": "^10.4.20",
@@ -46,8 +50,10 @@
     "eslint-config-next": "15.3.1",
     "jest": "^30.5.2",
     "jest-environment-jsdom": "^30.5.2",
+    "newman": "^6.2.3",
     "playwright": "latest",
     "postcss": "^8",
+    "selenium-webdriver": "^4.53.0",
     "tailwindcss": "^3.4.1",
     "tailwindcss-animate": "^1.0.7",
     "ts-node": "^10.9.2",
