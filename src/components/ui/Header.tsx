@@ -152,7 +152,7 @@ export const Header = ({
         {loggedIn ? (
           student ? ( /* IF STUDENT */
             <>
-                <div className="mx-[45px] flex flex-row items-center gap-3">
+                <div className="mx-[45px] flex flex-row items-center gap-1">
                   <QuiverLogo />
                   <div className = "flex flex-row items-end">
                     <h1 className={`font-heading flex items-center text-[21.6867px] leading-[30px] font-normal text-white`}>
@@ -255,15 +255,15 @@ export const Header = ({
           </>
           ) : 
               <>
-                <div className="mx-[45px] flex flex-row items-center justify-between gap-3">
+                <div className="mx-[45px] flex flex-row items-center justify-between gap-1">
                   <QuiverLogo />
-                  <div className = "flex flex-row items-end">
+                  <div className = "flex flex-row items-center items-end">
                     <h1 className={`font-heading flex items-center text-[21.6867px] leading-[30px] font-normal text-white`}>
                       The Quiver
                     </h1>
-                    <h1 className={`font-heading flex items-left text-[10px] font-normal text-white`}>
+                    <div className="flex font-heading text-white text-[12px] border border-1 border-[rgba(255,255,255,0.2)] bg-[rgba(255,255,255,0.12)] rounded-2xl px-2.5 py-1 ml-2">
                       Seller Hub
-                    </h1>
+                    </div>
                   </div>
                 </div>
 
@@ -362,7 +362,7 @@ export const Header = ({
             </>
         ) : (
           <>
-            <div className="mx-[45px] flex flex-row items-center justify-between gap-3">
+            <div className="mx-[45px] flex flex-row items-center justify-between gap-1">
               <QuiverLogo />
               <div className = "flex flex-row items-end">
                 <h1 className={`font-heading flex items-center text-[21.6867px] leading-[30px] font-normal text-white`}>
