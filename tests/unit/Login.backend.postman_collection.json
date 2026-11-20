@@ -2,7 +2,7 @@
   "info": {
     "name": "The Quiver - Login (BACKEND, Postman / Newman)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": "BACKEND rows of sheet '02 - Login'. Order: LOGIN-02, 03, 04, 07, 09, 10, 12, 24, 25.\nLOGIN-16..19 (Google callback) are in tests/unit/Login.backend.oauth-callback.test.ts because Postman cannot produce a Google login code.\nLOGIN-27 (cookie flags) is in the Selenium file because only a real browser creates that cookie.\nRun:  pnpm test:backend"
+    "description": "BACKEND rows of sheet '02 - Login'. Order: LOGIN-02, 03, 04, 07, 09, 10, 12, 24, 25.\nLOGIN-16..19 (Google callback) are in tests/backend/Login.oauth-callback.backend.test.ts because Postman cannot produce a Google login code.\nLOGIN-27 (cookie flags) is in the Selenium file because only a real browser creates that cookie.\nRun:  pnpm test:backend"
   },
   "event": [
     {
@@ -52,6 +52,15 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
                   "let body = {};",
                   "try { body = pm.response.json(); } catch (e) {}",
                   "pm.test('LOGIN-02 sign-in returns 200 and a session', () => {",
@@ -89,6 +98,15 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
                   "pm.test('LOGIN-02 Student rows for this user: 1 (so the app treats it as a student)', () => {",
                   "  pm.response.to.have.status(200);",
                   "  pm.expect(pm.response.json()).to.have.lengthOf(1);",
@@ -120,6 +138,15 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
                   "pm.test('LOGIN-02 Organization rows for this user: 0 (so the app treats it as a student)', () => {",
                   "  pm.response.to.have.status(200);",
                   "  pm.expect(pm.response.json()).to.have.lengthOf(0);",
@@ -166,6 +193,15 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
                   "let body = {};",
                   "try { body = pm.response.json(); } catch (e) {}",
                   "const message = body.msg || body.error_description || body.message || '';",
@@ -218,6 +254,15 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
                   "let body = {};",
                   "try { body = pm.response.json(); } catch (e) {}",
                   "pm.collectionVariables.set('L04_STATUS', String(pm.response.code));",
@@ -269,6 +314,15 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
                   "let body = {};",
                   "try { body = pm.response.json(); } catch (e) {}",
                   "const message = body.msg || body.error_description || body.message || '';",
@@ -324,6 +378,21 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "// This account is optional. Leave NOPROFILE_EMAIL empty in the environment file to skip LOGIN-07.",
+                  "if (!pm.environment.get('NOPROFILE_EMAIL')) {",
+                  "  pm.test.skip('LOGIN-07 skipped (no NOPROFILE_EMAIL in the environment file)');",
+                  "  return;",
+                  "}",
+                  "",
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
                   "let body = {};",
                   "try { body = pm.response.json(); } catch (e) {}",
                   "pm.test('LOGIN-07 sign-in returns 200 and a session', () => {",
@@ -361,6 +430,21 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "// This account is optional. Leave NOPROFILE_EMAIL empty in the environment file to skip LOGIN-07.",
+                  "if (!pm.environment.get('NOPROFILE_EMAIL')) {",
+                  "  pm.test.skip('LOGIN-07 skipped (no NOPROFILE_EMAIL in the environment file)');",
+                  "  return;",
+                  "}",
+                  "",
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
                   "pm.test('LOGIN-07 Student rows for this user: 0 (so the app treats it as a NEW account)', () => {",
                   "  pm.response.to.have.status(200);",
                   "  pm.expect(pm.response.json()).to.have.lengthOf(0);",
@@ -392,6 +476,21 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "// This account is optional. Leave NOPROFILE_EMAIL empty in the environment file to skip LOGIN-07.",
+                  "if (!pm.environment.get('NOPROFILE_EMAIL')) {",
+                  "  pm.test.skip('LOGIN-07 skipped (no NOPROFILE_EMAIL in the environment file)');",
+                  "  return;",
+                  "}",
+                  "",
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
                   "pm.test('LOGIN-07 Organization rows for this user: 0 (so the app treats it as a NEW account)', () => {",
                   "  pm.response.to.have.status(200);",
                   "  pm.expect(pm.response.json()).to.have.lengthOf(0);",
@@ -402,7 +501,7 @@
           ]
         }
       ],
-      "description": "NOTE: the sheet expects an error, but the current app lets this user sign in and then opens the Complete your Profile modal (account type 'new'). This folder checks what the app does today."
+      "description": "NOTE: the sheet expects an error, but the current app lets this user sign in and then opens the Complete your Profile modal (account type 'new'). This folder checks what the app does today. OPTIONAL: it is skipped automatically when NOPROFILE_EMAIL is empty."
     },
     {
       "name": "LOGIN-09 | Email is case-insensitive",
@@ -447,6 +546,15 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
                   "let body = {};",
                   "try { body = pm.response.json(); } catch (e) {}",
                   "pm.test('LOGIN-09 an UPPER CASE email still signs in', () => {",
@@ -510,6 +618,14 @@
                   "  pm.test.skip('LOGIN-10 rate limit (skipped: set RUN_RATE_LIMIT_TEST=true to run it)');",
                   "  return;",
                   "}",
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
                   "const attempt = Number(pm.collectionVariables.get('L10_COUNT') || 0) + 1;",
                   "pm.collectionVariables.set('L10_COUNT', attempt);",
                   "if (pm.response.code === 429) {",
@@ -564,6 +680,15 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
                   "let body = {};",
                   "try { body = pm.response.json(); } catch (e) {}",
                   "pm.test('LOGIN-12 sign-in returns 200 and a session', () => {",
@@ -601,6 +726,15 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
                   "pm.test('LOGIN-12 Student rows for this user: 0 (so the app treats it as an organization)', () => {",
                   "  pm.response.to.have.status(200);",
                   "  pm.expect(pm.response.json()).to.have.lengthOf(0);",
@@ -632,6 +766,15 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
                   "pm.test('LOGIN-12 Organization rows for this user: 1 (so the app treats it as an organization)', () => {",
                   "  pm.response.to.have.status(200);",
                   "  pm.expect(pm.response.json()).to.have.lengthOf(1);",
@@ -660,9 +803,18 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
                   "pm.test('LOGIN-24 GET /landing without a session is redirected (HTTP 307) to the home page \"/\"', () => {",
                   "  pm.response.to.have.status(307);",
-                  "  pm.expect(pm.response.headers.get('Location') || '').to.match(/^https?:\\/\\/[^\\/]+\\/?$/);",
+                  "  pm.expect(pm.response.headers.get('Location') || '').to.match(/^(https?:\\/\\/[^\\/]+\\/?|\\/)$/);",
                   "});"
                 ]
               }
@@ -685,9 +837,18 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
                   "pm.test('LOGIN-24 GET /cart without a session is redirected (HTTP 307) to the home page \"/\"', () => {",
                   "  pm.response.to.have.status(307);",
-                  "  pm.expect(pm.response.headers.get('Location') || '').to.match(/^https?:\\/\\/[^\\/]+\\/?$/);",
+                  "  pm.expect(pm.response.headers.get('Location') || '').to.match(/^(https?:\\/\\/[^\\/]+\\/?|\\/)$/);",
                   "});"
                 ]
               }
@@ -710,9 +871,18 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
                   "pm.test('LOGIN-24 GET /dashboard without a session is redirected (HTTP 307) to the home page \"/\"', () => {",
                   "  pm.response.to.have.status(307);",
-                  "  pm.expect(pm.response.headers.get('Location') || '').to.match(/^https?:\\/\\/[^\\/]+\\/?$/);",
+                  "  pm.expect(pm.response.headers.get('Location') || '').to.match(/^(https?:\\/\\/[^\\/]+\\/?|\\/)$/);",
                   "});"
                 ]
               }
@@ -735,9 +905,18 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
                   "pm.test('LOGIN-24 GET /inventory without a session is redirected (HTTP 307) to the home page \"/\"', () => {",
                   "  pm.response.to.have.status(307);",
-                  "  pm.expect(pm.response.headers.get('Location') || '').to.match(/^https?:\\/\\/[^\\/]+\\/?$/);",
+                  "  pm.expect(pm.response.headers.get('Location') || '').to.match(/^(https?:\\/\\/[^\\/]+\\/?|\\/)$/);",
                   "});"
                 ]
               }
@@ -760,6 +939,15 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
                   "pm.test('LOGIN-24 GET / without a session is allowed (HTTP 200)', () => pm.response.to.have.status(200));"
                 ]
               }
@@ -787,6 +975,15 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
                   "pm.test('LOGIN-24 the database gives an anonymous request no Student rows', () => {",
                   "  // Either the request is refused, or row-level security hides every row.",
                   "  pm.expect(pm.response.code).to.be.oneOf([200, 401, 403]);",
@@ -820,9 +1017,18 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
                   "pm.test('LOGIN-25 a malformed session cookie is treated as logged out (HTTP 307 to \"/\")', () => {",
                   "  pm.response.to.have.status(307);",
-                  "  pm.expect(pm.response.headers.get('Location') || '').to.match(/^https?:\\/\\/[^\\/]+\\/?$/);",
+                  "  pm.expect(pm.response.headers.get('Location') || '').to.match(/^(https?:\\/\\/[^\\/]+\\/?|\\/)$/);",
                   "});"
                 ]
               }
@@ -859,25 +1065,36 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Forget tokens from an earlier run, so a failed setup can never reuse an old one.",
+                  "pm.collectionVariables.unset('TAMPERED_TOKEN');",
+                  "pm.collectionVariables.unset('EXPIRED_TOKEN');",
+                  "pm.collectionVariables.unset('MALFORMED_TOKEN');"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
                   "const enc = (obj) => CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(JSON.stringify(obj)))",
                   "  .replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, '');",
                   "",
-                  "let body = {};",
-                  "try { body = pm.response.json(); } catch (e) {}",
-                  "pm.test('LOGIN-25 (setup) the student signs in', () => pm.response.to.have.status(200));",
-                  "",
-                  "// Tampered token: a real token whose payload is edited (role -> service_role), old signature kept.",
-                  "const parts = body.access_token.split('.');",
-                  "let b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');",
-                  "while (b64.length % 4) b64 += '=';",
-                  "const payload = JSON.parse(CryptoJS.enc.Base64.parse(b64).toString(CryptoJS.enc.Utf8));",
-                  "payload.role = 'service_role';",
-                  "parts[1] = enc(payload);",
-                  "pm.collectionVariables.set('TAMPERED_TOKEN', parts.join('.'));",
+                  "// Malformed token: not a token at all.",
+                  "pm.collectionVariables.set('MALFORMED_TOKEN', 'garbage');",
                   "",
                   "// Expired token: says it expired an hour ago (the signature is fake, so it is invalid anyway).",
                   "const now = Math.floor(Date.now() / 1000);",
@@ -886,7 +1103,20 @@
                   "  enc({ role: 'authenticated', sub: '00000000-0000-0000-0000-000000000000', exp: now - 3600 }),",
                   "  'invalid-signature',",
                   "].join('.'));",
-                  "pm.collectionVariables.set('MALFORMED_TOKEN', 'garbage');"
+                  "",
+                  "let body = {};",
+                  "try { body = pm.response.json(); } catch (e) {}",
+                  "pm.test('LOGIN-25 (setup) the student signs in', () => pm.response.to.have.status(200));",
+                  "if (!body.access_token) return; // the tampered-token request below then reports the failed setup",
+                  "",
+                  "// Tampered token: a real token whose payload is edited (role -> service_role), old signature kept.",
+                  "const parts = body.access_token.split('.');",
+                  "let b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');",
+                  "while (b64.length % 4) b64 += '=';",
+                  "const payload = JSON.parse(CryptoJS.enc.Base64.parse(b64).toString(CryptoJS.enc.Utf8));",
+                  "payload.role = 'service_role';",
+                  "parts[1] = enc(payload);",
+                  "pm.collectionVariables.set('TAMPERED_TOKEN', parts.join('.'));"
                 ]
               }
             }
@@ -914,6 +1144,21 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
+                  "if (!pm.collectionVariables.get('MALFORMED_TOKEN')) {",
+                  "  pm.test('LOGIN-25 the a malformed token could not be built, because the LOGIN-25 (setup) sign-in failed', () => {",
+                  "    pm.expect.fail('Fix the LOGIN-25 (setup) request first');",
+                  "  });",
+                  "  return;",
+                  "}",
                   "pm.test('LOGIN-25 the database rejects a malformed token (HTTP 401)', () => pm.response.to.have.status(401));"
                 ]
               }
@@ -942,6 +1187,21 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
+                  "if (!pm.collectionVariables.get('EXPIRED_TOKEN')) {",
+                  "  pm.test('LOGIN-25 the an expired token could not be built, because the LOGIN-25 (setup) sign-in failed', () => {",
+                  "    pm.expect.fail('Fix the LOGIN-25 (setup) request first');",
+                  "  });",
+                  "  return;",
+                  "}",
                   "pm.test('LOGIN-25 the database rejects an expired token (HTTP 401)', () => pm.response.to.have.status(401));"
                 ]
               }
@@ -970,6 +1230,21 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
+                  "if (!pm.collectionVariables.get('TAMPERED_TOKEN')) {",
+                  "  pm.test('LOGIN-25 the a tampered token could not be built, because the LOGIN-25 (setup) sign-in failed', () => {",
+                  "    pm.expect.fail('Fix the LOGIN-25 (setup) request first');",
+                  "  });",
+                  "  return;",
+                  "}",
                   "pm.test('LOGIN-25 the database rejects a tampered token (role edited) (HTTP 401)', () => pm.response.to.have.status(401));"
                 ]
               }
