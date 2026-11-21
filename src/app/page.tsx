@@ -40,8 +40,6 @@ export default function Home() {
             <FAQSection/>
           </div>
       </div>
-
-      <Footer/>
     </main>
   );
 }
