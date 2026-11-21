@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react";
 import { lato } from "@/src/styles/fonts";
 import { StatusPill, StockBadge } from "./badges";
-import { formatPhp, type Product } from "@/src/app/(organization)/inventory/data";
+import { formatPhp, getProductCategories, type Product } from "@/src/app/(organization)/inventory/data";
 
 export type StockSort = "asc" | "desc" | null;
 
@@ -24,7 +24,7 @@ type ProductTableProps = {
   onTogglePublish: (product: Product) => void;
 };
 
-const checkboxClass = "h-4 w-4 cursor-pointer rounded-[4px] accent-[#004D31]";
+const checkboxClass = "h-4 w-4 cursor-pointer rounded-[2px] checked:accent-[#004D31] checked:appearance-auto appearance-none border border-[#CBC7C7] hover:bg-[#004D3115]";
 
 export default function ProductTable({
   products,
@@ -103,12 +103,12 @@ export default function ProductTable({
               />
 
               <div className="flex items-center gap-5">
-                <Thumb size={58} />
+                <Thumb size={58} imageUrl={p.imageUrl} />
                 <div className="min-w-0">
                   <p className={`${lato.className} truncate text-[13px] font-bold text-[#1E3A2C]`}>
                     {p.name}
                   </p>
-                  <p className={`${lato.className} mt-0.5 text-[11px] text-[#3F4B54]`}>
+                  <p className={`${lato.className} mt-0.5 break-all text-[11px] text-[#3F4B54]`}>
                     Product ID: {p.productId}
                   </p>
                 </div>
@@ -121,16 +121,18 @@ export default function ProductTable({
                 <StockBadge stock={p.stock} salesL30D={p.salesL30D} />
               </div>
               <Performance sales={p.sales} l30d={p.salesL30D} />
-              <p className={`${lato.className} text-[13px] text-[#1E3A2C]`}>{p.category}</p>
+              <p className={`${lato.className} text-[13px] text-[#1E3A2C]`}>
+                {getProductCategories(p).join(", ")}
+              </p>
               <div>
-                <StatusPill published={p.published} />
+                <StatusPill published={p.isActive} />
               </div>
 
               <div className="flex items-center gap-5">
                 {/* TODO: link to the real edit page once it exists */}
                 {/* while a row is checked its own actions are dimmed (use the bulk bar instead) */}
                 <Link
-                  href={`/org/inventory/${p.id}/edit`}
+                  href={`/inventory/${p.id}/edit`}
                   aria-disabled={isSelected}
                   tabIndex={isSelected ? -1 : undefined}
                   className={`${lato.className} text-[12px] font-bold transition-all duration-200 hover:scale-110 hover:underline ${
@@ -146,12 +148,12 @@ export default function ProductTable({
                   className={`${lato.className} text-[12px] font-bold transition-all duration-200 hover:scale-110 hover:underline ${
                     isSelected
                       ? "cursor-default text-[#B5BEB9] no-underline hover:scale-100 hover:no-underline"
-                      : p.published
+                      : p.isActive
                         ? "text-[#D0021B]"
                         : "text-[#008A58]"
                   }`}
                 >
-                  {p.published ? "Unpublish" : "Publish"}
+                  {p.isActive ? "Unpublish" : "Publish"}
                 </button>
               </div>
 
@@ -162,7 +164,7 @@ export default function ProductTable({
                   className="col-span-6 col-start-2 grid items-center rounded-[6px] border border-transparent bg-[#F4F4F4] py-3 transition-all duration-200 ease-in-out [grid-template-columns:subgrid] hover:scale-[1.01] hover:border-[#004D31] hover:bg-[#EAF6EF] hover:shadow-md"
                 >
                   <div className="flex items-center gap-4 pl-3.5">
-                    <Thumb size={46} />
+                    <Thumb size={46} imageUrl={v.imageUrl ?? p.imageUrl} />
                     <p className={`${lato.className} truncate text-[13px] font-bold text-[#1E3A2C]`}>
                       Variant: {v.name}
                     </p>
@@ -184,15 +186,15 @@ export default function ProductTable({
   );
 }
 
-// dark gray box = placeholder for the product image
-// TODO: swap for the real product image when the data has one
-function Thumb({ size }: { size: number }) {
+function Thumb({ size, imageUrl }: { size: number; imageUrl: string | null }) {
   return (
     <div
       aria-hidden
       style={{ width: size, height: size }}
-      className="shrink-0 rounded-[8px] bg-[#5E5E5E] transition-transform duration-200 ease-in-out group-hover/row:scale-105"
-    />
+      className="shrink-0 overflow-hidden rounded-[8px] bg-[#5E5E5E] transition-transform duration-200 ease-in-out group-hover/row:scale-105"
+    >
+      {imageUrl && <img src={imageUrl} alt="" loading="lazy" className="h-full w-full object-cover" />}
+    </div>
   );
 }
 

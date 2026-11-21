@@ -2,6 +2,7 @@
 export const STUDENT_TABLE = 'Student';
 export const ORGANIZATION_TABLE = 'Organization';
 export const PRODUCT_TABLE = 'Product';
+export const TAG_TABLE = 'Tag';
 export const PRODUCT_IMAGE_TABLE = 'ProductImage';
 export const INVENTORY_TABLE = 'Inventory';
 export const VARIANT_OPTION_TABLE = 'VariantOption';

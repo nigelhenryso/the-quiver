@@ -7,10 +7,9 @@ import FilterBar, { defaultFilters, type Filters } from "./FilterBar";
 import PageNav from "./PageNav";
 import ProductTable, { type StockSort } from "./ProductTable";
 import {
-  categories,
+  getProductCategories,
   getStockStatus,
   PAGE_SIZE,
-  type Category,
   type Product,
   type StockStatus,
 } from "../../../../app/(organization)/inventory/data";
@@ -22,8 +21,18 @@ export default function InventoryClient({ initialProducts }: { initialProducts: 
   // NOTE: with a real backend, publish/unpublish should call the API and then refresh this
   const [products, setProducts] = useState(initialProducts);
   const [tab, setTab] = useState<Tab>("all");
-  const [draft, setDraft] = useState<Filters>(defaultFilters); // what the inputs show
-  const [applied, setApplied] = useState<Filters>(defaultFilters); // what is actually filtering
+  const categoryCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const product of initialProducts) {
+      for (const category of getProductCategories(product)) {
+        counts.set(category, (counts.get(category) ?? 0) + 1);
+      }
+    }
+    return new Map([...counts].sort(([a], [b]) => a.localeCompare(b)));
+  }, [initialProducts]);
+  const initialFilters = { ...defaultFilters, categories: [...categoryCounts.keys()] };
+  const [draft, setDraft] = useState<Filters>(initialFilters);
+  const [applied, setApplied] = useState<Filters>(initialFilters);
   const [stockSort, setStockSort] = useState<StockSort>(null);
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -31,15 +40,12 @@ export default function InventoryClient({ initialProducts }: { initialProducts: 
   const [toast, setToast] = useState("");
 
   // ---------- counts (always based on all products, like the design) ----------
-  const liveCount = products.filter((p) => p.published).length;
+  const liveCount = products.filter((p) => p.isActive).length;
   const tabCounts: Record<Tab, number> = {
     all: products.length,
     live: liveCount,
     unpublished: products.length - liveCount,
   };
-  const categoryCounts = Object.fromEntries(
-    categories.map((c) => [c, products.filter((p) => p.category === c).length]),
-  ) as Record<Category, number>;
   const stockCounts: Record<StockStatus, number> = { in: 0, low: 0, out: 0 };
   products.forEach((p) => stockCounts[getStockStatus(p.stock, p.salesL30D)]++);
 
@@ -47,9 +53,9 @@ export default function InventoryClient({ initialProducts }: { initialProducts: 
   const filtered = useMemo(() => {
     const q = applied.search.trim().toLowerCase();
     const rows = products.filter((p) => {
-      if (tab === "live" && !p.published) return false;
-      if (tab === "unpublished" && p.published) return false;
-      if (!applied.categories.includes(p.category)) return false;
+      if (tab === "live" && !p.isActive) return false;
+      if (tab === "unpublished" && p.isActive) return false;
+      if (!getProductCategories(p).some((category) => applied.categories.includes(category))) return false;
       if (!applied.stock.includes(getStockStatus(p.stock, p.salesL30D))) return false;
       if (q) {
         const haystack = [p.name, p.productId, ...p.variants.map((v) => v.name)]
@@ -93,8 +99,8 @@ export default function InventoryClient({ initialProducts }: { initialProducts: 
     });
 
   const selectedProducts = products.filter((p) => selected.has(p.id));
-  const selectedLive = selectedProducts.filter((p) => p.published);
-  const selectedUnpublished = selectedProducts.filter((p) => !p.published);
+  const selectedLive = selectedProducts.filter((p) => p.isActive);
+  const selectedUnpublished = selectedProducts.filter((p) => !p.isActive);
 
   // ---------- actions ----------
   const openModal = (mode: ModalMode, items: Product[]) =>
@@ -106,7 +112,7 @@ export default function InventoryClient({ initialProducts }: { initialProducts: 
     if (!modal) return;
     const ids = new Set(modal.ids);
     const publish = modal.mode === "publish";
-    setProducts((prev) => prev.map((p) => (ids.has(p.id) ? { ...p, published: publish } : p)));
+    setProducts((prev) => prev.map((p) => (ids.has(p.id) ? { ...p, isActive: publish } : p)));
     setSelected(new Set());
     setToast(`${ids.size} listing${ids.size === 1 ? "" : "s"} ${publish ? "published" : "unpublished"}.`);
     setModal(null);
@@ -124,8 +130,8 @@ export default function InventoryClient({ initialProducts }: { initialProducts: 
     setPage(1);
   };
   const resetFilters = () => {
-    setDraft(defaultFilters);
-    setApplied(defaultFilters);
+    setDraft(initialFilters);
+    setApplied(initialFilters);
     setStockSort(null);
     setPage(1);
   };
@@ -228,7 +234,7 @@ export default function InventoryClient({ initialProducts }: { initialProducts: 
       <section className="mt-5 overflow-hidden rounded-[10px] border border-[#C9D6CE] bg-white shadow-[0_2px_4px_rgba(0,0,0,0.25)]">
         {pageRows.length === 0 ? (
           <p className={`font-body px-6 py-16 text-center text-[14px] text-[#7C8A82]`}>
-            No products match your filters.
+            {products.length === 0 ? "Your organization has no products yet." : "No products match your filters."}
           </p>
         ) : (
           <ProductTable
@@ -238,7 +244,7 @@ export default function InventoryClient({ initialProducts }: { initialProducts: 
             onToggleAll={toggleAllOnPage}
             stockSort={stockSort}
             onSortStock={cycleStockSort}
-            onTogglePublish={(p) => openModal(p.published ? "unpublish" : "publish", [p])}
+            onTogglePublish={(p) => openModal(p.isActive ? "unpublish" : "publish", [p])}
           />
         )}
 

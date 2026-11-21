@@ -1,5 +1,8 @@
+import { Suspense } from "react";
 import { calSans, lato } from "@/src/styles/fonts";
 import AddProductForm from "@/src/components/ui/orgUi/inventory/AddProductForm";
+import { createClient } from "@/src/lib/supabase/server";
+import { TAG_TABLE } from "@/src/lib/supabase/tables";
 
 export const metadata = {
   title: "Add New Product | The Quiver Seller Hub",
@@ -17,7 +20,9 @@ export default function OrgAddProductPage() {
         </p>
         <div className="mt-5 border-t border-[#DDE5E0]" />
 
-        <AddProductForm />
+        <Suspense fallback={<p role="status" className="mt-6">Loading product categories…</p>}>
+          <AddProductContent />
+        </Suspense>
       </main>
 
       <footer className="border-t border-[#C9D6CE] bg-[#F3FFF6] py-4 text-center">
@@ -27,4 +32,20 @@ export default function OrgAddProductPage() {
       </footer>
     </div>
   );
+}
+
+async function AddProductContent() {
+  const supabase = await createClient();
+  const { data: tags, error } = await supabase
+    .from(TAG_TABLE)
+    .select("tag_id, name")
+    .order("name")
+    .order("tag_id");
+
+  if (error) {
+    console.error("Failed to load product tags", error);
+    return <p role="alert" className="mt-6">Couldn’t load product categories. Refresh the page to try again.</p>;
+  }
+
+  return <AddProductForm tags={tags} />;
 }

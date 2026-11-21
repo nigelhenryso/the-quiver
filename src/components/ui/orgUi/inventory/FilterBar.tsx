@@ -3,13 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Check, ChevronDown, Search } from "lucide-react";
 import { lato } from "@/src/styles/fonts";
-import { categories, stockStatusLabel, type Category, type StockStatus } from "@/src/app/(organization)/inventory/data";
+import { stockStatusLabel, type StockStatus } from "@/src/app/(organization)/inventory/data";
 
 export type PerformanceSort = "default" | "sales-asc" | "sales-desc" | "l30d-asc" | "l30d-desc";
 
 export type Filters = {
   search: string;
-  categories: Category[]; // checked categories (all checked = no filter)
+  categories: string[];
   stock: StockStatus[]; // checked stock statuses (all checked = no filter)
   performance: PerformanceSort;
 };
@@ -18,7 +18,7 @@ export const stockStatuses: StockStatus[] = ["in", "low", "out"];
 
 export const defaultFilters: Filters = {
   search: "",
-  categories: [...categories],
+  categories: [],
   stock: [...stockStatuses],
   performance: "default",
 };
@@ -36,7 +36,7 @@ type FilterBarProps = {
   onChange: (next: Filters) => void;
   onApply: () => void;
   onReset: () => void;
-  categoryCounts: Record<Category, number>;
+  categoryCounts: Map<string, number>;
   stockCounts: Record<StockStatus, number>;
   total: number;
 };
@@ -59,6 +59,7 @@ export default function FilterBar({
   stockCounts,
   total,
 }: FilterBarProps) {
+  const categories = [...categoryCounts.keys()];
   // ex: "Category: All (20)" / "Category: Shirt, Pins"
   const summary = (name: string, labels: string[], allCount: number) =>
     labels.length === allCount
@@ -100,10 +101,10 @@ export default function FilterBar({
       <MultiSelect
         label="Category"
         buttonText={summary("Category", value.categories, categories.length)}
-        options={categories.map((c) => ({ value: c, label: `${c} (${categoryCounts[c]})` }))}
+        options={categories.map((c) => ({ value: c, label: `${c} (${categoryCounts.get(c)})` }))}
         checked={value.categories}
         onToggle={(c) =>
-          onChange({ ...value, categories: toggleIn(categories, value.categories, c as Category) })
+          onChange({ ...value, categories: toggleIn(categories, value.categories, c) })
         }
       />
 
@@ -215,7 +216,7 @@ function MultiSelect({
           role="listbox"
           aria-multiselectable
           aria-label={label}
-          className="absolute left-0 right-0 top-[calc(100%+4px)] z-20 overflow-hidden rounded-[6px] border border-[#C9D6CE] bg-white shadow-[0_4px_10px_rgba(0,0,0,0.15)]"
+          className="absolute left-0 right-0 top-[calc(100%+4px)] z-20 max-h-64 overflow-y-auto rounded-[6px] border border-[#C9D6CE] bg-white shadow-[0_4px_10px_rgba(0,0,0,0.15)]"
         >
           {options.map((o) => {
             const isChecked = checked.includes(o.value);
