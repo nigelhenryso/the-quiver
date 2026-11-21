@@ -1,0 +1,23 @@
+import { Header } from "@/src/components/ui/Header";
+import { Footer } from "@/src/components/ui/Footer";
+
+export const metadata = {
+  title: "Sales | The Quiver Seller Hub",
+};
+
+export default function OrgSalesPage() {
+  return (
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-[#FBFFFB] to-[#E4FFCC]">
+      <main className="mx-auto w-full max-w-[960px] flex-1 px-5 pb-16 pt-12 sm:px-8">
+        <h1 className={`font-heading text-[32px] text-[#199E72] sm:text-[36px]`}>
+          Sales
+        </h1>
+        <p className={`font-body mt-1 text-[12.5px] text-[#8DBBA6]`}>
+          Track real-time merchandise sale metrics for your organization
+        </p>
+
+        {/* later: add the orders content here */}
+      </main>
+    </div>
+  );
+}

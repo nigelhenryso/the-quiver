@@ -169,7 +169,7 @@ export const Header = ({
                     hoverTextColor='#b9dccf'
                     onClick={() => router.push('/landing')}
                     label="Home"
-                    fontSize={20}
+                    fontSize={15}
                   />
                   <Button
                     primary
@@ -179,7 +179,7 @@ export const Header = ({
                     hoverTextColor='#b9dccf'
                     onClick={() => router.push('/organizations')}
                     label="Campus Orgs"
-                    fontSize={20}
+                    fontSize={15}
                   />
                   <Button
                     primary
@@ -189,7 +189,7 @@ export const Header = ({
                     hoverTextColor='#b9dccf'
                     onClick={() => router.push('/studentOrders')}
                     label="Orders"
-                    fontSize={20}
+                    fontSize={15}
                   />
                 </div>
                 <div className="mx-[45px] flex items-center gap-[30px]"> {/* NAV OPTIONS */}
@@ -257,7 +257,7 @@ export const Header = ({
               <>
                 <div className="mx-[45px] flex flex-row items-center justify-between gap-1">
                   <QuiverLogo />
-                  <div className = "flex flex-row items-center items-end">
+                  <div className = "flex flex-row items-center">
                     <h1 className={`font-heading flex items-center text-[21.6867px] leading-[30px] font-normal text-white`}>
                       The Quiver
                     </h1>
@@ -267,7 +267,7 @@ export const Header = ({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-[30px]"> {/* NAV OPTIONS */}
+                <div className="flex items-center gap-[60px]"> {/* NAV OPTIONS */}
                   <Button
                     size="small"
                     type='nav'
@@ -275,7 +275,7 @@ export const Header = ({
                     hoverTextColor='#b9dccf'
                     onClick={() => router.push('/dashboard')}
                     label="Dashboard"
-                    fontSize={20}
+                    fontSize={15}
                   />
                   <Button
                     primary
@@ -283,9 +283,9 @@ export const Header = ({
                     type='nav'
                     textColor='#FFFFFF'
                     hoverTextColor='#b9dccf'
-                    onClick={() => router.push('/inventory')}
-                    label="Inventory"
-                    fontSize={20}
+                    onClick={() => router.push('/sales')}
+                    label="Sales"
+                    fontSize={15}
                   />
                   <Button
                     primary
@@ -295,20 +295,22 @@ export const Header = ({
                     hoverTextColor='#b9dccf'
                     onClick={() => router.push('/orgOrders')}
                     label="Orders"
-                    fontSize={20}
+                    fontSize={15}
                   />
-                </div>
-                <div className="mx-[45px] flex items-center gap-[30px]"> {/* NAV OPTIONS */}
                   <Button
                     primary
                     size="small"
                     type='nav'
                     textColor='#FFFFFF'
                     hoverTextColor='#b9dccf'
-                    onClick={onCreateAccount}
-                    logo={<MarketLogo width={16} height={16}/>}
-                    fontSize={20}
+                    onClick={() => router.push('/inventory')}
+                    label="Inventory"
+                    fontSize={15}
                   />
+                </div>
+                
+                <div className="mx-[45px] flex items-center gap-[30px]"> {/* NAV OPTIONS */}
+                  <div className="h-9 w-px self-stretch bg-[#00B775]"></div>
                   <Button
                     primary
                     size="small"
@@ -376,17 +378,7 @@ export const Header = ({
                   onClick={onLogin}
                   textColor='#FFFFFF'
                   hoverTextColor='#b9dccf'
-                  label="New Arrivals"
-                  fontSize={15}
-                  type='nav'
-                />
-                <Button
-                  primary
-                  size="small"
-                  onClick={onCreateAccount}
-                  textColor='#FFFFFF'
-                  hoverTextColor='#b9dccf'
-                  label="Best Sellers"
+                  label="Home"
                   fontSize={15}
                   type='nav'
                 />
