@@ -7,5 +7,6 @@ export const INVENTORY_TABLE = 'Inventory';
 export const VARIANT_OPTION_TABLE = 'VariantOption';
 export const VARIANT_TYPE_TABLE = 'VariantType';
 export const ORDER_TABLE = 'Order';
+export const ORDER_INVENTORY_TABLE = 'OrderInventory';
 export const PAYMENT_TABLE = 'Payment';
 export const PAYMENT_MODE_TABLE = 'PaymentMode';
