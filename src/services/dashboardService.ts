@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import {
   INVENTORY_TABLE,
+  ORDER_INVENTORY_TABLE,
   ORDER_TABLE,
   ORGANIZATION_TABLE,
   PAYMENT_MODE_TABLE,
@@ -13,6 +14,7 @@ import {
 } from '@/src/lib/supabase/tables';
 import type { Inventory } from '@/src/types/Inventory';
 import type { Order } from '@/src/types/Order';
+import type { OrderInventory } from '@/src/types/OrderInventory';
 import type { Organization } from '@/src/types/Organization';
 import type { Payment } from '@/src/types/Payment';
 import type { PaymentMode } from '@/src/types/PaymentMode';
@@ -25,11 +27,14 @@ import type {
   DashboardStats,
   OrgDashboard,
   RecentOrder,
+  RecentOrderItem,
   SalesByPeriod,
   SalesPeriod,
 } from '@/src/types/Dashboard';
 
 const RECENT_ORDER_COUNT = 5;
+/** an order with at least this many distinct inventory items shows a 2x2 image collage */
+const COLLAGE_MIN_ITEMS = 4;
 
 // Periods follow Philippine time (UTC+8, no DST)
 const MANILA_OFFSET_MS = 8 * 60 * 60 * 1000;
@@ -48,9 +53,6 @@ export function periodStart(period: SalesPeriod, now: Date = new Date()): Date {
 
   return new Date(startUtc - MANILA_OFFSET_MS);
 }
-
-const orderTotal = (o: Pick<Order, 'quantity' | 'unit_price_sold'>) =>
-  o.quantity * Number(o.unit_price_sold);
 
 /** Throws on a Supabase error so the page's error boundary shows it. */
 function unwrap<T>(res: { data: unknown; error: { message: string } | null }, what: string): T {
@@ -74,9 +76,9 @@ export async function getOrgDashboard(
   if (orgError) throw new Error(`Failed to load organization: ${orgError.message}`);
   if (!org) return null;
 
-  // Organization -> Product -> Inventory -> Order
-  const products = unwrap<Pick<Product, 'product_id' | 'name'>[]>(
-    await supabase.from(PRODUCT_TABLE).select('product_id, name').eq('organization_id', organizationId),
+  // Organization -> Product -> Inventory -> OrderInventory -> Order
+  const products = unwrap<Pick<Product, 'product_id' | 'name' | 'price'>[]>(
+    await supabase.from(PRODUCT_TABLE).select('product_id, name, price').eq('organization_id', organizationId),
     'products',
   );
   const empty: OrgDashboard = {
@@ -87,7 +89,7 @@ export async function getOrgDashboard(
   };
   if (products.length === 0) {
     if (process.env.NODE_ENV !== 'production')
-      console.warn(`[dashboard] no Product rows visible for org ${organizationId} - check Product RLS (supabase/policies/org_dashboard_read.sql)`);
+      console.warn(`[dashboard] no Product rows visible for org ${organizationId} - check Product RLS`);
     return empty;
   }
 
@@ -104,19 +106,53 @@ export async function getOrgDashboard(
     return empty;
   }
 
+  // only this org's line items; an order may also contain other orgs' items, which are ignored
+  const lines = unwrap<OrderInventory[]>(
+    await supabase
+      .from(ORDER_INVENTORY_TABLE)
+      .select('order_inventory_id, order_id, inventory_id')
+      .in('inventory_id', inventory.map((i) => i.inventory_id)),
+    'order items',
+  );
+  if (lines.length === 0) {
+    if (process.env.NODE_ENV !== 'production')
+      console.warn(`[dashboard] ${inventory.length} inventory rows but no OrderInventory rows visible - check OrderInventory RLS`);
+    return empty;
+  }
+
   const orders = unwrap<Order[]>(
     await supabase
       .from(ORDER_TABLE)
-      .select('order_id, inventory_id, student_id, quantity, unit_price_sold, placed_at, status')
-      .in('inventory_id', inventory.map((i) => i.inventory_id))
+      .select('order_id, student_id, placed_at, status')
+      .in('order_id', [...new Set(lines.map((l) => l.order_id))])
       .order('placed_at', { ascending: false }),
     'orders',
   );
   if (orders.length === 0) {
     if (process.env.NODE_ENV !== 'production')
-      console.warn(`[dashboard] ${inventory.length} inventory rows but no Order rows visible - check Order RLS`);
+      console.warn(`[dashboard] ${lines.length} order items but no Order rows visible - check Order RLS`);
     return empty;
   }
+
+  const invById = new Map(inventory.map((i) => [i.inventory_id, i]));
+  const productById = new Map(products.map((p) => [p.product_id, p]));
+
+  // order_id -> (inventory_id -> unit count), insertion order kept for display
+  const linesByOrder = new Map<string, Map<string, number>>();
+  for (const l of lines) {
+    const counts = linesByOrder.get(l.order_id) ?? new Map<string, number>();
+    counts.set(l.inventory_id, (counts.get(l.inventory_id) ?? 0) + 1);
+    linesByOrder.set(l.order_id, counts);
+  }
+
+  // OrderInventory has no price column, so line value uses the product's current price
+  const unitPrice = (inventoryId: string) =>
+    Number(productById.get(invById.get(inventoryId)?.product_id ?? '')?.price ?? 0);
+  const orderTotal = (orderId: string) =>
+    [...(linesByOrder.get(orderId) ?? new Map<string, number>())].reduce(
+      (sum, [invId, qty]) => sum + qty * unitPrice(invId),
+      0,
+    );
 
   const recent = orders.slice(0, RECENT_ORDER_COUNT);
   const pending = orders.filter((o) => o.status === 'Pending');
@@ -152,20 +188,20 @@ export async function getOrgDashboard(
     totalOrdersThisMonth: thisMonth.length,
   };
 
-  // sales = value of Claimed orders placed within the period
+  // sales = value of this org's items in Claimed orders placed within the period
   const claimed = orders.filter((o) => o.status === 'Claimed');
   const salesByPeriod = (['Weekly', 'Monthly', 'Yearly'] as const).reduce((acc, period) => {
     const start = periodStart(period, now);
     acc[period] = claimed
       .filter((o) => new Date(o.placed_at) >= start)
-      .reduce((sum, o) => sum + orderTotal(o), 0);
+      .reduce((sum, o) => sum + orderTotal(o.order_id), 0);
     return acc;
   }, {} as SalesByPeriod);
 
-  // ---- recent orders: look up customer, variant, image
-  const invById = new Map(inventory.map((i) => [i.inventory_id, i]));
-  const productById = new Map(products.map((p) => [p.product_id, p]));
-  const recentInv = recent.map((o) => invById.get(o.inventory_id)!);
+  // ---- recent orders: look up customer, variants, images
+  const recentInv = recent.flatMap((o) =>
+    [...(linesByOrder.get(o.order_id)?.keys() ?? [])].map((id) => invById.get(id)!),
+  );
   const variantIds = [...new Set(recentInv.map((i) => i.variant_id).filter((v): v is string => !!v))];
   const recentProductIds = [...new Set(recentInv.map((i) => i.product_id))];
   const studentIds = [...new Set(recent.map((o) => o.student_id))];
@@ -192,7 +228,7 @@ export async function getOrgDashboard(
       .then((r) => unwrap<ProductImage[]>(r, 'product images')),
   ]);
 
-  const typeIds = [...new Set(variants.map((v) => v.variant_type_id))];
+  const typeIds = [...new Set(variants.map((v) => v.variant_type_id).filter((t): t is string => !!t))];
   const variantTypes = typeIds.length
     ? unwrap<VariantType[]>(
         await supabase.from(VARIANT_TYPE_TABLE).select('variant_type_id, name').in('variant_type_id', typeIds),
@@ -206,27 +242,43 @@ export async function getOrgDashboard(
   const imageByProduct = new Map<string, string>();
   for (const img of productImages) if (!imageByProduct.has(img.product_id)) imageByProduct.set(img.product_id, img.image_url);
 
-  const recentOrders: RecentOrder[] = recent.map((o) => {
-    const inv = invById.get(o.inventory_id)!;
-    const student = studentById.get(o.student_id);
+  const toItem = (inventoryId: string, quantity: number): RecentOrderItem => {
+    const inv = invById.get(inventoryId)!;
     const variant = inv.variant_id ? variantById.get(inv.variant_id) : undefined;
-    const variantType = variant ? typeById.get(variant.variant_type_id) : undefined;
+    const variantType = variant?.variant_type_id ? typeById.get(variant.variant_type_id) : undefined;
+    return {
+      inventoryId,
+      productName: productById.get(inv.product_id)?.name ?? 'Unknown product',
+      variantLabel: variant?.name ? (variantType ? `${variantType.name}: ${variant.name}` : variant.name) : null,
+      quantity,
+      imageUrl: variant?.image_url ?? imageByProduct.get(inv.product_id) ?? null,
+    };
+  };
+
+  const recentOrders: RecentOrder[] = recent.map((o) => {
+    const items = [...(linesByOrder.get(o.order_id) ?? new Map<string, number>())].map(([id, qty]) => toItem(id, qty));
+    const student = studentById.get(o.student_id);
     const payment = paymentsByOrder.get(o.order_id)?.[0];
     const customerName = student
       ? [student.first_name, student.last_name].filter(Boolean).join(' ') || null
       : null;
 
+    // 4+ distinct items -> first 4 images as a collage; 1-3 -> just the first image
+    const urls = items.map((i) => i.imageUrl).filter((u): u is string => !!u);
+    const images = items.length >= COLLAGE_MIN_ITEMS && urls.length >= COLLAGE_MIN_ITEMS
+      ? urls.slice(0, COLLAGE_MIN_ITEMS)
+      : urls.slice(0, 1);
+
     return {
       orderId: o.order_id,
       placedAt: o.placed_at,
       customerName,
-      productName: productById.get(inv.product_id)?.name ?? 'Unknown product',
-      variantLabel: variant?.name ? (variantType ? `${variantType.name}: ${variant.name}` : variant.name) : null,
-      quantity: o.quantity,
+      items,
+      totalQuantity: items.reduce((sum, i) => sum + i.quantity, 0),
       paymentModeName: payment ? (modeById.get(payment.payment_mode_id)?.name ?? null) : null,
       status: o.status,
-      total: orderTotal(o),
-      imageUrl: variant?.image_url ?? imageByProduct.get(inv.product_id) ?? null,
+      total: orderTotal(o.order_id),
+      images,
     };
   });
 

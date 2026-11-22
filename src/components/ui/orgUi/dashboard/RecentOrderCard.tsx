@@ -13,6 +13,8 @@ const STATUS_LABEL: Record<OrderStatus, string> = {
 // one order row inside Recent Orders; clicking it opens the order on the Orders page
 export default function RecentOrderCard({ order }: { order: RecentOrder }) {
   const shortId = order.orderId.slice(0, 8).toUpperCase();
+  const [firstItem] = order.items;
+  const extraItems = order.items.length - 1;
 
   return (
     <Link
@@ -20,17 +22,7 @@ export default function RecentOrderCard({ order }: { order: RecentOrder }) {
       aria-label={`View order #${shortId}`}
       className="flex flex-col gap-3 rounded-[6px] border border-[#2F8F6B]/40 bg-[#F3FFF6] p-3 shadow-[0_2px_4px_rgba(0,0,0,0.25)] transition-all duration-200 ease-in-out hover:scale-[1.01] hover:border-[#004D31] hover:shadow-lg sm:flex-row sm:gap-5"
     >
-      {/* product image, green box as placeholder */}
-      {order.imageUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={order.imageUrl}
-          alt={order.productName}
-          className="h-[100px] w-full rounded-[6px] object-cover sm:w-[140px] sm:shrink-0"
-        />
-      ) : (
-        <div className="h-[100px] w-full rounded-[6px] bg-[#B9D9A6] sm:w-[140px] sm:shrink-0" />
-      )}
+      <OrderThumbnail images={order.images} alt={firstItem?.productName ?? "Order item"} />
 
       <div className="flex flex-1 flex-col justify-between gap-3 sm:flex-row">
         {/* left: order id, customer, item, payment */}
@@ -45,8 +37,14 @@ export default function RecentOrderCard({ order }: { order: RecentOrder }) {
             {order.customerName ?? "Customer"}
           </p>
           <p className="font-body text-[10px] text-[#1E3A2C]">
-            {order.productName}
-            {order.variantLabel && ` - ${order.variantLabel}`} - {order.quantity}x
+            {firstItem
+              ? `${firstItem.productName}${firstItem.variantLabel ? ` - ${firstItem.variantLabel}` : ""} - ${firstItem.quantity}x`
+              : "No items"}
+            {extraItems > 0 && (
+              <span className="text-[#9AA59E]">
+                {" "}+{extraItems} more item{extraItems > 1 ? "s" : ""} ({order.totalQuantity} pcs total)
+              </span>
+            )}
           </p>
           <p className="font-body text-[10px] text-[#9AA59E]">
             Mode of Payment:{" "}
@@ -66,4 +64,25 @@ export default function RecentOrderCard({ order }: { order: RecentOrder }) {
       </div>
     </Link>
   );
+}
+
+const THUMB_BOX = "h-[100px] w-full rounded-[6px] sm:w-[140px] sm:shrink-0";
+
+// 4 images -> 2x2 collage; 1 image -> full thumbnail; none -> green placeholder
+function OrderThumbnail({ images, alt }: { images: string[]; alt: string }) {
+  if (images.length >= 4) {
+    return (
+      <div className={`${THUMB_BOX} grid grid-cols-2 grid-rows-2 gap-[2px] overflow-hidden bg-[#B9D9A6]`}>
+        {images.slice(0, 4).map((src, i) => (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img key={i} src={src} alt={i === 0 ? alt : ""} className="h-full w-full object-cover" />
+        ))}
+      </div>
+    );
+  }
+  if (images.length > 0) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={images[0]} alt={alt} className={`${THUMB_BOX} object-cover`} />;
+  }
+  return <div className={`${THUMB_BOX} bg-[#B9D9A6]`} />;
 }

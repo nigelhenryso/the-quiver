@@ -15,17 +15,26 @@ export type DashboardStats = {
     totalOrdersThisMonth: number;
 };
 
+/** One distinct inventory item (product + variant) inside an order */
+export type RecentOrderItem = {
+    inventoryId: string;
+    productName: string;
+    variantLabel: string | null; // ex: "Size: M"
+    quantity: number; // OrderInventory rows for this inventory_id
+    imageUrl: string | null;
+};
+
 export type RecentOrder = {
     orderId: string;
     placedAt: string;
     customerName: string | null; // null when RLS hides the Student row
-    productName: string;
-    variantLabel: string | null; // ex: "Size: M"
-    quantity: number;
+    items: RecentOrderItem[];
+    totalQuantity: number;
     paymentModeName: string | null; // null when no Payment row yet
     status: OrderStatus | null;
     total: number;
-    imageUrl: string | null;
+    /** 4 urls -> render as a 2x2 collage (4+ distinct items); otherwise 0 or 1 url */
+    images: string[];
 };
 
 export type OrgDashboard = {
