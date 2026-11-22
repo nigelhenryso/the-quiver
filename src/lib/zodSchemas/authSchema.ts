@@ -42,17 +42,17 @@ Current Zod authSchema:
 
 */
 
+export const OTP_BYPASS = /^testacc\d{13}\d{1,6}@dlsu\.edu\.ph$/i;
+
 const dlsuEmail = z
   .string()
   .trim()
   .min(9, 'Email is required.')
   .email('Enter a valid email address.')
-  .regex(
-    /^[\p{L}\p{N}]+(_[\p{L}\p{N}]+)+@dlsu\.edu\.ph$/iu,
-    'Use your DLSU Email.'
-  )
   .refine(
-    (email) => email.toLowerCase().endsWith('@dlsu.edu.ph'),
+    (email) =>
+      OTP_BYPASS.test(email) ||
+      /^[\p{L}\p{N}]+(_[\p{L}\p{N}]+)+@dlsu\.edu\.ph$/iu.test(email),
     'Use your DLSU Email.'
   );
 
