@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
   title: "The Quiver",
   description: "DLSU Student Organization E-Commerce Site",
+  icons: {
+    icon: { url: "/favicon.svg", type: "image/svg+xml"}
+  }
 };
 
 export default function RootLayout({
