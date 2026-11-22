@@ -42,7 +42,7 @@ Current Zod authSchema:
 
 */
 
-export const OTP_BYPASS = /^testacc\d{13}\d{1,6}@dlsu\.edu\.ph$/i;
+export const OTP_BYPASS = /^testacc_\d{13}_\d{1,6}@dlsu\.edu\.ph$/i;
 
 const dlsuEmail = z
   .string()
