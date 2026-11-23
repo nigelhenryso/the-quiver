@@ -8,10 +8,9 @@ import type { OrderStatus } from "@/src/types/enums";
 import type { MonthlyCompletion, OrgDashboard, RecentOrder } from "@/src/types/Dashboard";
 
 const TIME_ZONE = "Asia/Manila";
-const MONTHS_SHOWN = 4; // months in the Completed card dropdown
+const MONTHS_SHOWN = 4; 
 const RECENT_ORDERS = 5;
 
-// one OrderInventory row with its product info
 type LineRow = {
   order_id: string;
   quantity: number;
@@ -35,7 +34,6 @@ type OrderRow = {
   Payment: { amount: number; made_at: string; PaymentMode: { name: string } | null }[];
 };
 
-// year + month (1-12) of a date in Manila time
 function manilaYearMonth(date: Date) {
   const parts = new Intl.DateTimeFormat("en-US", { timeZone: TIME_ZONE, year: "numeric", month: "numeric" })
     .formatToParts(date);
@@ -51,13 +49,16 @@ function monthLabel(year: number, month: number) {
   });
 }
 
-// capitalizes the first letter of each word, leaves the rest alone (so "ID" stays "ID")
 const capitalize = (text: string) => text.trim().replace(/\b\p{L}/gu, (c) => c.toUpperCase());
 
-// "T - Shirt 3" -> "T-Shirt 3"
 const productName = (name: string) => capitalize(name.replace(/(\w)\s+-\s+(\w)/g, "$1-$2"));
 
-// "Type: Value", ex: "Color: Blue", "Design: 3" (just the value if it has no type)
+/**
+ * Properly capitalizes the names of the products and variant types and variant options
+ * @param option - the order mapped down to product variants
+ * @returns a string that contains the product name along with the variant(s) and the quantity ordered
+ */
+
 function variantName(option: { name: string | null; VariantTypes: { name: string } | null }) {
   const name = option.name?.trim();
   if (!name) return null;
@@ -65,18 +66,29 @@ function variantName(option: { name: string | null; VariantTypes: { name: string
   return type ? `${capitalize(type)}: ${capitalize(name)}` : capitalize(name);
 }
 
+/**
+ * Stringifies and concatenates the ordered product along with the variant types, variant options, and quatities
+ * @param line - the order mapped down to product variants
+ * @returns a string that contains the product name along with the variant(s) and the quantity ordered
+ */
+
 function lineLabel(line: LineRow) {
   const combo = line.Inventory?.ProductVariantCombination;
   const name = productName(combo?.Product?.name ?? "Item");
   const variant = (combo?.CombinationOption ?? [])
     .map((o) => (o.VariantOption ? variantName(o.VariantOption) : null))
     .filter((v): v is string => Boolean(v))
-    .sort() // stable order, ex: "Color: ..." before "Size: ..."
+    .sort() 
     .join(", ");
   return `${name}${variant ? ` - ${variant}` : ""} - ${line.quantity}x`;
 }
 
-// picture for one line: the combination's own image, else a variant option's image, else the product's first image
+/**
+ * Gets the images of the product along with the product of the variants
+ * @param line - the order mapped down to product variants
+ * @returns an object that contains the first product image along with the respective images of the variants
+ */
+
 function lineImage(line: LineRow) {
   const combo = line.Inventory?.ProductVariantCombination;
   return (
@@ -90,7 +102,6 @@ function lineImage(line: LineRow) {
 /**
  * Everything the org dashboard shows, for one organization.
  * RLS already limits OrderInventory to this org's items, and Order/Payment/Student to orders that contain them.
- *
  * @param supabase - server Supabase client (logged in as the org)
  * @param orgId - the org's organization_id (= its auth user id)
  * @returns the dashboard data, or null if the org row doesn't exist
@@ -108,18 +119,17 @@ export async function getOrgDashboard(
         "order_id, quantity, total_cost, Inventory(ProductVariantCombination(image_url, Product(name, organization_id, ProductImage(image_url)), CombinationOption(VariantOption(name, image_url, VariantTypes(name)))))",
       )
       .returns<LineRow[]>(),
-  ]);
+  ]); //returns everyhing in a row mapped down to variant types, variant images, variant option, product image, product name, and organization the belong to
 
   if (!org) return null;
   if (lineError) throw lineError;
 
-  // keep only this org's lines (RLS should already do this) and group them by order
   const linesByOrder = new Map<string, LineRow[]>();
   for (const line of lineData ?? []) {
     if (line.Inventory?.ProductVariantCombination?.Product?.organization_id !== orgId) continue;
     const list = linesByOrder.get(line.order_id) ?? [];
     list.push(line);
-    linesByOrder.set(line.order_id, list);
+    linesByOrder.set(line.order_id, list); //returns the orders that belong to the org in the session
   }
 
   const orderIds = [...linesByOrder.keys()];
@@ -130,21 +140,19 @@ export async function getOrgDashboard(
       .select("order_id, status, placed_at, Student!Order_student_id_fkey(first_name, last_name), Payment(amount, made_at, PaymentMode(name))")
       .in("order_id", orderIds)
       .order("placed_at", { ascending: false })
-      .returns<OrderRow[]>();
+      .returns<OrderRow[]>(); //this returns the orders ids mapped to to their logistical statuses (payments and all that)
     if (error) throw error;
     orders = data ?? [];
   }
 
   const orgTotal = (orderId: string) =>
-    (linesByOrder.get(orderId) ?? []).reduce((sum, l) => sum + Number(l.total_cost), 0);
+    (linesByOrder.get(orderId) ?? []).reduce((sum, l) => sum + Number(l.total_cost), 0); //total number of orders
 
-  // quick view counts
   const stats = {
-    pendingPaymentVerification: orders.filter((o) => o.status === "Pending" && o.Payment.length > 0).length,
-    pendingClaim: orders.filter((o) => o.status === "R4P").length,
+    pendingPaymentVerification: orders.filter((o) => o.status === "Pending" && o.Payment.length > 0).length, //n=numberof pending orders
+    pendingClaim: orders.filter((o) => o.status === "R4P").length, //number of ready for pick up orders
   };
 
-  // completion per month, newest first
   const current = manilaYearMonth(now);
   const completionByMonth: MonthlyCompletion[] = Array.from({ length: MONTHS_SHOWN }, (_, i) => {
     const d = new Date(Date.UTC(current.year, current.month - 1 - i, 1));
@@ -161,7 +169,6 @@ export async function getOrgDashboard(
     };
   });
 
-  // sales = this org's item totals on paid orders, by when the order was placed
   const weekAgo = now.getTime() - 7 * 24 * 60 * 60 * 1000;
   const salesByPeriod = { Weekly: 0, Monthly: 0, Yearly: 0 };
   for (const o of orders) {

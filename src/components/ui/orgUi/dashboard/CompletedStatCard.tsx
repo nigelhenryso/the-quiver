@@ -12,7 +12,6 @@ export default function CompletedStatCard({ completionByMonth }: { completionByM
 
   const completed = selected?.completed ?? 0;
   const total = selected?.total ?? 0;
-  const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
   const isCurrent = selected?.month === completionByMonth[0]?.month;
 
   const dropdown = (
@@ -29,7 +28,6 @@ export default function CompletedStatCard({ completionByMonth }: { completionByM
       value={`${completed}/${total}`}
       label={isCurrent ? "Completed This Month" : `Completed in ${selected?.month.split(" ")[0]}`}
       badge={dropdown}
-      footnote={`${percent}% completed`}
       linkLabel="View Orders"
       href="/orgOrders"
     />
