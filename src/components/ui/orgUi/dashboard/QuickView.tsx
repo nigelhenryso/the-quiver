@@ -23,7 +23,7 @@ export default function QuickView({
           value={stats.pendingPaymentVerification}
           label="Orders for Processing"
           badge={<Badge tone="warning">Needs Review</Badge>}
-          linkLabel="Verify now"
+          linkLabel="View More"
           href="/orgOrders"
         />
         <StatCard

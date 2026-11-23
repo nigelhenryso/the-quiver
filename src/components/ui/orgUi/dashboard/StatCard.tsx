@@ -19,12 +19,11 @@ type StatCardProps = {
   value: string | number;
   label: string;
   badge?: ReactNode;
-  footnote?: ReactNode; // small text on the left of the footer
+  footnote?: ReactNode; 
   linkLabel: string;
   href: string;
 };
 
-// one of the number boxes inside Quick View; the badge sits outside the link so a dropdown badge still works
 export default function StatCard({ value, label, badge, footnote, linkLabel, href }: StatCardProps) {
   return (
     <div className="relative rounded-[8px] border border-[#2F8F6B]/50 bg-[#F3FFF6] shadow-[0_2px_4px_rgba(0,0,0,0.25)] transition-all duration-200 ease-in-out hover:scale-105 hover:border-[#004D31] hover:shadow-lg">
