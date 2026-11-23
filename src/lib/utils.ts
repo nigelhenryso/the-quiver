@@ -10,19 +10,14 @@ export const hasEnvVars =
   process.env.NEXT_PUBLIC_SUPABASE_URL &&
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
-// adds the peso sign and commas, ex: 12201 -> ₱12,201
-export function formatPeso(amount: number) {
-  return "₱" + amount.toLocaleString("en-PH");
-}
-
-// same thing but always 2 decimals, ex: 350 -> ₱350.00
-export function formatPesoDecimals(amount: number) {
+// adds the peso sign and commas, ex: 12201 -> ₱12,201 (decimals = true -> ₱12,201.00)
+export function formatPeso(amount: number, decimals = false) {
   return (
     "₱" +
-    amount.toLocaleString("en-PH", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })
+    amount.toLocaleString(
+      "en-PH",
+      decimals ? { minimumFractionDigits: 2, maximumFractionDigits: 2 } : { maximumFractionDigits: 2 },
+    )
   );
 }
 
