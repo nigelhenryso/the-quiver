@@ -1,28 +1,31 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { AlertTriangle, Info, Upload, X } from "lucide-react";
+import { AlertTriangle, Info, Trash2, Upload, X } from "lucide-react";
 import { calSans, lato } from "@/src/styles/fonts";
 import { getStockStatus, type Product } from "@/src/app/(organization)/inventory/data";
 
-export type ModalMode = "publish" | "unpublish";
+export type ModalMode = "publish" | "unpublish" | "delete";
 
 type ConfirmModalProps = {
   mode: ModalMode;
   items: Product[];
   onConfirm: () => void;
   onCancel: () => void;
+  saving: boolean;
+  error: string;
 };
 
 // stock chip colors inside the dark list
 const chipColors = {
-  in: "border-[#4DB38C] bg-[#2E9A73] text-white",
-  low: "border-[#C9B300] bg-[#0A6B3F] text-[#FFE14D]",
-  out: "border-[#5C6B3A] bg-[#3E5A3E] text-[#FF8F86]",
+  in: "border-[#53AE90] bg-[#20946D] text-[#C6ECDF]",
+  out: "border-[#A86D54] bg-[#286448] text-[#FF7774]",
 } as const;
 
-export default function ConfirmModal({ mode, items, onConfirm, onCancel }: ConfirmModalProps) {
+export default function ConfirmModal({ mode, items, onConfirm, onCancel, saving, error }: ConfirmModalProps) {
   const isUnpublish = mode === "unpublish";
+  const isDelete = mode === "delete";
+  const action = { publish: "Publish", unpublish: "Unpublish", delete: "Delete" }[mode];
   const count = items.length;
   const listings = count === 1 ? "Listing" : "Listings";
   const products = count === 1 ? "Product" : "Products";
@@ -42,7 +45,7 @@ export default function ConfirmModal({ mode, items, onConfirm, onCancel }: Confi
     };
   }, [onCancel]);
 
-  const Icon = isUnpublish ? AlertTriangle : Upload;
+  const Icon = { publish: Upload, unpublish: AlertTriangle, delete: Trash2 }[mode];
 
   return (
     <div
@@ -54,54 +57,59 @@ export default function ConfirmModal({ mode, items, onConfirm, onCancel }: Confi
         aria-modal="true"
         aria-labelledby="confirm-title"
         aria-describedby="confirm-desc"
-        className="relative flex max-h-[calc(100vh-2rem)] w-full max-w-[680px] flex-col overflow-hidden rounded-[14px] bg-gradient-to-b from-[#00B574] to-[#69D7B0] text-white shadow-[0_8px_24px_rgba(0,0,0,0.3)]"
+        className="relative flex max-h-[calc(100dvh-2rem)] w-full max-w-[654px] flex-col overflow-hidden rounded-[16px] bg-[linear-gradient(180deg,#00B574_26%,#08B779_36%,#69D2AE_92%)] text-[#CEF3E5] shadow-[0_8px_24px_rgba(0,0,0,0.3)]"
       >
         <button
           type="button"
           onClick={onCancel}
           aria-label="Close"
-          className="absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-full bg-[#004D31] text-white hover:bg-[#003622]"
+          disabled={saving}
+          className="absolute right-2.5 top-2.5 flex size-7 items-center justify-center rounded-full bg-[#008653] text-[#CDF3E5] enabled:hover:bg-[#006C45] disabled:opacity-60"
         >
-          <X size={14} />
+          <X size={19} aria-hidden />
         </button>
 
         {/* title + description */}
-        <div className="px-7 pb-5 pt-8">
+        <div className="px-4 pb-5 pt-9 sm:px-7 sm:pt-10">
           <h2
             id="confirm-title"
-            className={`${calSans.className} flex items-center gap-3 pr-8 text-[30px] leading-tight`}
+            className={`${calSans.className} flex items-center gap-2 text-[25px] leading-tight text-[#E2FFF3] sm:text-[32px]`}
           >
-            <Icon size={28} aria-hidden />
-            {isUnpublish ? `Unpublish ${count} ${listings}?` : `Publish ${count} ${listings}?`}
+            <Icon size={32} aria-hidden className="shrink-0" />
+            {isDelete ? "Delete Product?" : `${action} ${count} ${listings}?`}
           </h2>
-          <p id="confirm-desc" className={`${lato.className} mt-3 text-[14px] leading-snug`}>
-            {isUnpublish
+          <p id="confirm-desc" className={`${lato.className} mt-4 text-[14px] leading-snug sm:text-[16px]`}>
+            {isDelete
+              ? "This permanently removes the product, its image links, variants, inventory, and cart entries."
+              : isUnpublish
               ? "Unpublishing immediately hides these items from the marketplace and prevents new orders, but existing pending orders and stock records remain unaffected."
-              : "Publishing immediately puts these items on the marketplace and begins taking new orders, but existing pending orders and stock records remain unaffected."}
+              : "Publishing immediately puts these items in the marketplace and begins taking new orders, but existing pending orders and stock records remain unaffected."}
           </p>
         </div>
 
+        {error && <p role="alert" className={`${lato.className} mx-7 mb-3 rounded-[6px] bg-white px-3 py-2 text-[13px] text-[#9F241B]`}>{error}</p>}
+
         {/* selected items */}
-        <div className="flex-1 overflow-y-auto border-t border-white/25 px-7 py-5">
-          <div className={`${lato.className} mb-2 flex justify-between text-[11px] font-bold uppercase tracking-wide`}>
+        <div className="min-h-0 flex-1 overflow-y-auto border-t border-[#008653] px-4 pb-5 pt-5 sm:px-7 sm:pt-7">
+          <div className={`${lato.className} mb-2 flex justify-between gap-2 text-[11px] font-bold uppercase sm:text-[13px]`}>
             <span>Selected Items ({count})</span>
             <span>Inventory Status</span>
           </div>
 
-          <ul className="overflow-hidden rounded-[8px] border border-[#006B43] bg-[#008A58]">
+          <ul className="overflow-hidden rounded-[10px] border border-[#14966C] bg-[#008653]">
             {items.map((p) => (
               <li
                 key={p.id}
-                className="flex items-center justify-between gap-4 border-b border-[#006B43] px-4 py-3 last:border-b-0"
+                className="flex items-center justify-between gap-3 border-b border-[#14966C] px-3 py-3 last:border-b-0 sm:px-4"
               >
                 <div className="min-w-0">
-                  <p className={`${lato.className} truncate text-[15px] font-bold`}>{p.name}</p>
-                  <p className={`${lato.className} mt-0.5 text-[12px] text-white/90`}>
+                  <p className={`${lato.className} truncate text-[16px] font-bold`}>{p.name}</p>
+                  <p className={`${lato.className} mt-1 break-all text-[13px]`}>
                     Product ID: {p.productId}
                   </p>
                 </div>
                 <span
-                  className={`${lato.className} shrink-0 rounded-[6px] border px-3 py-1 text-[12px] font-bold ${chipColors[getStockStatus(p.stock, p.salesL30D)]}`}
+                  className={`${lato.className} min-w-[74px] shrink-0 rounded-[8px] border px-3 py-1 text-center text-[13px] font-bold sm:min-w-[78px] ${chipColors[getStockStatus(p.stock)]}`}
                 >
                   Stock: {p.stock}
                 </span>
@@ -110,31 +118,35 @@ export default function ConfirmModal({ mode, items, onConfirm, onCancel }: Confi
           </ul>
 
           <p
-            className={`${lato.className} mt-3 flex items-center gap-2 rounded-[6px] bg-[#00804F]/60 px-3 py-2 text-[12px]`}
+            className={`${lato.className} mt-2.5 flex items-center gap-1.5 rounded-[8px] border border-[#63A893] bg-[#379575] px-3 py-2.5 text-[13px] font-bold`}
           >
             <Info size={13} aria-hidden className="shrink-0" />
-            {isUnpublish
+            {isDelete
+              ? "Products with orders or preorders can be unpublished instead."
+              : isUnpublish
               ? "You can republish these listings anytime from the Inventory Management Page."
               : "You can unpublish these listings anytime from the Inventory Management Page."}
           </p>
         </div>
 
         {/* buttons */}
-        <div className="flex justify-end gap-3 border-t border-white/25 px-7 py-5">
+        <div className="flex shrink-0 flex-wrap justify-end gap-3 border-t border-[#008653] px-4 py-4 sm:px-7 sm:pb-5 sm:pt-6">
           <button
             ref={cancelRef}
             type="button"
             onClick={onCancel}
-            className={`${calSans.className} rounded-[8px] border border-[#004D31] bg-transparent px-5 py-2.5 text-[15px] text-[#004D31] transition-colors hover:bg-white/30`}
+            disabled={saving}
+            className={`${calSans.className} min-h-11 rounded-[10px] border border-[#004D31] bg-transparent px-4 py-2 text-[16px] text-[#004D31] transition-colors enabled:hover:bg-white/30 disabled:opacity-60 sm:min-w-[106px]`}
           >
-            {isUnpublish ? "Keep Published" : "Keep Unpublished"}
+            {isUnpublish ? "Keep Published" : "Cancel"}
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className={`${calSans.className} rounded-[8px] bg-[#007A4D] px-5 py-2.5 text-[15px] text-white transition-colors hover:bg-[#004D31]`}
+            disabled={saving}
+            className={`${calSans.className} min-h-11 rounded-[10px] px-5 py-2 text-[16px] text-white transition-colors disabled:opacity-60 sm:min-w-[185px] ${isDelete ? "bg-[#B42318] enabled:hover:bg-[#8F1D16]" : "bg-[#008653] enabled:hover:bg-[#004D31]"}`}
           >
-            {isUnpublish ? `Unpublish ${count} ${products}` : `Publish ${count} ${products}`}
+            {saving ? (isDelete ? "Deleting…" : "Saving…") : isDelete ? "Delete Product" : `${action} ${count} ${products}`}
           </button>
         </div>
       </div>

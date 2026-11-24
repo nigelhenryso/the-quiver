@@ -18,8 +18,6 @@ export default function OrgOrdersPage() {
 
         {/* later: add the orders content here */}
       </main>
-
-      <Footer/>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { ORDER_INVENTORY_TABLE, ORDER_TABLE, ORGANIZATION_TABLE } from "@/src/lib/supabase/tables";
 import { lineImage, lineLabel, productName, type LineRow } from "@/src/services/dashboardService";
+import { resolveProductMedia } from "@/src/services/productMedia";
 import type { OrderStatus } from "@/src/types/enums";
 import type { OrgSales, SalesLine, SalesOrder } from "@/src/types/Sales";
 
@@ -31,13 +32,19 @@ function category(line: SalesLineRow) {
   return tags[0] ?? UNCATEGORIZED;
 }
 
+function coverImage(line: SalesLineRow) {
+  const images = line.Inventory?.ProductVariantCombination?.Product?.ProductImage ?? [];
+  return (images.find((i) => i.position === 0) ?? images[0])?.image_url ?? null;
+}
+
 function toSalesLine(line: SalesLineRow): SalesLine {
   const combo = line.Inventory?.ProductVariantCombination;
   return {
     productId: combo?.product_id ?? "",
     productName: productName(combo?.Product?.name ?? "Item"),
     category: category(line),
-    image: combo?.Product?.ProductImage[0]?.image_url ?? lineImage(line),
+    // product-level cover (position 0) so the best seller doesn't show one variant's photo
+    image: coverImage(line) ?? lineImage(line),
     label: lineLabel(line),
     quantity: Number(line.quantity),
     total: Number(line.total_cost),
@@ -58,7 +65,7 @@ export async function getOrgSales(supabase: SupabaseClient, orgId: string): Prom
     supabase
       .from(ORDER_INVENTORY_TABLE)
       .select(
-        "order_id, quantity, total_cost, Inventory(ProductVariantCombination(product_id, image_url, Product(name, organization_id, ProductImage(image_url), ProductTag(Tag(name))), CombinationOption(VariantOption(name, image_url, VariantTypes(name)))))",
+        "order_id, quantity, total_cost, Inventory(ProductVariantCombination(product_id, image_url, Product(name, organization_id, ProductImage(image_url, position), ProductTag(Tag(name))), CombinationOption(VariantOption(name, VariantTypes(name)))))",
       )
       .returns<SalesLineRow[]>(),
   ]);
@@ -101,6 +108,10 @@ export async function getOrgSales(supabase: SupabaseClient, orgId: string): Prom
       total: lines.reduce((sum, l) => sum + l.total, 0),
     };
   });
+
+  // storage paths ("product-media/...") -> signed URLs
+  const resolveImage = await resolveProductMedia(supabase, salesOrders.flatMap((o) => o.lines.map((l) => l.image)));
+  for (const order of salesOrders) for (const l of order.lines) l.image = resolveImage(l.image);
 
   return { orgName: org.acronym || org.name, orders: salesOrders };
 }
