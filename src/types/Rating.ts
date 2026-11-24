@@ -1,5 +1,6 @@
 export type Rating = {
     rating_id: string;
+    student_id: string;
     order_id: string;
     rating: number;
     comment: string | null;

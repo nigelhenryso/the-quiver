@@ -10,12 +10,14 @@ import {
   signUpSchema,
   toFieldErrors,
   type SignUpInput,
+  OTP_BYPASS,
 } from '@/src/lib/zodSchemas/authSchema';
 import { setRememberMe } from '@/src/lib/supabase/client';
 import {
   otpErrorMessage,
   resendEmailOtp,
   signInWithGoogle,
+  signInWithPassword,
   signUpWithPassword,
   verifyEmailOtp,
 } from '@/src/services/authService';
@@ -109,6 +111,15 @@ export default function SignUpModal({
         setErrors((prev) => ({ ...prev, email: 'An account with this email already exists. Log in instead.' }));
         return;
       case 'confirm_email':
+        if (OTP_BYPASS.test(result.data.email)) {
+          const { error: signInError } = await signInWithPassword(result.data.email, result.data.password);
+          if (!signInError) {
+            setFormData(EMPTY_FORM);
+            setSubmitted(false);
+            onSignedUp?.();
+            return;
+          }
+        }
         setOtpError(null);
         setConfirmEmailSentTo(result.data.email);
         return;

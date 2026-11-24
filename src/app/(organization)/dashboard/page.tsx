@@ -7,7 +7,7 @@ import { createClient } from "@/src/lib/supabase/server";
 import { getOrgDashboard } from "@/src/services/dashboardService";
 
 export const metadata = {
-  title: "Dashboard | The Quiver Seller Hub",
+  title: "Organization Dashboard",
 };
 
 // static shell; the live data streams in through the Suspense boundary
@@ -23,7 +23,6 @@ export default function OrgDashboardPage() {
   );
 }
 
-// request-time part: reads cookies, queries Supabase, uses the current date
 async function DashboardContent() {
   await connection();
 
@@ -33,7 +32,6 @@ async function DashboardContent() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/");
 
-  // org accounts use the auth user id as organization_id
   const dashboard = await getOrgDashboard(supabase, user.id);
 
   if (!dashboard) {
@@ -46,15 +44,15 @@ async function DashboardContent() {
 
   return (
     <>
-      <h1 className="font-heading text-[32px] text-[#199E72] sm:text-[36px]">
-        {dashboard.orgName}&apos;s Dashboard
-      </h1>
-      <p className="font-body mt-1 text-[12.5px] text-[#8DBBA6]">
-        View data analytics from your sales and orders.
-      </p>
+      <h1 className="font-heading text-[32px] text-[#199E72] sm:text-[36px]">{dashboard.orgName}&apos;s Dashboard</h1>
+      <p className="font-body mt-1 text-[12.5px] text-[#8DBBA6]">View data analytics from your sales and orders.</p>
 
       <div className="mt-8">
-        <QuickView stats={dashboard.stats} salesByPeriod={dashboard.salesByPeriod} />
+        <QuickView
+          stats={dashboard.stats}
+          salesByPeriod={dashboard.salesByPeriod}
+          completionByMonth={dashboard.completionByMonth}
+        />
       </div>
 
       <div className="mt-10">

@@ -1,19 +1,14 @@
 import Link from "next/link";
 import RecentOrderCard from "./RecentOrderCard";
-import { ORG_LINKS } from "@/src/lib/routes";
 import type { RecentOrder } from "@/src/types/Dashboard";
 
-type RecentOrdersProps = {
-  orders: RecentOrder[];
-};
-
-// the "Recent Orders" panel, list of RecentOrderCard
-export default function RecentOrders({ orders }: RecentOrdersProps) {
+// "Recent Orders" panel
+export default function RecentOrders({ orders }: { orders: RecentOrder[] }) {
   return (
     <section className="rounded-[10px] border border-[#C9D6CE] bg-white p-5 shadow-[0_2px_4px_rgba(0,0,0,0.25)] sm:px-7 sm:py-6">
       <div className="flex items-baseline justify-between">
         <h2 className="font-heading text-[24px] text-[#2F4531]">Recent Orders</h2>
-        <Link href={ORG_LINKS.orders()} className="font-body text-[11px] text-[#008A58] hover:underline">
+        <Link href="/orgOrders" className="font-body text-[11px] text-[#008A58] hover:underline">
           View all orders →
         </Link>
       </div>
