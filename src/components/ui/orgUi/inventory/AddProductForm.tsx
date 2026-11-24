@@ -3,9 +3,13 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Check, ChevronDown } from "lucide-react";
 import { calSans, lato } from "@/src/styles/fonts";
 import type { Tag } from "@/src/types/Tag";
+import { supabase } from "@/src/lib/supabase/client";
+import { prepareProduct, removeProductUploads, type PreparedProductSave, type SavedMedia, type VariantFields } from "@/src/services/createProduct";
+import type { EditableProduct } from "@/src/services/editProduct";
 import UploadSlot from "./UploadSlot";
 import ProductListingDetails, { productHeadingClass, productInputStyle } from "./ProductListingDetails";
 import { basicInformationFieldWidth, basicInformationRowClass, productCardClass, productFormGridClass, productFormProgressClass, productFormSectionsClass } from "./productFormLayout";
@@ -13,6 +17,7 @@ import { basicInformationFieldWidth, basicInformationRowClass, productCardClass,
 const IMAGE_CAPTIONS = ["Cover Photo", "Image 1", "Image 2", "Image 3", "Image 4", "Image 5"];
 const NAME_MAX = 100;
 const DESCRIPTION_MAX = 250;
+const OTHER_CATEGORY = "other";
 const sections = [
   { id: "basic-information", label: "Basic Information" },
   { id: "sales-information", label: "Sales Information" },
@@ -56,16 +61,26 @@ function checkVideo(file: File): Promise<string | null> {
 
 const fieldClass = `${lato.className} w-full rounded-[4px] border border-[#C9D6CE] bg-white px-3 text-[13px] text-[#1E3A2C] outline-none placeholder:text-[#8A9690] focus:border-[#008A58] focus:ring-1 focus:ring-[#008A58]`;
 
-export default function AddProductForm({ tags, showListingDetails = false }: { tags: Tag[]; showListingDetails?: boolean }) {
-  const [images, setImages] = useState<(File | null)[]>(Array(IMAGE_CAPTIONS.length).fill(null));
-  const [video, setVideo] = useState<File | null>(null);
+export default function AddProductForm({ tags, showListingDetails = false, existing }: { tags: Tag[]; showListingDetails?: boolean; existing?: EditableProduct }) {
+  const router = useRouter();
+  const [images, setImages] = useState<(File | SavedMedia | null)[]>(() => IMAGE_CAPTIONS.map((_, index) => existing?.images[index] ?? null));
+  const [video, setVideo] = useState<File | SavedMedia | null>(existing?.video ?? null);
   const [mediaError, setMediaError] = useState("");
-  const [tagId, setTagId] = useState("");
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+  const [tagId, setTagId] = useState(existing?.tagId ?? "");
+  const [customCategory, setCustomCategory] = useState("");
+  const [name, setName] = useState(existing?.name ?? "");
+  const [description, setDescription] = useState(existing?.description ?? "");
   const [activeSection, setActiveSection] = useState<string>(sections[0].id);
   const [coverError, setCoverError] = useState(false);
   const [notice, setNotice] = useState("");
+  const [variants, setVariants] = useState<VariantFields[]>(() => existing?.variants.map((row) => ({
+    ...row, image: null, stock: new Map(Object.entries(row.stock)),
+  })) ?? []);
+  const [sizes, setSizes] = useState<string[]>(existing?.sizes ?? []);
+  const [saving, setSaving] = useState(false);
+  const [saveUnconfirmed, setSaveUnconfirmed] = useState(false);
+  const savingRef = useRef(false);
+  const pendingProduct = useRef<PreparedProductSave | null>(null);
   const coverGroup = useRef<HTMLDivElement>(null);
   const categoryTrigger = useRef<HTMLButtonElement>(null);
   const actionBar = useRef<HTMLDivElement>(null);
@@ -73,7 +88,12 @@ export default function AddProductForm({ tags, showListingDetails = false }: { t
   const [checkingVideo, setCheckingVideo] = useState(false);
   const inputClass = showListingDetails ? `${productInputStyle} w-full` : fieldClass;
   const fieldWidth = showListingDetails ? basicInformationFieldWidth : "";
-  const selectedTag = tags.find((tag) => tag.tag_id === tagId);
+  const categoryOptions = tags
+    .filter((tag) => !showListingDetails || tag.name.trim().toLowerCase() !== OTHER_CATEGORY)
+    .map((tag) => ({ value: tag.tag_id, label: tag.name }));
+  if (showListingDetails) categoryOptions.push({ value: OTHER_CATEGORY, label: "Other" });
+  const selectedCategory = categoryOptions.find((option) => option.value === tagId);
+  const isCustomCategory = showListingDetails && tagId === OTHER_CATEGORY;
 
   useEffect(() => {
     const bar = actionBar.current;
@@ -145,25 +165,72 @@ export default function AddProductForm({ tags, showListingDetails = false }: { t
     setVideo(null);
   };
 
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (checkingVideo) return;
-    if (!images[0]) {
+    if (checkingVideo || savingRef.current) return;
+    const form = event.currentTarget;
+    if (!images[0] && (!existing || existing.images.length > 0 || images.some(Boolean))) {
       setCoverError(true);
       coverGroup.current?.querySelector("button")?.focus();
       return;
     }
-    if (!selectedTag) {
+    if (!selectedCategory && (!existing || existing.tagId !== tagId)) {
       setNotice("A product category is required before continuing.");
       categoryTrigger.current?.focus();
       return;
     }
-    if (!description.trim()) {
+    if (!description.trim() && !existing) {
       setNotice("Enter a product description before continuing.");
-      event.currentTarget.querySelector<HTMLTextAreaElement>("#product-description")?.focus();
+      form.querySelector<HTMLTextAreaElement>("#product-description")?.focus();
       return;
     }
-    setNotice("Publish preview ready. This form is in preview mode.");
+    const published = existing?.is_active ?? (event.nativeEvent as SubmitEvent).submitter?.getAttribute("value") !== "unpublished";
+    const formData = new FormData(form);
+    savingRef.current = true;
+    setSaving(true);
+    setNotice("Saving your product…");
+
+    try {
+      if (!pendingProduct.current) {
+        pendingProduct.current = await prepareProduct(supabase, {
+          name,
+          description,
+          tagId: isCustomCategory ? null : tagId || null,
+          categoryName: isCustomCategory ? customCategory.trim() : null,
+          images: images.filter((image): image is File | SavedMedia => image !== null),
+          video,
+          published,
+          variants,
+          sizes,
+          form: formData,
+          edit: existing?.identity,
+        });
+      }
+
+      const { listing, uploads } = pendingProduct.current;
+      const { data, error, status } = await supabase.rpc(existing ? "edit_inventory_product" : "create_inventory_product", { listing });
+      if (error || data !== listing.product_id) {
+        if (error && status >= 400 && status < 500) {
+          await removeProductUploads(supabase, uploads);
+          pendingProduct.current = null;
+          setSaveUnconfirmed(false);
+          throw new Error(error.code === "22023" || error.code === "42501" || (existing && error.code === "23503")
+            ? error.message
+            : "Couldn’t save the product. Please check the details and try again.", { cause: error });
+        }
+        throw new Error("Couldn’t confirm the save. Retry to check and finish the same listing.", { cause: error });
+      }
+
+      pendingProduct.current = null;
+      router.replace("/inventory");
+      router.refresh();
+    } catch (error) {
+      console.error("Could not save product", error);
+      setSaveUnconfirmed(Boolean(pendingProduct.current));
+      setNotice(error instanceof Error ? error.message : "Couldn’t save the product. Please try again.");
+      savingRef.current = false;
+      setSaving(false);
+    }
   };
 
   const basicInformation = (
@@ -187,7 +254,9 @@ export default function AddProductForm({ tags, showListingDetails = false }: { t
                 caption={caption}
                 required={i === 0}
                 inlineCaption={showListingDetails}
-                file={images[i]}
+                file={images[i] instanceof File ? images[i] as File : null}
+                savedUrl={images[i] && !(images[i] instanceof File) ? (images[i] as SavedMedia).url : null}
+                hasSavedFile={Boolean(images[i] && !(images[i] instanceof File))}
                 onPick={(f) => pickImage(i, f)}
                 onRemove={() => setImage(i, null)}
               />
@@ -202,13 +271,15 @@ export default function AddProductForm({ tags, showListingDetails = false }: { t
               kind="video"
               caption="Cover Video"
               inlineCaption={showListingDetails}
-              file={video}
+              file={video instanceof File ? video : null}
+              savedUrl={video && !(video instanceof File) ? video.url : null}
+              hasSavedFile={Boolean(video && !(video instanceof File))}
               onPick={pickVideo}
               onRemove={removeVideo}
             />
             <div className={`${lato.className} pt-3 text-[12px] leading-relaxed text-[#6B7770] ${showListingDetails ? "sm:self-center sm:pt-0" : ""}`}>
               <ol className="list-inside list-decimal">
-                <li>Size: Max 30 Mb, resolution should not exceed 1280x1280px</li>
+                <li>Size: Max 30 MB, resolution should not exceed 1280x1280px</li>
                 <li>Duration: 10-60s</li>
                 <li>Format: MP4</li>
               </ol>
@@ -222,18 +293,18 @@ export default function AddProductForm({ tags, showListingDetails = false }: { t
           </div>
         </Row>
 
-        <Row label={showListingDetails ? "Product Category" : "*Product Category"} htmlFor="product-category" required={showListingDetails} center>
+        <Row label={showListingDetails ? "Product Category" : "*Product Category"} htmlFor="product-category" required={showListingDetails && (!existing || Boolean(existing.tagId))} center>
           <div className={fieldWidth}>
             <DropdownMenu.Root modal={false}>
               <DropdownMenu.Trigger
                 id="product-category"
                 ref={categoryTrigger}
-                disabled={tags.length === 0}
+                disabled={categoryOptions.length === 0}
                 aria-describedby="product-category-value"
                 className={`${inputClass} ${showListingDetails ? "" : "h-[40px]"} flex cursor-pointer items-center justify-between gap-2 text-left disabled:cursor-not-allowed`}
               >
-                <span id="product-category-value" className={`truncate ${selectedTag ? "" : "text-[#6B7770]"}`}>
-                  {selectedTag?.name ?? (tags.length ? "Select Category" : "No categories available")}
+                <span id="product-category-value" className={`truncate ${selectedCategory ? "" : "text-[#6B7770]"}`}>
+                  {selectedCategory?.label ?? (categoryOptions.length ? "Select Category" : "No categories available")}
                 </span>
                 <ChevronDown size={16} aria-hidden className="shrink-0 text-[#5C8F78]" />
               </DropdownMenu.Trigger>
@@ -250,14 +321,14 @@ export default function AddProductForm({ tags, showListingDetails = false }: { t
                       setNotice("");
                     }}
                   >
-                    {tags.map((tag) => (
+                    {categoryOptions.map(({ value, label }) => (
                       <DropdownMenu.RadioItem
-                        key={tag.tag_id}
-                        value={tag.tag_id}
-                        textValue={tag.name}
+                        key={value}
+                        value={value}
+                        textValue={label}
                         className="flex h-9 cursor-pointer items-center justify-between gap-2 px-3 outline-none data-[highlighted]:bg-[#E9FBF2]"
                       >
-                        <span className="truncate">{tag.name}</span>
+                        <span className="truncate">{label}</span>
                         <DropdownMenu.ItemIndicator className="shrink-0 text-[#008A58]">
                           <Check size={14} aria-hidden />
                         </DropdownMenu.ItemIndicator>
@@ -267,6 +338,21 @@ export default function AddProductForm({ tags, showListingDetails = false }: { t
                 </DropdownMenu.Content>
               </DropdownMenu.Portal>
             </DropdownMenu.Root>
+            {isCustomCategory && (
+              <label className="mt-2 block space-y-1 font-body text-[13px] text-[#626963]">
+                <span>Category Name</span>
+                <input
+                  type="text"
+                  name="custom-category"
+                  value={customCategory}
+                  onChange={(event) => setCustomCategory(event.target.value)}
+                  required
+                  pattern={".*\\S.*"}
+                  placeholder="Enter category name"
+                  className={inputClass}
+                />
+              </label>
+            )}
           </div>
         </Row>
 
@@ -291,13 +377,13 @@ export default function AddProductForm({ tags, showListingDetails = false }: { t
           </div>
         </Row>
 
-        <Row label={showListingDetails ? "Product Description" : "*Product Description"} htmlFor="product-description" required={showListingDetails}>
+        <Row label={showListingDetails ? "Product Description" : "*Product Description"} htmlFor="product-description" required={showListingDetails && !existing}>
           <div className={`relative ${fieldWidth}`}>
             <textarea
               id="product-description"
               value={description}
               maxLength={DESCRIPTION_MAX}
-              required={showListingDetails}
+              required={showListingDetails && !existing}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Enter Product Description"
               className={`${inputClass} ${showListingDetails ? "min-h-[160px]" : "h-[220px]"} resize-none py-2.5 pb-8`}
@@ -336,22 +422,27 @@ export default function AddProductForm({ tags, showListingDetails = false }: { t
           </ul>
         </nav>
       </aside>
-      <div className={productFormSectionsClass}>
+      <fieldset disabled={saving || saveUnconfirmed} className={productFormSectionsClass}>
         {basicInformation}
-        <ProductListingDetails />
-      </div>
+        <ProductListingDetails variants={variants} setVariants={setVariants} sizes={sizes} setSizes={setSizes} existing={existing} />
+      </fieldset>
       <div ref={actionBar} className="fixed inset-x-0 bottom-0 z-40 border-t border-[#D9E1EB] bg-white shadow-[0_-2px_6px_rgba(0,0,0,0.08)]">
         <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-end gap-x-2 gap-y-2 px-6 py-3 font-body sm:gap-x-3 lg:px-10">
           <p role="status" className={notice ? "w-full text-sm text-[#004D31] lg:mr-auto lg:w-auto" : "sr-only"}>{notice}</p>
-          <Link href="/inventory" className="rounded-[6px] px-3 py-2 text-[13px] text-[#44536A] hover:bg-[#F4F7F8]">Cancel</Link>
-          <button
-            type="button"
-            onClick={() => setNotice("Draft preview ready. Your changes are only kept while this page is open.")}
-            className="rounded-[6px] border border-[#C9D6CE] px-3 py-2 text-[13px] font-bold text-[#1E3A2C] hover:bg-[#F4F7F8]"
-          >
-            Save as Unpublished
+          {!saving && <Link href="/inventory" className="rounded-[6px] px-3 py-2 text-[13px] text-[#44536A] hover:bg-[#F4F7F8]">Cancel</Link>}
+          {!existing && !saveUnconfirmed && (
+            <button
+              type="submit"
+              value="unpublished"
+              disabled={checkingVideo || saving}
+              className="rounded-[6px] border border-[#C9D6CE] px-3 py-2 text-[13px] font-bold text-[#1E3A2C] hover:bg-[#F4F7F8] disabled:opacity-60"
+            >
+              Save as Unpublished
+            </button>
+          )}
+          <button type="submit" value="published" disabled={checkingVideo || saving} className="rounded-[6px] bg-[#008A58] px-3 py-2 text-[13px] font-bold text-white hover:bg-[#006B44] disabled:opacity-60">
+            {saving ? "Saving…" : saveUnconfirmed ? "Retry Save" : existing ? "Save Changes" : "Save and Publish"}
           </button>
-          <button type="submit" disabled={checkingVideo} className="rounded-[6px] bg-[#008A58] px-3 py-2 text-[13px] font-bold text-white hover:bg-[#006B44] disabled:opacity-60">Save and Publish</button>
         </div>
       </div>
     </form>

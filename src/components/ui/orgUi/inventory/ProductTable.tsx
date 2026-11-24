@@ -12,7 +12,7 @@ export type StockSort = "asc" | "desc" | null;
 // checkbox | product | price | stock | performance | category | status | actions
 // header and rows share this so the columns line up
 const COLS =
-  "grid grid-cols-[40px_minmax(240px,1fr)_120px_160px_150px_110px_140px_150px] gap-x-3";
+  "grid grid-cols-[40px_minmax(240px,1fr)_120px_160px_150px_110px_140px_170px] gap-x-3";
 
 type ProductTableProps = {
   products: Product[]; // only the rows for the current page
@@ -22,6 +22,7 @@ type ProductTableProps = {
   stockSort: StockSort;
   onSortStock: () => void;
   onTogglePublish: (product: Product) => void;
+  onDelete: (product: Product) => void;
 };
 
 const checkboxClass = "h-4 w-4 cursor-pointer rounded-[2px] checked:accent-[#004D31] checked:appearance-auto appearance-none border border-[#CBC7C7] hover:bg-[#004D3115]";
@@ -34,6 +35,7 @@ export default function ProductTable({
   stockSort,
   onSortStock,
   onTogglePublish,
+  onDelete,
 }: ProductTableProps) {
   const selectedOnPage = products.filter((p) => selected.has(p.id)).length;
   const allSelected = products.length > 0 && selectedOnPage === products.length;
@@ -64,7 +66,6 @@ export default function ProductTable({
           <span className={headText}>Price</span>
           <span className={`${headText} flex items-center gap-1`}>
             Stock
-            <StockHelp />
             <button
               type="button"
               onClick={onSortStock}
@@ -102,7 +103,7 @@ export default function ProductTable({
                 className={checkboxClass}
               />
 
-              <div className="flex items-center gap-5">
+              <div className="flex items-center gap-3">
                 <Thumb size={58} imageUrl={p.imageUrl} />
                 <div className="min-w-0">
                   <p className={`${lato.className} truncate text-[13px] font-bold text-[#1E3A2C]`}>
@@ -118,9 +119,9 @@ export default function ProductTable({
                 {formatPhp(p.price)}
               </p>
               <div>
-                <StockBadge stock={p.stock} salesL30D={p.salesL30D} />
+                <StockBadge stock={p.stock} />
               </div>
-              <Performance sales={p.sales} l30d={p.salesL30D} />
+              <Performance sales={p.sales} />
               <p className={`${lato.className} text-[13px] text-[#1E3A2C]`}>
                 {getProductCategories(p).join(", ")}
               </p>
@@ -129,10 +130,9 @@ export default function ProductTable({
               </div>
 
               <div className="flex items-center gap-5">
-                {/* TODO: link to the real edit page once it exists */}
-                {/* while a row is checked its own actions are dimmed (use the bulk bar instead) */}
+                {/* While a row is checked, use the bulk bar to change publication status. */}
                 <Link
-                  href={`/inventory/${p.id}/edit`}
+                  href={`/inventory/${p.productId}`}
                   aria-disabled={isSelected}
                   tabIndex={isSelected ? -1 : undefined}
                   className={`${lato.className} text-[12px] font-bold transition-all duration-200 hover:scale-110 hover:underline ${
@@ -155,29 +155,46 @@ export default function ProductTable({
                 >
                   {p.isActive ? "Unpublish" : "Publish"}
                 </button>
+                <button
+                  type="button"
+                  aria-label={`Delete ${p.name}`}
+                  onClick={() => onDelete(p)}
+                  className={`${lato.className} text-[12px] font-bold text-[#B42318] hover:underline`}
+                >
+                  Delete
+                </button>
               </div>
 
-              {/* variants: gray boxes under the product, lined up with the columns above */}
-              {p.variants.map((v) => (
-                <div
-                  key={v.id}
-                  className="col-span-6 col-start-2 grid items-center rounded-[6px] border border-transparent bg-[#F4F4F4] py-3 transition-all duration-200 ease-in-out [grid-template-columns:subgrid] hover:scale-[1.01] hover:border-[#004D31] hover:bg-[#EAF6EF] hover:shadow-md"
-                >
-                  <div className="flex items-center gap-4 pl-3.5">
-                    <Thumb size={46} imageUrl={v.imageUrl ?? p.imageUrl} />
-                    <p className={`${lato.className} truncate text-[13px] font-bold text-[#1E3A2C]`}>
-                      Variant: {v.name}
-                    </p>
-                  </div>
-                  <p className={`${lato.className} text-[13px] font-bold text-[#1E3A2C]`}>
-                    {formatPhp(v.price)}
-                  </p>
-                  <div>
-                    <StockBadge stock={v.stock} salesL30D={v.salesL30D} />
-                  </div>
-                  <Performance sales={v.sales} l30d={v.salesL30D} />
+              {p.variants.length > 0 && (
+                <div className="col-start-2 col-end-[-1] grid gap-y-2 rounded-[8px] border border-[#EBEBEB] bg-[#FAFAFA] px-2 py-3 [grid-template-columns:subgrid]">
+                  <h3 className={`${lato.className} col-span-full pl-3.5 text-[13px] font-bold text-[#1E3A2C]`}>
+                    Variants
+                  </h3>
+                  {p.variants.map((v) => (
+                    <div
+                      key={v.id}
+                      className="col-span-full grid items-center rounded-[6px] border border-transparent bg-[#F4F4F4] py-3 transition-all duration-200 ease-in-out [grid-template-columns:subgrid] hover:scale-[1.01] hover:border-[#004D31] hover:bg-[#EAF6EF] hover:shadow-md"
+                    >
+                      <div className="flex items-center gap-4 pl-3.5">
+                        <Thumb size={46} imageUrl={v.imageUrl ?? p.imageUrl} />
+                        <div className={`${lato.className} min-w-0 text-[13px] text-[#1E3A2C]`}>
+                          {v.sku && <p className="break-words font-bold">{v.sku}</p>}
+                          <ul role="list" className="mt-0.5 list-disc space-y-0.5 break-words pl-4 text-[11px] text-[#3F4B54]">
+                            {v.options.map(({ id, label }) => <li key={id}>{label}</li>)}
+                          </ul>
+                        </div>
+                      </div>
+                      <p className={`${lato.className} text-[13px] font-bold text-[#1E3A2C]`}>
+                        {formatPhp(v.price)}
+                      </p>
+                      <div>
+                        <StockBadge stock={v.stock} />
+                      </div>
+                      <Performance sales={v.sales} />
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           );
         })}
@@ -198,46 +215,6 @@ function Thumb({ size, imageUrl }: { size: number; imageUrl: string | null }) {
   );
 }
 
-function Performance({ sales, l30d }: { sales: number; l30d: number }) {
-  return (
-    <div>
-      <p className={`${lato.className} text-[12px] font-bold text-[#1E3A2C]`}>Sales {sales}</p>
-      <p className={`${lato.className} mt-0.5 text-[10px] text-[#7C8A82]`}>L30D Sales {l30d}</p>
-    </div>
-  );
-}
-
-// the (?) next to "Stock", shows how Low Stock is decided on hover / keyboard focus
-function StockHelp() {
-  return (
-    <span className="group relative flex">
-      <button
-        type="button"
-        aria-label="How stock status is determined"
-        aria-describedby="stock-help"
-        className="flex rounded-full text-[#5C6870] hover:text-[#004D31] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#008A58]"
-      >
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-          <circle cx="12" cy="12" r="10" />
-          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-          <path d="M12 17h.01" />
-        </svg>
-      </button>
-
-      <span
-        id="stock-help"
-        role="tooltip"
-        className={`${lato.className} invisible absolute left-1/2 top-full z-30 mt-2 w-[320px] -translate-x-1/2 rounded-[6px] border border-[#BFE3C9] bg-[#F3FFF6] p-3 text-left text-[11px] font-normal leading-snug text-[#1E3A2C] opacity-0 shadow-[0_4px_10px_rgba(0,0,0,0.15)] transition-opacity group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100`}
-      >
-        <span className="block">Determined by the Additional Inventory Required (A.I.R.)</span>
-        <span className="mt-2 block">
-          A.I.R. = Average daily orders (<b>L30D Sales/30</b>) * Desired number of days stock
-          should last - Stock
-        </span>
-        <span className="mt-2 block">
-          A product will be considered <b>Low Stock</b> if the A.I.R. is greater than 0.
-        </span>
-      </span>
-    </span>
-  );
+function Performance({ sales }: { sales: number }) {
+  return <p className={`${lato.className} text-[12px] font-bold text-[#1E3A2C]`}>Sales {sales}</p>;
 }

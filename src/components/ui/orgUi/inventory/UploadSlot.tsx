@@ -11,14 +11,18 @@ type UploadSlotProps = {
   inlineCaption?: boolean;
   compact?: boolean;
   file: File | null;
+  savedUrl?: string | null;
+  hasSavedFile?: boolean;
   onPick: (file: File) => void;
   onRemove: () => void;
 };
 
 // one dotted upload box, shows a preview after a file is picked
-export default function UploadSlot({ kind, caption, required, inlineCaption, compact, file, onPick, onRemove }: UploadSlotProps) {
+export default function UploadSlot({ kind, caption, required, inlineCaption, compact, file, savedUrl, hasSavedFile, onPick, onRemove }: UploadSlotProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const displayUrl = previewUrl ?? savedUrl;
+  const hasFile = Boolean(file || hasSavedFile);
 
   // make a preview url for the picked file and clean it up afterwards
   useEffect(() => {
@@ -42,12 +46,12 @@ export default function UploadSlot({ kind, caption, required, inlineCaption, com
             compact ? "border-[#25C494] bg-[#F3FBF6] text-[#008A58]" : inlineCaption ? (required ? "border-[#25C494] bg-[#F3FBF6]" : "border-[#CFDDEA] bg-[#F5F8FA]") : "border-[#2F8F6B] bg-white"
           }`}
         >
-          {previewUrl ? (
+          {displayUrl ? (
             kind === "image" ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={previewUrl} alt="" className="h-full w-full object-cover" />
+              <img src={displayUrl} alt="" className="h-full w-full object-cover" />
             ) : (
-              <video src={previewUrl} muted className="h-full w-full object-cover" />
+              <video src={displayUrl} muted className="h-full w-full object-cover" />
             )
           ) : compact ? (
             <Plus size={16} aria-hidden />
@@ -67,7 +71,7 @@ export default function UploadSlot({ kind, caption, required, inlineCaption, com
           )}
         </button>
 
-        {file && (
+        {hasFile && (
           <button
             type="button"
             onClick={onRemove}
@@ -91,7 +95,7 @@ export default function UploadSlot({ kind, caption, required, inlineCaption, com
         />
       </div>
 
-      {!compact && (!inlineCaption || file) && <span
+      {!compact && (!inlineCaption || hasFile) && <span
         className={`${lato.className} text-center text-[11px] ${
           required ? "text-[#1E3A2C]" : "text-[#7C8A82]"
         }`}

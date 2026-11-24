@@ -5,7 +5,7 @@ import { Check, ChevronDown, Search } from "lucide-react";
 import { lato } from "@/src/styles/fonts";
 import { stockStatusLabel, type StockStatus } from "@/src/app/(organization)/inventory/data";
 
-export type PerformanceSort = "default" | "sales-asc" | "sales-desc" | "l30d-asc" | "l30d-desc";
+export type PerformanceSort = "default" | "sales-asc" | "sales-desc";
 
 export type Filters = {
   search: string;
@@ -14,7 +14,7 @@ export type Filters = {
   performance: PerformanceSort;
 };
 
-export const stockStatuses: StockStatus[] = ["in", "low", "out"];
+export const stockStatuses: StockStatus[] = ["in", "out"];
 
 export const defaultFilters: Filters = {
   search: "",
@@ -27,8 +27,6 @@ const performanceOptions: { value: PerformanceSort; label: string }[] = [
   { value: "default", label: "Sales Performance" },
   { value: "sales-asc", label: "Lowest to Highest Sales" },
   { value: "sales-desc", label: "Highest to Lowest Sales" },
-  { value: "l30d-asc", label: "Lowest to Highest L30D Sales" },
-  { value: "l30d-desc", label: "Highest to Lowest L30D Sales" },
 ];
 
 type FilterBarProps = {
@@ -60,6 +58,7 @@ export default function FilterBar({
   total,
 }: FilterBarProps) {
   const categories = [...categoryCounts.keys()];
+  const checkedCategories = value.categories.filter((category) => categoryCounts.has(category));
   // ex: "Category: All (20)" / "Category: Shirt, Pins"
   const summary = (name: string, labels: string[], allCount: number) =>
     labels.length === allCount
@@ -100,11 +99,11 @@ export default function FilterBar({
       {/* category (multi select) */}
       <MultiSelect
         label="Category"
-        buttonText={summary("Category", value.categories, categories.length)}
+        buttonText={summary("Category", checkedCategories, categories.length)}
         options={categories.map((c) => ({ value: c, label: `${c} (${categoryCounts.get(c)})` }))}
-        checked={value.categories}
+        checked={checkedCategories}
         onToggle={(c) =>
-          onChange({ ...value, categories: toggleIn(categories, value.categories, c) })
+          onChange({ ...value, categories: toggleIn(categories, checkedCategories, c) })
         }
       />
 

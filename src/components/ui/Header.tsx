@@ -285,17 +285,7 @@ export const Header = ({
                     hoverTextColor='#b9dccf'
                     onClick={() => router.push('/sales')}
                     label="Sales"
-                    fontSize={20}
-                  />
-                  <Button
-                    primary
-                    size="small"
-                    type='nav'
-                    textColor='#FFFFFF'
-                    hoverTextColor='#b9dccf'
-                    onClick={() => router.push('/inventory')}
-                    label="Inventory"
-                    fontSize={20}
+                    fontSize={15}
                   />
                   <Button
                     primary

@@ -8,7 +8,6 @@ import { createClient } from "@/src/lib/supabase/server";
 import { ORGANIZATION_TABLE } from "@/src/lib/supabase/tables";
 import { getOrgInventory } from "@/src/services/inventoryService";
 import { PAGE_SIZE } from "./data";
-import { Footer } from "@/src/components/ui/Footer";
 
 export const metadata = {
   title: "Inventory | The Quiver Seller Hub",
