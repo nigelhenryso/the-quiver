@@ -116,7 +116,7 @@ export async function getOrgDashboard(
     supabase
       .from(ORDER_INVENTORY_TABLE)
       .select(
-        "order_id, quantity, total_cost, Inventory(ProductVariantCombination(image_url, Product(name, organization_id, ProductImage(image_url)), CombinationOption(VariantOption(name, image_url, VariantTypes(name)))))",
+        "order_id, quantity, total_cost, Inventory(ProductVariantCombination(image_url, Product(name, organization_id, ProductImage(image_url)), CombinationOption(VariantOption(name, VariantTypes(name)))))",
       )
       .returns<LineRow[]>(),
   ]); //returns everyhing in a row mapped down to variant types, variant images, variant option, product image, product name, and organization the belong to
