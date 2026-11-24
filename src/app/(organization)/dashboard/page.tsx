@@ -10,6 +10,7 @@ export const metadata = {
   title: "Organization Dashboard",
 };
 
+// static shell; the live data streams in through the Suspense boundary
 export default function OrgDashboardPage() {
   return (
     <div className="flex min-h-screen flex-col bg-[#FDFFFC]">
