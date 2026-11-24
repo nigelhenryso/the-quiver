@@ -20,7 +20,7 @@ type LineRow = {
       image_url: string | null;
       Product: { name: string; organization_id: string; ProductImage: { image_url: string }[] } | null;
       CombinationOption: {
-        VariantOption: { name: string | null; image_url: string | null; VariantTypes: { name: string } | null } | null;
+        VariantOption: { name: string | null; VariantTypes: { name: string } | null } | null;
       }[];
     } | null;
   } | null;
@@ -93,7 +93,6 @@ function lineImage(line: LineRow) {
   const combo = line.Inventory?.ProductVariantCombination;
   return (
     combo?.image_url ??
-    combo?.CombinationOption.find((o) => o.VariantOption?.image_url)?.VariantOption?.image_url ??
     combo?.Product?.ProductImage[0]?.image_url ??
     null
   );
@@ -116,13 +115,13 @@ export async function getOrgDashboard(
     supabase
       .from(ORDER_INVENTORY_TABLE)
       .select(
-        "order_id, quantity, total_cost, Inventory(ProductVariantCombination(image_url, Product(name, organization_id, ProductImage(image_url)), CombinationOption(VariantOption(name, image_url, VariantTypes(name)))))",
+        "order_id, quantity, total_cost, Inventory(ProductVariantCombination(image_url, Product(name, organization_id, ProductImage(image_url)), CombinationOption(VariantOption(name, VariantTypes(name)))))",
       )
       .returns<LineRow[]>(),
   ]); //returns everyhing in a row mapped down to variant types, variant images, variant option, product image, product name, and organization the belong to
 
   if (!org) return null;
-  if (lineError) throw lineError;
+  if (lineError) throw new Error(`Failed to load dashboard order items: ${lineError.message}`, { cause: lineError });
 
   const linesByOrder = new Map<string, LineRow[]>();
   for (const line of lineData ?? []) {
