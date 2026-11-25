@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { hasEnvVars } from "../utils";
 import { getAccountType } from "@/src/services/accountService";
 import { HOME_ROUTE, ORG_ROUTES, STUDENT_ROUTES, isInRoutes } from "@/src/lib/routes";
-import { REMEMBER_COOKIE, applyRememberMe } from "./rememberMe";
+import { LAST_SEEN_COOKIE, REMEMBER_COOKIE, applyRememberMe, isIdleTooLong, isRemembered } from "./rememberMe";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -50,7 +50,18 @@ export async function updateSession(request: NextRequest) {
   // IMPORTANT: If you remove getClaims() and you use server-side rendering
   // with the Supabase client, your users may be randomly logged out.
   const { data } = await supabase.auth.getClaims();
-  const user = data?.claims;
+  let user = data?.claims;
+
+  // "Remember me" unticked and no tab has been open for a while → the browser was closed
+  // (and restored its session cookies). Log out here; signOut clears the sb-* cookies via setAll.
+  if (
+    user &&
+    !isRemembered(request.cookies.get(REMEMBER_COOKIE)?.value) &&
+    isIdleTooLong(request.cookies.get(LAST_SEEN_COOKIE)?.value)
+  ) {
+    await supabase.auth.signOut({ scope: "local" });
+    user = undefined;
+  }
 
   const pathname = request.nextUrl.pathname;
 

@@ -3,6 +3,7 @@ import { ThemeProvider } from "next-themes";
 import { calSans, lato } from "../styles/fonts";
 import "../styles/globals.css";
 import { Footer } from "../components/ui/Footer";
+import SessionHeartbeat from "../components/auth/SessionHeartbeat";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -34,6 +35,7 @@ export default function RootLayout({
           {children}
         </ThemeProvider>
         <Footer/>
+        <SessionHeartbeat />
       </body>
     </html>
   );

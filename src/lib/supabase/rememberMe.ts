@@ -28,3 +28,25 @@ export function applyRememberMe(
   const { maxAge, expires, ...sessionOnly } = options;
   return sessionOnly;
 }
+
+/**
+ * Non-remembered logins: browsers that restore the last session ("Continue where you left off",
+ * or apps kept running in the background) also restore session cookies, so closing the browser
+ * isn't enough to log out. Every open tab stamps LAST_SEEN_COOKIE once a minute (SessionHeartbeat);
+ * the proxy logs a non-remembered user out once no tab has stamped it for IDLE_LOGOUT_MS.
+ */
+export const LAST_SEEN_COOKIE = 'quiver-last-seen';
+export const HEARTBEAT_MS = 10 * 1000; // how often an open tab stamps LAST_SEEN_COOKIE
+export const IDLE_LOGOUT_MS = 30 * 1000; // must stay a few heartbeats above HEARTBEAT_MS, never 0
+
+/** True while the "Remember me" window is still open. */
+export function isRemembered(rememberUntil: string | undefined) {
+  const until = Number(rememberUntil);
+  return Number.isFinite(until) && until > Date.now();
+}
+
+/** True if no tab has been open recently (or the stamp is missing). */
+export function isIdleTooLong(lastSeen: string | undefined) {
+  const at = Number(lastSeen);
+  return !Number.isFinite(at) || at <= 0 || Date.now() - at > IDLE_LOGOUT_MS;
+}

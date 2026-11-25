@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import CommonModal from './CommonModal';
 import { InputField } from '../InputField';
 import { Button } from '../Button';
@@ -48,7 +47,6 @@ export default function CompleteYourProfileModal({
   onClose,
   onComplete,
 }: CompleteYourProfileModalProps) {
-  const router = useRouter();
   const [formData, setFormData] = useState<CompleteProfileInput>(EMPTY_FORM);
   const [errors, setErrors] = useState<Partial<Record<Field, string>>>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -125,7 +123,7 @@ export default function CompleteYourProfileModal({
         }
         // This account already has a profile — go straight to the student landing page.
         onComplete?.();
-        router.replace('/landing');
+        window.location.replace('/landing');
         return;
       }
       console.error('[CompleteYourProfile] insert failed:', error);
@@ -145,14 +143,14 @@ export default function CompleteYourProfileModal({
     setFormData(EMPTY_FORM);
     setSubmitted(false);
     onComplete?.();
-    router.replace('/landing');
+    window.location.replace('/landing');
   };
 
   /** Red border if the field has an error, normal border otherwise. */
   const borderFor = (field: Field) => (errors[field] ? '#e82b2b' : '#A6BA9F');
 
   return (
-    <CommonModal isOpen={isOpen} onClose={onClose}>
+    <CommonModal isOpen={isOpen} onClose={onClose} dismissible={false}>
       <form
         noValidate
         className="flex flex-col gap-[4px]"
