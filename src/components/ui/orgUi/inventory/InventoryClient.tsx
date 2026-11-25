@@ -8,18 +8,14 @@ import ConfirmModal, { type ModalMode } from "./ConfirmModal";
 import FilterBar, { defaultFilters, type Filters } from "./FilterBar";
 import PageNav from "./PageNav";
 import ProductTable, { type StockSort } from "./ProductTable";
-import {
-  getProductCategories,
-  getStockStatus,
-  PAGE_SIZE,
-  type Product,
-  type StockStatus,
-} from "../../../../app/(organization)/inventory/data";
+import { getProductCategories, getStockStatus, INVENTORY_PAGE_SIZE } from "@/src/lib/inventory";
+import type { InventoryProduct, StockStatus } from "@/src/types/Inventory";
 
 type Tab = "all" | "live" | "unpublished";
 
 // this holds all the interactive state of the page
-export default function InventoryClient({ initialProducts }: { initialProducts: Product[] }) {
+export default function InventoryClient({ initialProducts }: { initialProducts: InventoryProduct[] }) {
+  const [lastServerProducts, setLastServerProducts] = useState(initialProducts);
   const [products, setProducts] = useState(initialProducts);
   const [tab, setTab] = useState<Tab>("all");
   const categoryCounts = useMemo(() => {
@@ -42,6 +38,19 @@ export default function InventoryClient({ initialProducts }: { initialProducts: 
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
   const savingRef = useRef(false);
+
+  if (lastServerProducts !== initialProducts) {
+    // A fresh server render may reuse this component and its local listing state.
+    const categories = [...new Set(initialProducts.flatMap(getProductCategories))];
+    const includeNewCategories = (filters: Filters) =>
+      [...categoryCounts.keys()].every((category) => filters.categories.includes(category))
+        ? { ...filters, categories }
+        : filters;
+    setLastServerProducts(initialProducts);
+    setProducts(initialProducts);
+    setDraft(includeNewCategories);
+    setApplied(includeNewCategories);
+  }
 
   // ---------- counts (always based on all products, like the design) ----------
   const liveCount = products.filter((p) => p.isActive).length;
@@ -79,10 +88,10 @@ export default function InventoryClient({ initialProducts }: { initialProducts: 
     return rows;
   }, [products, tab, applied, stockSort]);
 
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const pageCount = Math.max(1, Math.ceil(filtered.length / INVENTORY_PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
-  const start = (currentPage - 1) * PAGE_SIZE;
-  const pageRows = filtered.slice(start, start + PAGE_SIZE);
+  const start = (currentPage - 1) * INVENTORY_PAGE_SIZE;
+  const pageRows = filtered.slice(start, start + INVENTORY_PAGE_SIZE);
 
   // ---------- selection ----------
   const toggleOne = (id: string) =>
@@ -104,7 +113,7 @@ export default function InventoryClient({ initialProducts }: { initialProducts: 
   const selectedUnpublished = selectedProducts.filter((p) => !p.isActive);
 
   // ---------- actions ----------
-  const openModal = (mode: ModalMode, items: Product[]) => {
+  const openModal = (mode: ModalMode, items: InventoryProduct[]) => {
     if (savingRef.current || items.length === 0) return;
     setSaveError("");
     setModal({ mode, ids: items.map((p) => p.productId) });

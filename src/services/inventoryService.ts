@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Product, Variant } from "@/src/app/(organization)/inventory/data";
+import type { InventoryProduct, InventoryVariant } from "@/src/types/Inventory";
 import { ORDER_INVENTORY_TABLE, PRODUCT_TABLE, PRODUCT_VARIANT_COMBINATION_TABLE } from "@/src/lib/supabase/tables";
 import type { Order } from "@/src/types/Order";
 import type { Product as ProductRow } from "@/src/types/Product";
@@ -50,7 +50,7 @@ export async function getOrgInventory(
   supabase: SupabaseClient,
   organizationId: string,
   now = new Date(),
-): Promise<Product[]> {
+): Promise<InventoryProduct[]> {
   const catalog = await readAll<CatalogRow>("products", (from, to) =>
     supabase
       .from(PRODUCT_TABLE)
@@ -69,7 +69,7 @@ export async function getOrgInventory(
       .overrideTypes<CatalogRow[], { merge: false }>(),
   );
 
-  const products = new Map(catalog.map((row): [string, Product] => [
+  const products = new Map(catalog.map((row): [string, InventoryProduct] => [
     row.product_id,
     {
       id: row.product_id,
@@ -86,7 +86,7 @@ export async function getOrgInventory(
   ]));
 
   const productIds = [...products.keys()];
-  const inventoryById = new Map<string, { product: Product; variant?: Variant }>();
+  const inventoryById = new Map<string, { product: InventoryProduct; variant?: InventoryVariant }>();
   const combinationsByProduct = new Map<string, CombinationRow[]>();
   for (let offset = 0; offset < productIds.length; offset += ID_BATCH_SIZE) {
     const combinations = await readAll<CombinationRow>("variant combinations", (from, to) =>
@@ -121,7 +121,7 @@ export async function getOrgInventory(
       }).sort((a, b) => a.label.localeCompare(b.label) || a.id.localeCompare(b.id));
 
       product.stock += stock;
-      let variant: Variant | undefined;
+      let variant: InventoryVariant | undefined;
       if (options.length) {
         variant = {
           id: combination.combination_id,

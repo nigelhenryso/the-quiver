@@ -7,7 +7,7 @@ import InventoryClient from "../../../components/ui/orgUi/inventory/InventoryCli
 import { createClient } from "@/src/lib/supabase/server";
 import { ORGANIZATION_TABLE } from "@/src/lib/supabase/tables";
 import { getOrgInventory } from "@/src/services/inventoryService";
-import { PAGE_SIZE } from "./data";
+import { INVENTORY_PAGE_SIZE } from "@/src/lib/inventory";
 
 export const metadata = {
   title: "Inventory | The Quiver Seller Hub",
@@ -76,7 +76,7 @@ function InventorySkeleton() {
               <div className="border-b border-[#C9D6CE] px-5 py-3">
                 <div className={`${block} h-4 w-full`} />
               </div>
-              {Array.from({ length: PAGE_SIZE }, (_, index) => (
+              {Array.from({ length: INVENTORY_PAGE_SIZE }, (_, index) => (
                 <div key={index} className="flex items-center gap-6 border-b border-[#C9D6CE] px-5 py-5 last:border-b-0">
                   <div className={`${pulse} size-4 shrink-0 rounded-sm`} />
                   <div className={`${block} size-[58px] shrink-0`} />

@@ -35,5 +35,5 @@ async function EditProductContent({ params }: { params: Promise<{ productId: str
     return <p role="alert" className="mt-6">Couldn’t load the product details. Refresh the page to try again.</p>;
   }
   if (!product.value) notFound();
-  return <AddProductForm key={productId} tags={tags.value.data} showListingDetails existing={product.value} />;
+  return <AddProductForm key={`${productId}:${product.value.identity.version}`} tags={tags.value.data} showListingDetails existing={product.value} />;
 }

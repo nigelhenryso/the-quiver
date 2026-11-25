@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Check, ChevronDown, Search } from "lucide-react";
 import { lato } from "@/src/styles/fonts";
-import { stockStatusLabel, type StockStatus } from "@/src/app/(organization)/inventory/data";
+import { stockStatusLabel } from "@/src/lib/inventory";
+import type { StockStatus } from "@/src/types/Inventory";
 
 export type PerformanceSort = "default" | "sales-asc" | "sales-desc";
 

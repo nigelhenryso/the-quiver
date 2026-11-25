@@ -5,7 +5,8 @@ import Link from "next/link";
 import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react";
 import { lato } from "@/src/styles/fonts";
 import { StatusPill, StockBadge } from "./badges";
-import { formatPhp, getProductCategories, type Product } from "@/src/app/(organization)/inventory/data";
+import { getProductCategories } from "@/src/lib/inventory";
+import type { InventoryProduct } from "@/src/types/Inventory";
 
 export type StockSort = "asc" | "desc" | null;
 
@@ -15,15 +16,19 @@ const COLS =
   "grid grid-cols-[40px_minmax(240px,1fr)_120px_160px_150px_110px_140px_170px] gap-x-3";
 
 type ProductTableProps = {
-  products: Product[]; // only the rows for the current page
+  products: InventoryProduct[]; // only the rows for the current page
   selected: Set<string>;
   onToggle: (id: string) => void;
   onToggleAll: (checked: boolean) => void;
   stockSort: StockSort;
   onSortStock: () => void;
-  onTogglePublish: (product: Product) => void;
-  onDelete: (product: Product) => void;
+  onTogglePublish: (product: InventoryProduct) => void;
+  onDelete: (product: InventoryProduct) => void;
 };
+
+function formatPhp(amount: number) {
+  return "Php " + amount.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
 
 const checkboxClass = "h-4 w-4 cursor-pointer rounded-[2px] checked:accent-[#004D31] checked:appearance-auto appearance-none border border-[#CBC7C7] hover:bg-[#004D3115]";
 

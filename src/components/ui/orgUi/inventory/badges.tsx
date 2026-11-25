@@ -1,5 +1,5 @@
 import { lato } from "@/src/styles/fonts";
-import { getStockStatus, stockStatusLabel } from "@/src/app/(organization)/inventory/data";
+import { getStockStatus, stockStatusLabel } from "@/src/lib/inventory";
 
 const stockColors = {
   in: "border-[#9EE2C0] bg-[#E9FBF2] text-[#008A58]",
