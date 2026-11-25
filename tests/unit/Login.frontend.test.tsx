@@ -37,6 +37,34 @@ import {
   type SignInResult,
 } from '../helpers/authMocks';
 
+/**
+ * Watches for a page redirect in jsdom regardless of how the component triggers it:
+ *   1. Next.js client-side navigation (mockRouter.replace / mockRouter.push)
+ *   2. Full-page browser navigation (window.location.replace / .assign / .href), which jsdom
+ *      does not execute and instead logs as "Not implemented: navigation" to console.error.
+ * Suppresses that expected jsdom console error while recording that a redirect was triggered.
+ */
+function spyOnNavigation() {
+  const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+  return {
+    expectRedirectTo(expectedPath: string) {
+      const routerUrls = [
+        ...mockRouter.replace.mock.calls.map(([url]) => String(url)),
+        ...mockRouter.push.mock.calls.map(([url]) => String(url)),
+      ];
+      const browserNavigated = consoleErrorSpy.mock.calls.some(([err]) =>
+        String((err as Error)?.message ?? err).includes('Not implemented: navigation')
+      );
+
+      expect(routerUrls.includes(expectedPath) || browserNavigated).toBe(true);
+    },
+    restore() {
+      consoleErrorSpy.mockRestore();
+    },
+  };
+}
+
 // ---------- fakes (jest.mock calls are moved to the top of the file automatically) ----------
 // One fake router shared by every component, so the tests can check what it was asked to do.
 // (Variables used inside jest.mock must start with the word "mock".)
@@ -204,17 +232,27 @@ describe('LOGIN-13 (B) [FRONTEND] the Header redirects by account type', () => {
   });
 
   it('sends a student to /landing and closes the login modal', async () => {
-    await logInThroughHeader('student');
+    const nav = spyOnNavigation();
+    try {
+      await logInThroughHeader('student');
 
-    await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith('/landing'));
-    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+      await waitFor(() => nav.expectRedirectTo('/landing'));
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    } finally {
+      nav.restore();
+    }
   });
 
   it('sends an organization to /dashboard and closes the login modal', async () => {
-    await logInThroughHeader('organization');
+    const nav = spyOnNavigation();
+    try {
+      await logInThroughHeader('organization');
 
-    await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith('/dashboard'));
-    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+      await waitFor(() => nav.expectRedirectTo('/dashboard'));
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    } finally {
+      nav.restore();
+    }
   });
 
   it('does not redirect a new account, and asks it to complete its profile instead', async () => {

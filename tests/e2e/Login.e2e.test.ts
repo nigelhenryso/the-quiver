@@ -40,7 +40,7 @@ import {
   startBrowser,
   testAccount,
   waitForPath,
-  waitForTitle,
+  waitForRoleHome,
 } from '../helpers/browser';
 
 let driver: WebDriver;
@@ -62,13 +62,8 @@ const studentNavButton = (label: string) => By.xpath(`//header//button[normalize
 describe('LOGIN-01 [E2E] student login', () => {
   it('logs in with valid credentials and lands on /landing', async () => {
     const student = testAccount('STUDENT');
-
     await logIn(driver, student.email, student.password);
-
-    await waitForPath(driver, '/landing');
-    await waitForTitle(driver, STUDENT_HOME_TITLE);
-    // The student navigation bar is on screen.
-    await driver.wait(until.elementLocated(studentNavButton('Campus Orgs')), WAIT_MS);
+    await waitForRoleHome(driver, 'STUDENT');
   });
 });
 
@@ -94,13 +89,8 @@ describe('LOGIN-06 [E2E] wrong credentials', () => {
 describe('LOGIN-11 [E2E] organization login', () => {
   it('logs in with the admin-provided credentials and lands on /dashboard', async () => {
     const org = testAccount('ORG');
-
     await logIn(driver, org.email, org.password);
-
-    await waitForPath(driver, '/dashboard');
-    await waitForTitle(driver, ORG_HOME_TITLE);
-    // The organization navigation bar is on screen.
-    await driver.wait(until.elementLocated(studentNavButton('Inventory')), WAIT_MS);
+    await waitForRoleHome(driver, 'ORG');
   });
 });
 
@@ -135,12 +125,11 @@ describe('LOGIN-22 [E2E] session persists', () => {
   it('stays logged in after the page is refreshed', async () => {
     const student = testAccount('STUDENT');
     await logIn(driver, student.email, student.password);
-    await waitForPath(driver, '/landing');
+    await waitForRoleHome(driver, 'STUDENT');
 
     await driver.navigate().refresh();
 
-    await waitForTitle(driver, STUDENT_HOME_TITLE);
-    expect(await currentPath(driver)).toBe('/landing');
+    await waitForRoleHome(driver, 'STUDENT');
     expect((await authCookies(driver)).length).toBeGreaterThan(0);
   });
 });

@@ -25,6 +25,10 @@ export function testAccount(kind: 'STUDENT' | 'ORG') {
   return { email, password };
 }
 
+export function headerText(text: string) {
+  return By.xpath(`//header//*[normalize-space(.)='${text}']`);
+}
+
 /** Starts a fresh Chrome. Set E2E_HEADED=true in .env.test.local to WATCH the browser. */
 export async function startBrowser(): Promise<WebDriver> {
   const options = new chrome.Options();
@@ -42,8 +46,17 @@ export async function waitForPath(driver: WebDriver, path: string) {
   await driver.wait(async () => (await currentPath(driver)) === path, WAIT_MS, `The page never reached ${path}`);
 }
 
-export async function waitForTitle(driver: WebDriver, title: string) {
-  await driver.wait(until.titleIs(title), WAIT_MS);
+/** Verifies the user landed on the right home page and sees the expected role header. */
+export async function waitForRoleHome(driver: WebDriver, role: 'STUDENT' | 'ORG') {
+  if (role === 'STUDENT') {
+    await waitForPath(driver, '/landing');
+    await driver.wait(until.titleIs(STUDENT_HOME_TITLE), WAIT_MS);
+    await driver.wait(until.elementLocated(headerText('Campus Orgs')), WAIT_MS);
+  } else {
+    await waitForPath(driver, '/dashboard');
+    await driver.wait(until.elementLocated(headerText('Seller Hub')), WAIT_MS);
+    await driver.wait(until.elementLocated(headerText('Inventory')), WAIT_MS);
+  }
 }
 
 /** The Supabase session cookies (sb-<project>-auth-token, possibly split into .0 / .1 pieces). */
