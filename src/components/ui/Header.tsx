@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import SignUpModal from './authModals/SignUpModal';
 import LoginModal  from './authModals/LogInModal';
 import CompleteYourProfileModal from './authModals/CompleteYourProfileModal';
+import { AUTH_BACKDROP } from './authModals/CommonModal';
 import { supabase } from '@/src/lib/supabase/client';
 import { signOut } from '@/src/services/authService';
 import { getAccountType } from '@/src/services/accountService';
@@ -37,6 +38,19 @@ export const Header = ({
   const router = useRouter();
   const [activeModal, setActiveModal] = useState<AuthModal>(null);
   const [authError, setAuthError] = useState<string | null>(null);
+  // after a successful login the backdrop stays up until the next page replaces this one
+  const [redirecting, setRedirecting] = useState(false);
+
+  useEffect(() => {
+    if (!redirecting) return;
+    const t = setTimeout(() => setRedirecting(false), 10000); // safety net if navigation stalls
+    return () => {
+      clearTimeout(t);
+      // cacheComponents keeps this page alive (hidden) after navigating away, which runs this
+      // cleanup; reset so the overlay isn't still up when the user comes back (e.g. after logout).
+      setRedirecting(false);
+    };
+  }, [redirecting]);
 
   // /auth/callback redirects back to "/" with these params.
   useEffect(() => {
@@ -68,7 +82,8 @@ export const Header = ({
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
         const account = await getAccountType(supabase, user.id);
-        if (account !== 'new') router.replace(HOME_ROUTE[account]);
+        // full load: the client router may still hold pages rendered while logged out
+        if (account !== 'new') window.location.replace(HOME_ROUTE[account]);
       } finally {
         checking = false;
       }
@@ -112,8 +127,7 @@ export const Header = ({
     await signOut();
     setIsLoggingOut(false);
     setIsUserMenuOpen(false);
-    router.replace('/');
-    router.refresh();
+    window.location.replace('/'); // full load so no logged-in page state survives
   };
 
   // Keep logged-in tabs in sync: logging out in any tab sends this one home too.
@@ -124,11 +138,11 @@ export const Header = ({
     const goHomeIfLoggedOut = async () => {
       if (document.visibilityState !== 'visible') return;
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) router.replace('/');
+      if (!user) window.location.replace('/');
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_OUT') setTimeout(() => router.replace('/'), 0);
+      if (event === 'SIGNED_OUT') setTimeout(() => window.location.replace('/'), 0);
     });
     document.addEventListener('visibilitychange', goHomeIfLoggedOut);
     window.addEventListener('focus', goHomeIfLoggedOut);
@@ -440,8 +454,9 @@ export const Header = ({
         if (account === 'new') {
           openModal('profile');
         } else {
+          setRedirecting(true);
           openModal(null);
-          router.replace(HOME_ROUTE[account]);
+          window.location.replace(HOME_ROUTE[account]); // full load: fresh server render with the new session
         }
       }}
     />
@@ -457,8 +472,17 @@ export const Header = ({
     <CompleteYourProfileModal
       isOpen={activeModal === 'profile'}
       onClose={() => openModal(null)}
-      onComplete={() => openModal(null)}
+      onComplete={() => {
+        setRedirecting(true); // the modal itself navigates to /landing
+        openModal(null);
+      }}
     />
+
+    {redirecting && (
+      <div className={AUTH_BACKDROP} aria-busy="true" aria-live="polite">
+        <p className="font-body text-[15px] text-white">Logging you in…</p>
+      </div>
+    )}
   </header>
 )
 };
