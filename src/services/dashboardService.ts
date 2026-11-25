@@ -13,7 +13,7 @@ const TIME_ZONE = "Asia/Manila";
 const MONTHS_SHOWN = 4; 
 const RECENT_ORDERS = 5;
 
-type LineRow = {
+export type LineRow = {
   order_id: string;
   quantity: number;
   total_cost: number;
@@ -53,7 +53,7 @@ function monthLabel(year: number, month: number) {
 
 const capitalize = (text: string) => text.trim().replace(/\b\p{L}/gu, (c) => c.toUpperCase());
 
-const productName = (name: string) => capitalize(name.replace(/(\w)\s+-\s+(\w)/g, "$1-$2"));
+export const productName = (name: string) => capitalize(name.replace(/(\w)\s+-\s+(\w)/g, "$1-$2"));
 
 /**
  * Properly capitalizes the names of the products and variant types and variant options
@@ -74,7 +74,7 @@ function variantName(option: { name: string | null; VariantTypes: { name: string
  * @returns a string that contains the product name along with the variant(s) and the quantity ordered
  */
 
-function lineLabel(line: LineRow) {
+export function lineLabel(line: LineRow) {
   const combo = line.Inventory?.ProductVariantCombination;
   const name = productName(combo?.Product?.name ?? "Item");
   const variant = (combo?.CombinationOption ?? [])
@@ -91,7 +91,7 @@ function lineLabel(line: LineRow) {
  * @returns an object that contains the first product image along with the respective images of the variants
  */
 
-function lineImage(line: LineRow) {
+export function lineImage(line: LineRow) {
   const combo = line.Inventory?.ProductVariantCombination;
   return (
     combo?.image_url ??

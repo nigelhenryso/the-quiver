@@ -22,14 +22,14 @@ export default function QuickView({
         <StatCard
           value={stats.pendingPaymentVerification}
           label="Orders for Processing"
-          badge={<Badge tone="warning">Needs Review</Badge>}
+          badge={stats.pendingPaymentVerification > 0 ? <Badge tone="warning">Needs Review</Badge> : undefined}
           linkLabel="View More"
           href="/orgOrders"
         />
         <StatCard
           value={stats.pendingClaim}
           label="Pending Claim"
-          badge={<Badge tone="warning">Needs Review</Badge>}
+          badge={stats.pendingClaim > 0 ? <Badge tone="warning">Needs Review</Badge> : undefined}
           linkLabel="View More"
           href="/orgOrders"
         />

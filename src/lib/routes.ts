@@ -3,6 +3,7 @@ import type { AccountType } from '@/src/services/accountService';
 /** Org-only pages (from the `(organization)` route group). */
 export const ORG_ROUTES = [
   '/dashboard',
+  '/sales',
   '/inventory', 
   '/orgOrders', 
   '/orgProfile', 
