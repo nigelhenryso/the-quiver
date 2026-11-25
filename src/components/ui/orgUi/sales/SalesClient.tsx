@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Upload } from "lucide-react";
-import { filterByRange, manilaDateKey, paidOrdersCsv, rangeBounds, summarizeSales } from "@/src/lib/sales";
+import { filterByRange, manilaDateKey, paidOrdersCsv, rangeBounds, summarizeSales, termOf } from "@/src/lib/sales";
 import type { SalesOrder, SalesRange } from "@/src/types/Sales";
 import RangeFilter from "./RangeFilter";
 import TotalSalesCard from "./TotalSalesCard";
@@ -17,22 +17,27 @@ export default function SalesClient({ orders, nowIso }: { orders: SalesOrder[]; 
   const inRange = useMemo(() => filterByRange(orders, bounds), [orders, bounds]);
 
   // every metric on the page uses Claimed orders only
-  const summary = useMemo(() => summarizeSales(inRange.filter((o) => o.status === "Claimed")), [inRange]);
+  const claimed = useMemo(() => inRange.filter((o) => o.status === "Claimed"), [inRange]);
+  const summary = useMemo(() => summarizeSales(claimed), [claimed]);
 
   const rangeLabel =
     range === "Custom Range"
       ? bounds.from || bounds.to
         ? `${bounds.from ?? "Start"} – ${bounds.to ?? "Today"}`
         : "All dates"
-      : range;
+      : range === "This Term"
+        ? `Term ${termOf(manilaDateKey(nowIso))}`
+        : range;
 
   function exportCsv() {
-    const csv = paidOrdersCsv(inRange);
+    // same orders the cards use: Claimed, inside the selected range
+    const csv = paidOrdersCsv(claimed);
     const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" }); // BOM so Excel reads ₱/ñ
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `paid-orders_${range.toLowerCase().replace(/\s+/g, "-")}_${manilaDateKey(new Date())}.csv`;
+    const span = bounds.from || bounds.to ? `${bounds.from ?? "start"}_to_${bounds.to ?? "today"}` : "all-time";
+    a.download = `sales_${span}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }

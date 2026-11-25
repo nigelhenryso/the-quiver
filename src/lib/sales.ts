@@ -10,14 +10,16 @@ export function manilaDateKey(date: Date | string) {
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
-/**
- * DLSU-style trimester containing `today`: Term 1 = Sep–Dec, Term 2 = Jan–Apr, Term 3 = May–Aug.
- * Adjust here if the official academic calendar differs.
- */
+/** Term containing `todayKey`: Term 1 = Jan–Apr, Term 2 = May–Aug, Term 3 = Sep–Dec. */
+export function termOf(todayKey: string): 1 | 2 | 3 {
+  const month = Number(todayKey.slice(5, 7));
+  return month <= 4 ? 1 : month <= 8 ? 2 : 3;
+}
+
+/** Inclusive "YYYY-MM-DD" bounds of the term containing `todayKey`. */
 export function termBounds(todayKey: string) {
   const year = Number(todayKey.slice(0, 4));
-  const month = Number(todayKey.slice(5, 7));
-  const startMonth = month >= 9 ? 9 : month >= 5 ? 5 : 1;
+  const startMonth = (termOf(todayKey) - 1) * 4 + 1; // 1, 5 or 9
   const endMonth = startMonth + 3;
   const lastDay = new Date(Date.UTC(year, endMonth, 0)).getUTCDate();
   return { from: `${year}-${pad(startMonth)}-01`, to: `${year}-${pad(endMonth)}-${pad(lastDay)}` };
@@ -130,18 +132,26 @@ function manilaDateTime(iso: string) {
   return `${get("year")}-${get("month")}-${get("day")} ${get("hour")}:${get("minute")} ${get("dayPeriod")}`;
 }
 
-/** CSV of paid orders (any status): Order Name, Order Price, Products, Customer Name, Order Date and Time, MOP. */
+/** CSV of paid orders (any status), one row per item: product name and variant options get their own columns. */
 export function paidOrdersCsv(orders: SalesOrder[]) {
-  const header = ["Order Name", "Order Price", "Products", "Customer Name", "Order Date and Time", "MOP"];
+  const header = [
+    "Order Name", "Product Name", "Variant Options", "Quantity", "Item Total",
+    "Order Price", "Customer Name", "Order Date and Time", "MOP",
+  ];
   const rows = orders
     .filter((o) => o.paymentModes.length > 0)
-    .map((o) => [
-      `Order #${shortOrderId(o.orderId)}`,
-      o.total.toFixed(2),
-      o.lines.map((l) => l.label).join("; "),
-      o.customerName,
-      manilaDateTime(o.placedAt),
-      o.paymentModes.join(" / "),
-    ]);
+    .flatMap((o) =>
+      o.lines.map((l) => [
+        `Order #${shortOrderId(o.orderId)}`,
+        l.productName,
+        l.variants.join(" / "),
+        l.quantity,
+        l.total.toFixed(2),
+        o.total.toFixed(2),
+        o.customerName,
+        manilaDateTime(o.placedAt),
+        o.paymentModes.join(" / "),
+      ]),
+    );
   return [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\r\n");
 }

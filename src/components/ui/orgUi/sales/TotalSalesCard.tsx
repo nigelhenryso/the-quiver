@@ -1,4 +1,5 @@
-import { Banknote } from "lucide-react";
+
+import { BankNote } from "../../logos";
 import { Badge } from "../dashboard/StatCard";
 import Peso from "./Peso";
 
@@ -8,7 +9,7 @@ export default function TotalSalesCard({ revenue, units, rangeLabel }: { revenue
       <div className="flex items-start justify-between">
         <Badge>Live Net Revenue</Badge>
         <span className="flex h-7 w-7 items-center justify-center rounded-[6px] bg-[#E8F7EE] text-[#008A58]">
-          <Banknote size={16} aria-hidden />
+          <BankNote width={16} height={16} color="currentColor" aria-hidden />
         </span>
       </div>
       <h2 className="font-body mt-2 text-[15px] text-[#1E3A2C]">Total Sales</h2>

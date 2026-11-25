@@ -2,7 +2,7 @@ import { filterByRange, paidOrdersCsv, rangeBounds, summarizeSales, termBounds }
 import type { SalesOrder } from "@/src/types/Sales";
 
 const line = (productId: string, category: string, quantity: number, total: number) => ({
-  productId, productName: productId, category, image: null, label: `${productId} - ${quantity}x`, quantity, total,
+  productId, productName: productId, category, image: null, variants: productId === "shirt" ? ["Blue", "Large"] : [], label: `${productId} - ${quantity}x`, quantity, total,
 });
 
 const orders: SalesOrder[] = [
@@ -34,7 +34,8 @@ test("summary counts only what it is given (page passes Claimed)", () => {
 
 test("csv has paid orders only, escaped", () => {
   const rows = paidOrdersCsv(orders).split("\r\n");
-  expect(rows[0]).toBe("Order Name,Order Price,Products,Customer Name,Order Date and Time,MOP");
-  expect(rows).toHaveLength(4); // header + 3 paid
-  expect(rows[1]).toBe('Order #00000001,420.00,shirt - 2x; pin - 1x,"Yuan, Jr.",2026-11-03 12:30 AM,GCash');
+  expect(rows[0]).toBe("Order Name,Product Name,Variant Options,Quantity,Item Total,Order Price,Customer Name,Order Date and Time,MOP");
+  expect(rows).toHaveLength(5); // header + 4 lines from 3 paid orders
+  expect(rows[1]).toBe('Order #00000001,shirt,Blue / Large,2,400.00,420.00,"Yuan, Jr.",2026-11-03 12:30 AM,GCash');
+  expect(rows[2]).toBe('Order #00000001,pin,,1,20.00,420.00,"Yuan, Jr.",2026-11-03 12:30 AM,GCash');
 });

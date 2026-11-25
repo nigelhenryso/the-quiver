@@ -7,6 +7,7 @@ export type SalesLine = {
   productName: string;
   category: string; // first tag of the product (alphabetical), "Uncategorized" if none
   image: string | null;
+  variants: string[]; // option names, ex: ["Blue", "Large"]; empty if no variants
   label: string; // ex: "T-Shirt 1 - Color: Blue - 2x"
   quantity: number;
   total: number; // price at sale × quantity

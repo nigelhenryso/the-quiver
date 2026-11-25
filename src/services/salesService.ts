@@ -7,7 +7,7 @@ import type { OrgSales, SalesLine, SalesOrder } from "@/src/types/Sales";
 
 const UNCATEGORIZED = "Uncategorized";
 
-type SalesLineRow = LineRow & {
+type SalesLineRow = LineRow & { // maps the inventory to the variants and variant types it contains as well as the product it belongs to
   Inventory: {
     ProductVariantCombination: {
       product_id: string;
@@ -16,7 +16,7 @@ type SalesLineRow = LineRow & {
   } | null;
 };
 
-type OrderRow = {
+type OrderRow = { // maps the order to the student who placed it and the payment modes used
   order_id: string;
   status: OrderStatus | null;
   placed_at: string;
@@ -29,22 +29,25 @@ function category(line: SalesLineRow) {
     .map((t) => t.Tag?.name?.trim())
     .filter((name): name is string => Boolean(name))
     .sort();
-  return tags[0] ?? UNCATEGORIZED;
+  return tags[0] ?? UNCATEGORIZED; // if multiple tags, pick the first alphabetically; if none, use "Uncategorized"
 }
 
-function coverImage(line: SalesLineRow) {
+function coverImage(line: SalesLineRow) { // product-level cover (position 0) so the best seller doesn't show one variant's photo
   const images = line.Inventory?.ProductVariantCombination?.Product?.ProductImage ?? [];
   return (images.find((i) => i.position === 0) ?? images[0])?.image_url ?? null;
 }
 
-function toSalesLine(line: SalesLineRow): SalesLine {
+function toSalesLine(line: SalesLineRow): SalesLine { // per row mapping of inventory to the variants and variant types it contains as well as the product it belongs to
   const combo = line.Inventory?.ProductVariantCombination;
   return {
     productId: combo?.product_id ?? "",
     productName: productName(combo?.Product?.name ?? "Item"),
     category: category(line),
-    // product-level cover (position 0) so the best seller doesn't show one variant's photo
     image: coverImage(line) ?? lineImage(line),
+    variants: (combo?.CombinationOption ?? [])
+      .map((o) => o.VariantOption?.name?.trim())
+      .filter((name): name is string => Boolean(name))
+      .sort(),
     label: lineLabel(line),
     quantity: Number(line.quantity),
     total: Number(line.total_cost),
@@ -53,7 +56,6 @@ function toSalesLine(line: SalesLineRow): SalesLine {
 
 /**
  * Every order containing this org's items, with the org's lines, customer and payment modes.
- * RLS limits OrderInventory/Order/Payment to orders that contain the org's items; we still filter lines by org.
  * Date-range / status filtering happens on the page.
  * @param supabase - server Supabase client (logged in as the org)
  * @param orgId - the org's organization_id (= its auth user id)
@@ -68,12 +70,12 @@ export async function getOrgSales(supabase: SupabaseClient, orgId: string): Prom
         "order_id, quantity, total_cost, Inventory(ProductVariantCombination(product_id, image_url, Product(name, organization_id, ProductImage(image_url, position), ProductTag(Tag(name))), CombinationOption(VariantOption(name, VariantTypes(name)))))",
       )
       .returns<SalesLineRow[]>(),
-  ]);
+  ]); //gets an organization'sorders from the order_inventory table and maps them to the variants and variant types it contains as well as the product it belongs to
 
   if (!org) return null;
   if (lineError) throw lineError;
 
-  const linesByOrder = new Map<string, SalesLine[]>();
+  const linesByOrder = new Map<string, SalesLine[]>(); // maps order_id -> lines of this org in that order
   for (const line of lineData ?? []) {
     if (line.Inventory?.ProductVariantCombination?.Product?.organization_id !== orgId) continue;
     const list = linesByOrder.get(line.order_id) ?? [];
@@ -81,7 +83,7 @@ export async function getOrgSales(supabase: SupabaseClient, orgId: string): Prom
     linesByOrder.set(line.order_id, list);
   }
 
-  const orderIds = [...linesByOrder.keys()];
+  const orderIds = [...linesByOrder.keys()]; // get all order_ids that contain this org's items
   let orders: OrderRow[] = [];
   if (orderIds.length > 0) {
     const { data, error } = await supabase
@@ -94,7 +96,7 @@ export async function getOrgSales(supabase: SupabaseClient, orgId: string): Prom
     orders = data ?? [];
   }
 
-  const salesOrders: SalesOrder[] = orders.map((o) => {
+  const salesOrders: SalesOrder[] = orders.map((o) => { // maps the order to the student who placed it and the payment modes used
     const lines = linesByOrder.get(o.order_id) ?? [];
     const name = [o.Student?.first_name, o.Student?.last_name].filter(Boolean).join(" ");
     const modes = o.Payment.map((p) => p.PaymentMode?.name).filter((m): m is string => Boolean(m));

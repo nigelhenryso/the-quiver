@@ -6,14 +6,14 @@ import { createClient } from "@/src/lib/supabase/server";
 import { getOrgSales } from "@/src/services/salesService";
 
 export const metadata = {
-  title: "Sales | The Quiver Seller Hub",
+  title: "Organization Sales",
 };
 
 export default function OrgSalesPage() {
   return (
     <div className="flex min-h-screen flex-col bg-[#F8FAF9]">
       <main className="mx-auto w-full max-w-[1440px] flex-1 px-6 pb-16 pt-10 lg:px-10">
-        <Suspense fallback={<SalesSkeleton />}>
+        <Suspense fallback={<SalesSkeleton />}> {/* Suspense waits for the data to be fetched */}
           <SalesContent />
         </Suspense>
       </main>
