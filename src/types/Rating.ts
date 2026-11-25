@@ -1,7 +1,8 @@
-export type Rating ={
+export type Rating = {
     rating_id: string;
+    student_id: string;
     order_id: string;
     rating: number;
-    comment: string;
+    comment: string | null;
     created_at: string;
 }

@@ -62,7 +62,7 @@ export const Button = ({
 
   var buttonClass = `font-heading  w-full flex shrink-0 flex-row items-center justify-center gap-[5px] whitespace-nowrap transition-colors duration-300 ease-in-out cursor-pointer`;
   if (type === "nav"){
-    buttonClass = `font-heading w-fit flex shrink-0 flex-row items-center justify-center gap-[5px] whitespace-nowrap transition-colors duration-300 ease-in-out cursor-pointer`;
+    buttonClass = `font-body w-fit flex shrink-0 flex-row items-center justify-center gap-[5px] whitespace-nowrap transition-colors duration-300 ease-in-out cursor-pointer`;
   }
   return (
     <button

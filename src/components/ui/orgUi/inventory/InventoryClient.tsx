@@ -1,16 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { X } from "lucide-react";
+import { supabase } from "@/src/lib/supabase/client";
+import { PRODUCT_TABLE } from "@/src/lib/supabase/tables";
 import ConfirmModal, { type ModalMode } from "./ConfirmModal";
 import FilterBar, { defaultFilters, type Filters } from "./FilterBar";
 import PageNav from "./PageNav";
 import ProductTable, { type StockSort } from "./ProductTable";
 import {
-  categories,
+  getProductCategories,
   getStockStatus,
   PAGE_SIZE,
-  type Category,
   type Product,
   type StockStatus,
 } from "../../../../app/(organization)/inventory/data";
@@ -19,40 +20,49 @@ type Tab = "all" | "live" | "unpublished";
 
 // this holds all the interactive state of the page
 export default function InventoryClient({ initialProducts }: { initialProducts: Product[] }) {
-  // NOTE: with a real backend, publish/unpublish should call the API and then refresh this
   const [products, setProducts] = useState(initialProducts);
   const [tab, setTab] = useState<Tab>("all");
-  const [draft, setDraft] = useState<Filters>(defaultFilters); // what the inputs show
-  const [applied, setApplied] = useState<Filters>(defaultFilters); // what is actually filtering
+  const categoryCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const product of products) {
+      for (const category of getProductCategories(product)) {
+        counts.set(category, (counts.get(category) ?? 0) + 1);
+      }
+    }
+    return new Map([...counts].sort(([a], [b]) => a.localeCompare(b)));
+  }, [products]);
+  const initialFilters = { ...defaultFilters, categories: [...categoryCounts.keys()] };
+  const [draft, setDraft] = useState<Filters>(initialFilters);
+  const [applied, setApplied] = useState<Filters>(initialFilters);
   const [stockSort, setStockSort] = useState<StockSort>(null);
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [modal, setModal] = useState<{ mode: ModalMode; ids: string[] } | null>(null);
   const [toast, setToast] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
+  const savingRef = useRef(false);
 
   // ---------- counts (always based on all products, like the design) ----------
-  const liveCount = products.filter((p) => p.published).length;
+  const liveCount = products.filter((p) => p.isActive).length;
   const tabCounts: Record<Tab, number> = {
     all: products.length,
     live: liveCount,
     unpublished: products.length - liveCount,
   };
-  const categoryCounts = Object.fromEntries(
-    categories.map((c) => [c, products.filter((p) => p.category === c).length]),
-  ) as Record<Category, number>;
-  const stockCounts: Record<StockStatus, number> = { in: 0, low: 0, out: 0 };
-  products.forEach((p) => stockCounts[getStockStatus(p.stock, p.salesL30D)]++);
+  const stockCounts: Record<StockStatus, number> = { in: 0, out: 0 };
+  products.forEach((p) => stockCounts[getStockStatus(p.stock)]++);
 
   // ---------- filter + sort + paginate ----------
   const filtered = useMemo(() => {
     const q = applied.search.trim().toLowerCase();
     const rows = products.filter((p) => {
-      if (tab === "live" && !p.published) return false;
-      if (tab === "unpublished" && p.published) return false;
-      if (!applied.categories.includes(p.category)) return false;
-      if (!applied.stock.includes(getStockStatus(p.stock, p.salesL30D))) return false;
+      if (tab === "live" && !p.isActive) return false;
+      if (tab === "unpublished" && p.isActive) return false;
+      if (!getProductCategories(p).some((category) => applied.categories.includes(category))) return false;
+      if (!applied.stock.includes(getStockStatus(p.stock))) return false;
       if (q) {
-        const haystack = [p.name, p.productId, ...p.variants.map((v) => v.name)]
+        const haystack = [p.name, p.productId, ...p.variants.flatMap((v) => v.options.map(({ label }) => label))]
           .join(" ")
           .toLowerCase();
         if (!haystack.includes(q)) return false;
@@ -64,10 +74,7 @@ export default function InventoryClient({ initialProducts }: { initialProducts: 
     if (stockSort) {
       rows.sort((a, b) => (stockSort === "asc" ? a.stock - b.stock : b.stock - a.stock));
     } else if (applied.performance !== "default") {
-      // ex: "l30d-desc" = highest to lowest L30D sales
-      const [key, dir] = applied.performance.split("-") as ["sales" | "l30d", "asc" | "desc"];
-      const value = (p: Product) => (key === "sales" ? p.sales : p.salesL30D);
-      rows.sort((a, b) => (dir === "asc" ? value(a) - value(b) : value(b) - value(a)));
+      rows.sort((a, b) => (applied.performance === "sales-asc" ? a.sales - b.sales : b.sales - a.sales));
     }
     return rows;
   }, [products, tab, applied, stockSort]);
@@ -93,23 +100,89 @@ export default function InventoryClient({ initialProducts }: { initialProducts: 
     });
 
   const selectedProducts = products.filter((p) => selected.has(p.id));
-  const selectedLive = selectedProducts.filter((p) => p.published);
-  const selectedUnpublished = selectedProducts.filter((p) => !p.published);
+  const selectedLive = selectedProducts.filter((p) => p.isActive);
+  const selectedUnpublished = selectedProducts.filter((p) => !p.isActive);
 
   // ---------- actions ----------
-  const openModal = (mode: ModalMode, items: Product[]) =>
-    items.length > 0 && setModal({ mode, ids: items.map((p) => p.id) });
+  const openModal = (mode: ModalMode, items: Product[]) => {
+    if (savingRef.current || items.length === 0) return;
+    setSaveError("");
+    setModal({ mode, ids: items.map((p) => p.productId) });
+  };
 
-  const closeModal = useCallback(() => setModal(null), []);
+  const closeModal = useCallback(() => {
+    if (!savingRef.current) setModal(null);
+  }, []);
 
-  const confirmModal = () => {
-    if (!modal) return;
-    const ids = new Set(modal.ids);
-    const publish = modal.mode === "publish";
-    setProducts((prev) => prev.map((p) => (ids.has(p.id) ? { ...p, published: publish } : p)));
-    setSelected(new Set());
-    setToast(`${ids.size} listing${ids.size === 1 ? "" : "s"} ${publish ? "published" : "unpublished"}.`);
-    setModal(null);
+  const confirmModal = async () => {
+    if (!modal || savingRef.current) return;
+    savingRef.current = true;
+    setSaving(true);
+    setSaveError("");
+    setToast("");
+
+    try {
+      if (modal.mode === "delete") {
+        const [productId] = modal.ids;
+        const { data, error } = await supabase
+          .from(PRODUCT_TABLE)
+          .delete()
+          .eq("product_id", productId)
+          .select("product_id")
+          .maybeSingle();
+        if (error?.code === "23503") {
+          setSaveError("This product has orders or preorders. You can unpublish it instead.");
+          return;
+        }
+        if (error) throw error;
+        if (!data) {
+          setSaveError("The product could not be found or you no longer have access. Refresh your inventory and try again.");
+          return;
+        }
+        setProducts((previous) => previous.filter((product) => product.productId !== productId));
+        const removedId = products.find((product) => product.productId === productId)?.id;
+        setSelected((previous) => new Set([...previous].filter((id) => id !== removedId)));
+        setToast("Product deleted.");
+        setModal(null);
+        return;
+      }
+
+      const publish = modal.mode === "publish";
+      const { data, error } = await supabase
+        .from(PRODUCT_TABLE)
+        .update({ is_active: publish })
+        .in("product_id", modal.ids)
+        .select("product_id, is_active")
+        .overrideTypes<{ product_id: string; is_active: boolean }[], { merge: false }>();
+      if (error) throw error;
+
+      const updated = new Map(data.map((row) => [row.product_id, row.is_active]));
+      if (updated.size > 0) {
+        setProducts((previous) => previous.map((product) => {
+          const isActive = updated.get(product.productId);
+          return isActive === undefined ? product : { ...product, isActive };
+        }));
+      }
+
+      if (updated.size !== modal.ids.length) {
+        const remainingIds = modal.ids.filter((id) => !updated.has(id));
+        setModal({ ...modal, ids: remainingIds });
+        setSaveError(updated.size === 0
+          ? "No listings were updated. Check that you still have access and try again."
+          : `Updated ${updated.size} of ${modal.ids.length} listings. Try again for the remaining listings.`);
+        return;
+      }
+
+      setSelected(new Set());
+      setToast(`${updated.size} listing${updated.size === 1 ? "" : "s"} ${publish ? "published" : "unpublished"}.`);
+      setModal(null);
+    } catch (error) {
+      console.error("Inventory action failed", error);
+      setSaveError(modal.mode === "delete" ? "Couldn’t delete the product. Please try again." : "Couldn’t update listing status. Please try again.");
+    } finally {
+      savingRef.current = false;
+      setSaving(false);
+    }
   };
 
   // hide the toast after a few seconds
@@ -124,8 +197,8 @@ export default function InventoryClient({ initialProducts }: { initialProducts: 
     setPage(1);
   };
   const resetFilters = () => {
-    setDraft(defaultFilters);
-    setApplied(defaultFilters);
+    setDraft(initialFilters);
+    setApplied(initialFilters);
     setStockSort(null);
     setPage(1);
   };
@@ -138,7 +211,7 @@ export default function InventoryClient({ initialProducts }: { initialProducts: 
     setPage(1);
   };
 
-  const modalItems = modal ? products.filter((p) => modal.ids.includes(p.id)) : [];
+  const modalItems = modal ? products.filter((p) => modal.ids.includes(p.productId)) : [];
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "all", label: "All" },
@@ -228,7 +301,7 @@ export default function InventoryClient({ initialProducts }: { initialProducts: 
       <section className="mt-5 overflow-hidden rounded-[10px] border border-[#C9D6CE] bg-white shadow-[0_2px_4px_rgba(0,0,0,0.25)]">
         {pageRows.length === 0 ? (
           <p className={`font-body px-6 py-16 text-center text-[14px] text-[#7C8A82]`}>
-            No products match your filters.
+            {products.length === 0 ? "Your organization has no products yet." : "No products match your filters."}
           </p>
         ) : (
           <ProductTable
@@ -238,7 +311,8 @@ export default function InventoryClient({ initialProducts }: { initialProducts: 
             onToggleAll={toggleAllOnPage}
             stockSort={stockSort}
             onSortStock={cycleStockSort}
-            onTogglePublish={(p) => openModal(p.published ? "unpublish" : "publish", [p])}
+            onTogglePublish={(p) => openModal(p.isActive ? "unpublish" : "publish", [p])}
+            onDelete={(p) => openModal("delete", [p])}
           />
         )}
 
@@ -263,6 +337,8 @@ export default function InventoryClient({ initialProducts }: { initialProducts: 
           items={modalItems}
           onConfirm={confirmModal}
           onCancel={closeModal}
+          saving={saving}
+          error={saveError}
         />
       )}
 

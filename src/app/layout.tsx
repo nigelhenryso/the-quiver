@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { calSans, lato } from "../styles/fonts";
 import "../styles/globals.css";
+import { Footer } from "../components/ui/Footer";
+import SessionHeartbeat from "../components/auth/SessionHeartbeat";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -11,6 +13,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
   title: "The Quiver",
   description: "DLSU Student Organization E-Commerce Site",
+  icons: {
+    icon: { url: "/favicon.svg", type: "image/svg+xml"}
+  }
 };
 
 export default function RootLayout({
@@ -29,6 +34,8 @@ export default function RootLayout({
         >
           {children}
         </ThemeProvider>
+        <Footer/>
+        <SessionHeartbeat />
       </body>
     </html>
   );

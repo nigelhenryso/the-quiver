@@ -3,12 +3,11 @@ import { getStockStatus, stockStatusLabel } from "@/src/app/(organization)/inven
 
 const stockColors = {
   in: "border-[#9EE2C0] bg-[#E9FBF2] text-[#008A58]",
-  low: "border-[#E8C547] bg-[#FDE9A0] text-[#6B4E00]",
   out: "border-[#F2A9B3] bg-[#FFE8EB] text-[#C4112F]",
 } as const;
 
-export function StockBadge({ stock, salesL30D }: { stock: number; salesL30D: number }) {
-  const status = getStockStatus(stock, salesL30D);
+export function StockBadge({ stock }: { stock: number }) {
+  const status = getStockStatus(stock);
   return (
     <span
       className={`${lato.className} inline-block whitespace-nowrap rounded-[6px] border px-2 py-[3px] text-[12px] font-bold ${stockColors[status]}`}

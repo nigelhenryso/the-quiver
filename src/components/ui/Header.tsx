@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import SignUpModal from './authModals/SignUpModal';
 import LoginModal  from './authModals/LogInModal';
 import CompleteYourProfileModal from './authModals/CompleteYourProfileModal';
+import { AUTH_BACKDROP } from './authModals/CommonModal';
 import { supabase } from '@/src/lib/supabase/client';
 import { signOut } from '@/src/services/authService';
 import { getAccountType } from '@/src/services/accountService';
@@ -37,6 +38,19 @@ export const Header = ({
   const router = useRouter();
   const [activeModal, setActiveModal] = useState<AuthModal>(null);
   const [authError, setAuthError] = useState<string | null>(null);
+  // after a successful login the backdrop stays up until the next page replaces this one
+  const [redirecting, setRedirecting] = useState(false);
+
+  useEffect(() => {
+    if (!redirecting) return;
+    const t = setTimeout(() => setRedirecting(false), 10000); // safety net if navigation stalls
+    return () => {
+      clearTimeout(t);
+      // cacheComponents keeps this page alive (hidden) after navigating away, which runs this
+      // cleanup; reset so the overlay isn't still up when the user comes back (e.g. after logout).
+      setRedirecting(false);
+    };
+  }, [redirecting]);
 
   // /auth/callback redirects back to "/" with these params.
   useEffect(() => {
@@ -68,7 +82,8 @@ export const Header = ({
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
         const account = await getAccountType(supabase, user.id);
-        if (account !== 'new') router.replace(HOME_ROUTE[account]);
+        // full load: the client router may still hold pages rendered while logged out
+        if (account !== 'new') window.location.replace(HOME_ROUTE[account]);
       } finally {
         checking = false;
       }
@@ -112,8 +127,7 @@ export const Header = ({
     await signOut();
     setIsLoggingOut(false);
     setIsUserMenuOpen(false);
-    router.replace('/');
-    router.refresh();
+    window.location.replace('/'); // full load so no logged-in page state survives
   };
 
   // Keep logged-in tabs in sync: logging out in any tab sends this one home too.
@@ -124,11 +138,11 @@ export const Header = ({
     const goHomeIfLoggedOut = async () => {
       if (document.visibilityState !== 'visible') return;
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) router.replace('/');
+      if (!user) window.location.replace('/');
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_OUT') setTimeout(() => router.replace('/'), 0);
+      if (event === 'SIGNED_OUT') setTimeout(() => window.location.replace('/'), 0);
     });
     document.addEventListener('visibilitychange', goHomeIfLoggedOut);
     window.addEventListener('focus', goHomeIfLoggedOut);
@@ -152,7 +166,7 @@ export const Header = ({
         {loggedIn ? (
           student ? ( /* IF STUDENT */
             <>
-                <div className="mx-[45px] flex flex-row items-center gap-3">
+                <div className="mx-[45px] flex flex-row items-center gap-1">
                   <QuiverLogo />
                   <div className = "flex flex-row items-end">
                     <h1 className={`font-heading flex items-center text-[21.6867px] leading-[30px] font-normal text-white`}>
@@ -169,7 +183,7 @@ export const Header = ({
                     hoverTextColor='#b9dccf'
                     onClick={() => router.push('/landing')}
                     label="Home"
-                    fontSize={20}
+                    fontSize={15}
                   />
                   <Button
                     primary
@@ -179,7 +193,7 @@ export const Header = ({
                     hoverTextColor='#b9dccf'
                     onClick={() => router.push('/organizations')}
                     label="Campus Orgs"
-                    fontSize={20}
+                    fontSize={15}
                   />
                   <Button
                     primary
@@ -189,7 +203,7 @@ export const Header = ({
                     hoverTextColor='#b9dccf'
                     onClick={() => router.push('/studentOrders')}
                     label="Orders"
-                    fontSize={20}
+                    fontSize={15}
                   />
                 </div>
                 <div className="mx-[45px] flex items-center gap-[30px]"> {/* NAV OPTIONS */}
@@ -255,19 +269,19 @@ export const Header = ({
           </>
           ) : 
               <>
-                <div className="mx-[45px] flex flex-row items-center justify-between gap-3">
+                <div className="mx-[45px] flex flex-row items-center justify-between gap-1">
                   <QuiverLogo />
-                  <div className = "flex flex-row items-end">
+                  <div className = "flex flex-row items-center">
                     <h1 className={`font-heading flex items-center text-[21.6867px] leading-[30px] font-normal text-white`}>
                       The Quiver
                     </h1>
-                    <h1 className={`font-heading flex items-left text-[10px] font-normal text-white`}>
+                    <div className="flex font-heading text-white text-[12px] border border-1 border-[rgba(255,255,255,0.2)] bg-[rgba(255,255,255,0.12)] rounded-2xl px-2.5 py-1 ml-2">
                       Seller Hub
-                    </h1>
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-[30px]"> {/* NAV OPTIONS */}
+                <div className="flex items-center gap-[60px]"> {/* NAV OPTIONS */}
                   <Button
                     size="small"
                     type='nav'
@@ -275,7 +289,7 @@ export const Header = ({
                     hoverTextColor='#b9dccf'
                     onClick={() => router.push('/dashboard')}
                     label="Dashboard"
-                    fontSize={20}
+                    fontSize={15}
                   />
                   <Button
                     primary
@@ -283,9 +297,9 @@ export const Header = ({
                     type='nav'
                     textColor='#FFFFFF'
                     hoverTextColor='#b9dccf'
-                    onClick={() => router.push('/inventory')}
-                    label="Inventory"
-                    fontSize={20}
+                    onClick={() => router.push('/sales')}
+                    label="Sales"
+                    fontSize={15}
                   />
                   <Button
                     primary
@@ -295,20 +309,22 @@ export const Header = ({
                     hoverTextColor='#b9dccf'
                     onClick={() => router.push('/orgOrders')}
                     label="Orders"
-                    fontSize={20}
+                    fontSize={15}
                   />
-                </div>
-                <div className="mx-[45px] flex items-center gap-[30px]"> {/* NAV OPTIONS */}
                   <Button
                     primary
                     size="small"
                     type='nav'
                     textColor='#FFFFFF'
                     hoverTextColor='#b9dccf'
-                    onClick={onCreateAccount}
-                    logo={<MarketLogo width={16} height={16}/>}
-                    fontSize={20}
+                    onClick={() => router.push('/inventory')}
+                    label="Inventory"
+                    fontSize={15}
                   />
+                </div>
+                
+                <div className="mx-[45px] flex items-center gap-[30px]"> {/* NAV OPTIONS */}
+                  <div className="h-9 w-px self-stretch bg-[#00B775]"></div>
                   <Button
                     primary
                     size="small"
@@ -362,7 +378,7 @@ export const Header = ({
             </>
         ) : (
           <>
-            <div className="mx-[45px] flex flex-row items-center justify-between gap-3">
+            <div className="mx-[45px] flex flex-row items-center justify-between gap-1">
               <QuiverLogo />
               <div className = "flex flex-row items-end">
                 <h1 className={`font-heading flex items-center text-[21.6867px] leading-[30px] font-normal text-white`}>
@@ -376,17 +392,7 @@ export const Header = ({
                   onClick={onLogin}
                   textColor='#FFFFFF'
                   hoverTextColor='#b9dccf'
-                  label="New Arrivals"
-                  fontSize={15}
-                  type='nav'
-                />
-                <Button
-                  primary
-                  size="small"
-                  onClick={onCreateAccount}
-                  textColor='#FFFFFF'
-                  hoverTextColor='#b9dccf'
-                  label="Best Sellers"
+                  label="Home"
                   fontSize={15}
                   type='nav'
                 />
@@ -448,8 +454,9 @@ export const Header = ({
         if (account === 'new') {
           openModal('profile');
         } else {
+          setRedirecting(true);
           openModal(null);
-          router.replace(HOME_ROUTE[account]);
+          window.location.replace(HOME_ROUTE[account]); // full load: fresh server render with the new session
         }
       }}
     />
@@ -465,8 +472,17 @@ export const Header = ({
     <CompleteYourProfileModal
       isOpen={activeModal === 'profile'}
       onClose={() => openModal(null)}
-      onComplete={() => openModal(null)}
+      onComplete={() => {
+        setRedirecting(true); // the modal itself navigates to /landing
+        openModal(null);
+      }}
     />
+
+    {redirecting && (
+      <div className={AUTH_BACKDROP} aria-busy="true" aria-live="polite">
+        <p className="font-body text-[15px] text-white">Logging you in…</p>
+      </div>
+    )}
   </header>
 )
 };
