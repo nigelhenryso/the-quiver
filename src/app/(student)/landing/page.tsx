@@ -6,15 +6,5 @@ export const metadata = {
 };
 
 export default function StudentHomePage() {
-  // dummy data for now
-  const { forYou, fromYourOrgs, exploreMore, promoSlides } = getStudentHomeData();
-
-  return (
-    <Home
-      forYou={forYou}
-      fromYourOrgs={fromYourOrgs}
-      exploreMore={exploreMore}
-      promoSlides={promoSlides}
-    />
-  );
+  return <Home {...getStudentHomeData()} />;
 }

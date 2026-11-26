@@ -1,37 +1,30 @@
 import { ProductCardStar } from "@/src/components/ui/logos";
 import type { HomeProduct } from "@/src/app/(student)/landing/data";
 
-// product card used in the student home page (rating + review count style)
 export default function HomeProductCard({ product }: { product: HomeProduct }) {
   return (
-    <div className="flex w-full flex-col gap-[3px] overflow-hidden rounded-[10px] border-[0.5px] border-[#2F4531]/60 bg-[#F5FEF2] p-2 shadow-[1px_2px_5px_rgba(0,0,0,0.25)] transition-all duration-200 ease-in-out hover:scale-105 hover:border-[#004D31] hover:shadow-lg">
+    <article className="h-full w-full rounded-[10px] border border-[#AABDA8] bg-[#F3FCF0] p-2 font-body text-[#506552] shadow-[1px_2px_6px_#233B2540]">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={product.imgDir}
-        alt={product.productName}
-        className="aspect-square w-full rounded-[8px] bg-[#BADBA6] object-cover"
+        alt=""
+        loading="lazy"
+        decoding="async"
+        className="aspect-[10/11] w-full rounded-md bg-[#B5D5A4] object-cover"
       />
 
-      <div className="mt-1 flex w-full flex-row items-center justify-between px-0.5">
-        <div className="flex flex-row items-center gap-[3px]">
-          <ProductCardStar width={11} height={11} color="#00B775" />
-          <span className={`$font-body text-[10px] leading-none text-[#2F4531]`}>
-            {product.rating.toFixed(1)} ({product.reviewCount})
-          </span>
-        </div>
-        <p className={`$font-body text-[10px] italic leading-none text-[#2F4531]`}>
-          {product.orgName}
-        </p>
+      <div className="mt-1.5 flex min-w-0 items-center justify-between gap-1 text-[10px]">
+        <span className="flex shrink-0 items-center gap-0.5">
+          <ProductCardStar aria-hidden="true" width={10} height={10} color="#00B775" />
+          <span>{product.rating.toFixed(1)} ({product.reviewCount})</span>
+        </span>
+        <span className="truncate italic">{product.orgName}</span>
       </div>
 
-      <h3
-        className={`$font-body mt-1 truncate text-center text-[14px] font-bold text-[#2F4531]`}
-      >
+      <h4 className="mt-1.5 truncate text-center text-sm font-bold">
         {product.productName}
-      </h3>
-      <p className={`$font-body text-center text-[12px] text-[#2F4531]`}>
-        ₱{product.price.toFixed(2)}
-      </p>
-    </div>
+      </h4>
+      <p className="mt-0.5 text-center text-xs">₱{product.price.toFixed(2)}</p>
+    </article>
   );
 }
