@@ -18,24 +18,33 @@ type OrganizationRow = Pick<Organization, "organization_id" | "name" | "acronym"
 
 const organizationFields = "organization_id, name, acronym, OrganizationImage(image_url)";
 const productFields = "product_id, name, price, ProductImage(image_url), ProductVariantCombination(image_url)";
+const ORGANIZATION_LIMIT = 3;
+
+type CatalogScope = { kind: "joined" | "explore"; studentId: string } | { kind: "preOrders" };
 
 export async function getYourOrgProducts(supabase: SupabaseClient, studentId: string): Promise<HomeOrgProducts[]> {
-  return getOrganizationProducts(supabase, { studentId });
+  return getOrganizationProducts(supabase, { kind: "joined", studentId });
 }
 
 export async function getPreOrderProducts(supabase: SupabaseClient): Promise<HomeOrgProducts[]> {
-  return getOrganizationProducts(supabase, { preOrders: true });
+  return getOrganizationProducts(supabase, { kind: "preOrders" });
+}
+
+export async function getExploreProducts(supabase: SupabaseClient, studentId: string): Promise<HomeOrgProducts[]> {
+  return getOrganizationProducts(supabase, { kind: "explore", studentId });
 }
 
 async function getOrganizationProducts(
   supabase: SupabaseClient,
-  scope: { studentId: string } | { preOrders: true },
+  scope: CatalogScope,
 ): Promise<HomeOrgProducts[]> {
-  const selection = "preOrders" in scope
-    ? `Product!inner(${productFields})`
-    : `Product(${productFields}), ${STUDENT_AFFILIATION_TABLE}!inner(student_id)`;
+  const productRelation = scope.kind === "joined" ? "Product" : "Product!inner";
+  const selectedFields = [organizationFields, `${productRelation}(${productFields})`];
+  if (scope.kind === "joined") selectedFields.push(`${STUDENT_AFFILIATION_TABLE}!inner(student_id)`);
+  if (scope.kind === "explore") selectedFields.push(`${STUDENT_AFFILIATION_TABLE}()`);
+
   const query = supabase.from(ORGANIZATION_TABLE)
-    .select(`${organizationFields}, ${selection}`)
+    .select(selectedFields.join(", "))
     .eq("Product.is_active", true)
     .order("name")
     .order("organization_id")
@@ -52,10 +61,18 @@ async function getOrganizationProducts(
     .order("combination_id", { referencedTable: "Product.ProductVariantCombination" })
     .limit(1, { referencedTable: "Product.ProductVariantCombination" });
 
-  const filtered = "preOrders" in scope
-    ? query.eq("Product.has_catalog_preorder", true).limit(3)
-    : query.eq(`${STUDENT_AFFILIATION_TABLE}.student_id`, scope.studentId);
-  const { data, error } = await filtered
+  if (scope.kind === "preOrders") {
+    query.eq("Product.has_catalog_preorder", true).limit(ORGANIZATION_LIMIT);
+  } else {
+    query.eq(`${STUDENT_AFFILIATION_TABLE}.student_id`, scope.studentId);
+    if (scope.kind === "explore") {
+      query.is(STUDENT_AFFILIATION_TABLE, null)
+        .eq("Product.is_member_exclusive", false)
+        .limit(ORGANIZATION_LIMIT);
+    }
+  }
+
+  const { data, error } = await query
     .overrideTypes<OrganizationRow[], { merge: false }>();
   if (error) throw error;
 

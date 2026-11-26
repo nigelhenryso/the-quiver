@@ -3,8 +3,7 @@ import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import Home, { OrgProductRows } from "@/src/components/ui/studentUi/home/Home";
 import { createClient } from "@/src/lib/supabase/server";
-import { getStudentHomeData } from "./data";
-import { getPreOrderProducts, getYourOrgProducts } from "./orgProducts";
+import { getExploreProducts, getPreOrderProducts, getYourOrgProducts } from "./orgProducts";
 
 export const metadata = {
   title: "Home | The Quiver",
@@ -13,7 +12,6 @@ export const metadata = {
 export default function StudentHomePage() {
   return (
     <Home
-      {...getStudentHomeData()}
       yourOrgs={
         <Suspense fallback={<p role="status" className="ml-5 font-body text-sm text-[#506552]">Loading your organizations…</p>}>
           <YourOrganizations />
@@ -22,6 +20,11 @@ export default function StudentHomePage() {
       preOrders={
         <Suspense fallback={<p role="status" className="ml-5 font-body text-sm text-[#506552]">Loading pre-orders…</p>}>
           <PreOrderCatalog />
+        </Suspense>
+      }
+      exploreMore={
+        <Suspense fallback={<p role="status" className="ml-5 font-body text-sm text-[#506552]">Loading more products…</p>}>
+          <ExploreCatalog />
         </Suspense>
       }
     />
@@ -63,5 +66,19 @@ async function PreOrderCatalog() {
   } catch (error) {
     console.error("Could not load pre-order products", error);
     return <p role="alert" className="ml-5 font-body text-sm text-[#506552]">Couldn’t load pre-orders. Refresh to try again.</p>;
+  }
+}
+
+async function ExploreCatalog() {
+  const { supabase, studentId } = await getStudentSession();
+
+  try {
+    const rows = await getExploreProducts(supabase, studentId);
+    return rows.length > 0
+      ? <OrgProductRows rows={rows} />
+      : <p className="ml-5 font-body text-sm text-[#506552]">No products from other organizations are available yet.</p>;
+  } catch (error) {
+    console.error("Could not load products from other organizations", error);
+    return <p role="alert" className="ml-5 font-body text-sm text-[#506552]">Couldn’t load Explore More. Refresh to try again.</p>;
   }
 }
