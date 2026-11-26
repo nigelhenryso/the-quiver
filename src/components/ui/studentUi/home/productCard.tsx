@@ -1,20 +1,19 @@
 import Link from "next/link";
 import { ProductCardStar } from "@/src/components/ui/logos";
 import type { HomeProduct } from "@/src/app/(student)/landing/data";
+import { productCardClass, productImageClass } from "./carouselStyles";
 
 export default function HomeProductCard({ product }: { product: HomeProduct }) {
-  const imageClass = "aspect-[10/11] w-full rounded-md bg-[#B5D5A4] object-cover";
-
   return (
     <Link
       href={`/products/${encodeURIComponent(product.id)}`}
-      className="block h-full w-full rounded-[10px] border border-[#AABDA8] bg-[#F3FCF0] p-2 font-body text-[#506552] shadow-[1px_2px_6px_#233B2540] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#244432]"
+      className={`${productCardClass} font-body text-[#506552] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#244432]`}
     >
       {product.imgDir ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={product.imgDir} alt="" loading="lazy" decoding="async" className={imageClass} />
+        <img src={product.imgDir} alt="" loading="lazy" decoding="async" className={productImageClass} />
       ) : (
-        <div aria-hidden="true" className={imageClass} />
+        <div aria-hidden="true" className={productImageClass} />
       )}
 
       <div className="mt-1.5 flex flex-wrap items-center gap-x-1 gap-y-0.5 text-[10px]">

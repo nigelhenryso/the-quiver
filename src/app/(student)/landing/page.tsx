@@ -2,6 +2,7 @@ import { cache, Suspense } from "react";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import Home, { OrgProductRows } from "@/src/components/ui/studentUi/home/Home";
+import ProductRowSkeleton from "@/src/components/ui/studentUi/home/ProductRowSkeleton";
 import { createClient } from "@/src/lib/supabase/server";
 import { getExploreProducts, getPreOrderProducts, getYourOrgProducts } from "./orgProducts";
 
@@ -13,17 +14,17 @@ export default function StudentHomePage() {
   return (
     <Home
       yourOrgs={
-        <Suspense fallback={<p role="status" className="ml-5 font-body text-sm text-[#506552]">Loading your organizations…</p>}>
+        <Suspense fallback={<ProductRowSkeleton label="Loading your organizations…" />}>
           <YourOrganizations />
         </Suspense>
       }
       preOrders={
-        <Suspense fallback={<p role="status" className="ml-5 font-body text-sm text-[#506552]">Loading pre-orders…</p>}>
+        <Suspense fallback={<ProductRowSkeleton label="Loading pre-orders…" />}>
           <PreOrderCatalog />
         </Suspense>
       }
       exploreMore={
-        <Suspense fallback={<p role="status" className="ml-5 font-body text-sm text-[#506552]">Loading more products…</p>}>
+        <Suspense fallback={<ProductRowSkeleton label="Loading more products…" />}>
           <ExploreCatalog />
         </Suspense>
       }
