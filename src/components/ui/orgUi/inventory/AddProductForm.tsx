@@ -8,7 +8,7 @@ import { Check, ChevronDown } from "lucide-react";
 import { calSans, lato } from "@/src/styles/fonts";
 import type { Tag } from "@/src/types/Tag";
 import { supabase } from "@/src/lib/supabase/client";
-import { saveInventoryProduct } from "@/src/app/(organization)/inventory/actions";
+import { saveInventoryProduct } from "@/src/actions/inventoryActions";
 import { prepareProduct, removeProductUploads, type PreparedProductSave, type SavedMedia, type VariantFields } from "@/src/services/createProduct";
 import type { EditableProduct } from "@/src/services/editProduct";
 import UploadSlot from "./UploadSlot";

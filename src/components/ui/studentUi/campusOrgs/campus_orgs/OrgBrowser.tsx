@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ArrowDownUp, Funnel } from "lucide-react";
-import type { Org } from "@/src/app/(student)/organizations/data";
+import type { Org } from "@/src/data/campusOrgs";
 import OrgSection from "./OrgSection";
 
 type OrgBrowserProps = {

@@ -1,6 +1,6 @@
 // Figma Page: Student - Campus Orgs
 import CampusOrgs from "@/src/components/ui/studentUi/campusOrgs/campus_orgs/CampusOrgs";
-import { getCampusOrgsData } from "./data";
+import { getCampusOrgsData } from "@/src/data/campusOrgs";
 
 export const metadata = {
   title: "Campus Orgs | The Quiver",
