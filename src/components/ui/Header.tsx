@@ -110,6 +110,31 @@ export const Header = ({
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const [isCartMenuOpen, setIsCartMenuOpen] = useState(false);
+  const cartMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close the cart menu on outside click or Escape.
+  useEffect(() => {
+    if (!isCartMenuOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (!cartMenuRef.current?.contains(e.target as Node)) setIsCartMenuOpen(false);
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsCartMenuOpen(false);
+    };
+    document.addEventListener('mousedown', onClick);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', onClick);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [isCartMenuOpen]);
+
+  /** Closes the cart menu and opens one of the carts. */
+  const goToCart = (path: string) => {
+    setIsCartMenuOpen(false);
+    router.push(path);
+  };
 
   // Close the user menu on outside click.
   useEffect(() => {
@@ -241,16 +266,51 @@ export const Header = ({
                   </span>
                 </label>
                 <div className="flex h-9 shrink-0 items-center gap-4 border-l border-[#00B775] pl-4 lg:grid lg:h-[70%] lg:grid-cols-3 lg:justify-items-center lg:gap-0 lg:pl-2"> {/* NAV OPTIONS */}
-                  <Button
-                    primary
-                    size="small"
-                    type='nav'
-                    textColor='#FFFFFF'
-                    hoverTextColor='#b9dccf'
-                    onClick={() => router.push('/cart')}
-                    logo={<ShoppingCartLogo width={16} height={16}/>}
-                    fontSize={20}
-                  />
+                  <div ref={cartMenuRef} className="relative">
+                    <button
+                      type="button"
+                      aria-label="Carts"
+                      aria-haspopup="menu"
+                      aria-expanded={isCartMenuOpen}
+                      onClick={() => setIsCartMenuOpen((open) => !open)}
+                      className="flex items-center gap-1 rounded text-white transition-colors hover:text-[#b9dccf] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                    >
+                      <ShoppingCartLogo width={16} height={16}/>
+                      <svg
+                        width="7"
+                        height="5"
+                        viewBox="0 0 7 5"
+                        aria-hidden="true"
+                        className={`transition-transform ${isCartMenuOpen ? 'rotate-180' : ''}`}
+                      >
+                        <path d="M0 0H7L3.5 5Z" fill="currentColor" />
+                      </svg>
+                    </button>
+                    {isCartMenuOpen && (
+                      <div
+                        role="menu"
+                        aria-label="Carts"
+                        className="absolute right-0 top-[calc(100%+12px)] z-50 flex w-[180px] flex-col overflow-hidden rounded-[12px] bg-white py-1 shadow-[0px_4px_8.8px_rgba(0,0,0,0.25)]"
+                      >
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={() => goToCart('/cart')}
+                          className="px-4 py-2 text-left text-[16px] text-[#145B46] hover:bg-[#E6FAF2]"
+                        >
+                          Order Cart
+                        </button>
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={() => goToCart('/preOrderCart')}
+                          className="px-4 py-2 text-left text-[16px] text-[#145B46] hover:bg-[#E6FAF2]"
+                        >
+                          Pre-Order Cart
+                        </button>
+                      </div>
+                    )}
+                  </div>
                   <Button
                     primary
                     size="small"
