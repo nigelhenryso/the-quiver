@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import type { HomeOrgProducts } from "@/src/app/(student)/landing/data";
+import type { HomeOrgProducts } from "@/src/types/StudentDashboard";
 import HomeProductCard from "./productCard";
 import { carouselPanelClass, carouselTrackClass } from "./carouselStyles";
 

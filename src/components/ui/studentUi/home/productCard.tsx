@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ProductCardStar } from "@/src/components/ui/logos";
-import type { HomeProduct } from "@/src/app/(student)/landing/data";
+import type { HomeProduct } from "@/src/types/StudentDashboard";
 import { productCardClass, productImageClass } from "./carouselStyles";
 
 export default function HomeProductCard({ product }: { product: HomeProduct }) {

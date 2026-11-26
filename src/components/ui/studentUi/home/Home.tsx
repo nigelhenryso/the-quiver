@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { HomeOrgProducts } from "@/src/app/(student)/landing/data";
+import type { HomeOrgProducts } from "@/src/types/StudentDashboard";
 import ProductRow, { OrgAvatar } from "./productRow";
 
 type HomeProps = {
