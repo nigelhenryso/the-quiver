@@ -5,4 +5,4 @@ export type PaymentModeType = "Physical" | "Digital";
 export type College = "BAGCED" | "CCS" | "CLA" | "COS" | "GCOE" | "CLTSOE" | "RVRCOB";
 
 /** R4P = ready for pickup */
-export type OrderStatus = "Pending" | "R4P" | "Claimed";
+export type OrderStatus = "Processing" | "R4P" | "Claimed" | "Unclaimed";

@@ -3,13 +3,14 @@
 import { useEffect, useRef } from "react";
 import { AlertTriangle, Info, Trash2, Upload, X } from "lucide-react";
 import { calSans, lato } from "@/src/styles/fonts";
-import { getStockStatus, type Product } from "@/src/app/(organization)/inventory/data";
+import { getStockStatus } from "@/src/lib/inventory";
+import type { InventoryProduct } from "@/src/types/Inventory";
 
 export type ModalMode = "publish" | "unpublish" | "delete";
 
 type ConfirmModalProps = {
   mode: ModalMode;
-  items: Product[];
+  items: InventoryProduct[];
   onConfirm: () => void;
   onCancel: () => void;
   saving: boolean;

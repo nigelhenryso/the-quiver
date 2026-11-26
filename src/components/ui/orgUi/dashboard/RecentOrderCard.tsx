@@ -4,9 +4,10 @@ import type { RecentOrder } from "@/src/types/Dashboard";
 import type { OrderStatus } from "@/src/types/enums";
 
 const STATUS_LABEL: Record<OrderStatus, string> = {
-  Pending: "Pending",
+  Processing: "Processing",
   R4P: "Ready for Pickup",
   Claimed: "Claimed",
+  Unclaimed: "Unclaimed"
 };
 
 // one order row inside Recent Orders

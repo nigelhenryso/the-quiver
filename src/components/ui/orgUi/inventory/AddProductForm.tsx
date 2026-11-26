@@ -8,6 +8,7 @@ import { Check, ChevronDown } from "lucide-react";
 import { calSans, lato } from "@/src/styles/fonts";
 import type { Tag } from "@/src/types/Tag";
 import { supabase } from "@/src/lib/supabase/client";
+import { saveInventoryProduct } from "@/src/app/(organization)/inventory/actions";
 import { prepareProduct, removeProductUploads, type PreparedProductSave, type SavedMedia, type VariantFields } from "@/src/services/createProduct";
 import type { EditableProduct } from "@/src/services/editProduct";
 import UploadSlot from "./UploadSlot";
@@ -208,7 +209,7 @@ export default function AddProductForm({ tags, showListingDetails = false, exist
       }
 
       const { listing, uploads } = pendingProduct.current;
-      const { data, error, status } = await supabase.rpc(existing ? "edit_inventory_product" : "create_inventory_product", { listing });
+      const { data, error, status } = await saveInventoryProduct(listing);
       if (error || data !== listing.product_id) {
         if (error && status >= 400 && status < 500) {
           await removeProductUploads(supabase, uploads);
@@ -222,12 +223,14 @@ export default function AddProductForm({ tags, showListingDetails = false, exist
       }
 
       pendingProduct.current = null;
+      setSaveUnconfirmed(false);
+      setNotice("");
       router.replace("/inventory");
-      router.refresh();
     } catch (error) {
       console.error("Could not save product", error);
       setSaveUnconfirmed(Boolean(pendingProduct.current));
       setNotice(error instanceof Error ? error.message : "Couldn’t save the product. Please try again.");
+    } finally {
       savingRef.current = false;
       setSaving(false);
     }
