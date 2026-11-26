@@ -7,7 +7,7 @@ export default function HomeProductCard({ product }: { product: HomeProduct }) {
   return (
     <Link
       href={`/products/${encodeURIComponent(product.id)}`}
-      className={`${productCardClass} font-body text-[#506552] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#244432]`}
+      className={`${productCardClass} font-body transition-all duration-200 ease-in-out hover:border-[#004D31] hover:shadow-lg motion-safe:hover:scale-105 text-[#506552] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#244432]`}
     >
       {product.imgDir ? (
         // eslint-disable-next-line @next/next/no-img-element
