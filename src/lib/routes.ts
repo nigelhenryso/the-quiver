@@ -16,6 +16,7 @@ export const STUDENT_ROUTES = [
   '/cart',
   '/checkout',
   '/organizations',
+  '/products',
   '/studentOrders',
   '/studentProfile',
   '/success',

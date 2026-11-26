@@ -1,18 +1,21 @@
-// dummy data for the student home page
-// NOTE: replace this with real data from supabase
+// Temporary listings for Pre-order Now and Explore More.
+
+export const HOME_CAROUSEL_LIMIT = 20;
 
 export type HomeProduct = {
   id: number | string;
   productName: string;
   orgName: string;
-  rating: number; // shown as 5.0
-  reviewCount: number; // shown as (20)
+  rating?: number;
+  reviewCount?: number;
   price: number;
-  imgDir: string;
+  imgDir: string | null;
 };
 
 export type HomeOrgProducts = {
+  id: string;
   orgName: string;
+  orgImageUrl?: string;
   products: HomeProduct[];
 };
 
@@ -30,6 +33,7 @@ const sampleProducts = [
 
 const products = sampleProducts.map((product, index) => ({
   ...product,
+  id: `sample-${index + 1}`,
   imgDir: `/images/product-card-${index + 1}.jpg`,
 }));
 
@@ -40,18 +44,15 @@ function makeOrgRows(orgNames: string[]): HomeOrgProducts[] {
 
     // Repeat the temporary samples so tightly spaced cards can fill wide viewports.
     return [{
+      id: orgName,
       orgName,
-      products: Array.from({ length: Math.max(26, orgProducts.length) }, (_, index) => ({
-        ...orgProducts[index % orgProducts.length],
-        id: `${orgName}-${index + 1}`,
-      })),
+      products: Array.from({ length: HOME_CAROUSEL_LIMIT }, (_, index) => orgProducts[index % orgProducts.length]),
     }];
   });
 }
 
 export function getStudentHomeData() {
   return {
-    yourOrgs: makeOrgRows(["LSCS", "ENGLICOM"]),
     preOrders: makeOrgRows(["LSS", "CHEN"]),
     exploreMore: makeOrgRows(["DSS", "ISO"]),
   };

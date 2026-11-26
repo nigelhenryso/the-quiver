@@ -8,7 +8,25 @@ import HomeProductCard from "./productCard";
 const arrowClass =
   "absolute top-1/2 z-10 grid size-8 -translate-y-1/2 place-items-center rounded-full bg-[#244432] text-white shadow-[1px_2px_3px_#24443255] hover:bg-[#356049] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#244432] disabled:bg-[#6E8E7B] disabled:text-white/50";
 
-export default function ProductRow({ orgName, products }: HomeOrgProducts) {
+export function OrgAvatar({ src }: { src?: string }) {
+  return (
+    <span aria-hidden="true" className="size-9 shrink-0 overflow-hidden rounded-full bg-[#D7D7D7]">
+      {src && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          key={src}
+          src={src}
+          alt=""
+          className="size-full object-cover"
+          loading="lazy"
+          onError={(event) => { event.currentTarget.style.visibility = "hidden"; }}
+        />
+      )}
+    </span>
+  );
+}
+
+export default function ProductRow({ orgName, orgImageUrl, products }: Omit<HomeOrgProducts, "id">) {
   const headingId = useId();
   const trackRef = useRef<HTMLUListElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -42,7 +60,7 @@ export default function ProductRow({ orgName, products }: HomeOrgProducts) {
   return (
     <section aria-labelledby={headingId} className="min-w-0 rounded-lg bg-[#E6F8DF] p-3 sm:px-4">
       <div className="flex items-center gap-2 font-body text-[#506552]">
-        <span aria-hidden="true" className="size-9 shrink-0 rounded-full bg-[#D7D7D7]" />
+        <OrgAvatar src={orgImageUrl} />
         <h3 id={headingId} className="text-sm font-bold">{orgName}</h3>
       </div>
 
@@ -66,8 +84,8 @@ export default function ProductRow({ orgName, products }: HomeOrgProducts) {
           aria-labelledby={headingId}
           className="grid snap-x snap-mandatory auto-cols-[calc((100%-(var(--columns)-1)*var(--card-gap))/var(--columns))] grid-flow-col gap-[var(--card-gap)] overflow-x-auto scroll-px-1.5 px-1.5 py-2 [--card-gap:1rem] [--columns:2] [scrollbar-width:none] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#244432] motion-safe:scroll-smooth sm:[--columns:3] md:[--columns:4] min-[896px]:[--columns:5] min-[960px]:[--columns:7] [&::-webkit-scrollbar]:hidden"
         >
-          {products.map((product) => (
-            <li key={product.id} className="min-w-0 snap-start">
+          {products.map((product, index) => (
+            <li key={`${product.id}-${index}`} className="min-w-0 snap-start">
               <HomeProductCard product={product} />
             </li>
           ))}

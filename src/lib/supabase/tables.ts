@@ -1,5 +1,6 @@
 /** Supabase table names (see src/types for the row shapes). */
 export const STUDENT_TABLE = 'Student';
+export const STUDENT_AFFILIATION_TABLE = 'StudentAffiliation';
 export const ORGANIZATION_TABLE = 'Organization';
 export const PRODUCT_TABLE = 'Product';
 export const TAG_TABLE = 'Tag';
