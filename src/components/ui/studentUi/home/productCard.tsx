@@ -17,14 +17,16 @@ export default function HomeProductCard({ product }: { product: HomeProduct }) {
         <div aria-hidden="true" className={imageClass} />
       )}
 
-      <div className="mt-1.5 flex min-w-0 items-center justify-between gap-1 text-[10px]">
+      <div className="mt-1.5 flex flex-wrap items-center gap-x-1 gap-y-0.5 text-[10px]">
         {product.rating !== undefined && (
           <span className="flex shrink-0 items-center gap-0.5">
             <ProductCardStar aria-hidden="true" width={10} height={10} color="#00B775" />
             <span>{product.rating.toFixed(1)} ({product.reviewCount})</span>
           </span>
         )}
-        <span className="ml-auto truncate italic">{product.orgName}</span>
+        <span className="ml-auto min-w-0 max-w-full text-right italic [overflow-wrap:anywhere]">
+          {product.orgName}
+        </span>
       </div>
 
       <h4 className="mt-1.5 truncate text-center text-sm font-bold">
