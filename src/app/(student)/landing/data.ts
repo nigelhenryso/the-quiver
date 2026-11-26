@@ -11,8 +11,10 @@ export type HomeProduct = {
   imgDir: string;
 };
 
-// pretend these are the orgs the logged in student joined
-const joinedOrgs = ["LSCS", "ENGLICOM", "LSS"];
+export type HomeOrgProducts = {
+  orgName: string;
+  products: HomeProduct[];
+};
 
 const sampleProducts = [
   { productName: "ID Lace", orgName: "LSCS", rating: 5, reviewCount: 20, price: 299 },
@@ -26,32 +28,31 @@ const sampleProducts = [
   { productName: "Jacket", orgName: "ENGLICOM", rating: 5, reviewCount: 20, price: 325 },
 ];
 
-// makes `count` products by looping over the samples (there are only 9 images)
-function makeProducts(prefix: string, count: number, offset = 0): HomeProduct[] {
-  return Array.from({ length: count }, (_, i) => {
-    const index = (i + offset) % sampleProducts.length;
-    return {
-      ...sampleProducts[index],
-      id: `${prefix}-${i}`, // ids must stay unique since we repeat products
-      imgDir: `/images/product-card-${index + 1}.jpg`,
-    };
+const products = sampleProducts.map((product, index) => ({
+  ...product,
+  imgDir: `/images/product-card-${index + 1}.jpg`,
+}));
+
+function makeOrgRows(orgNames: string[]): HomeOrgProducts[] {
+  return orgNames.flatMap((orgName) => {
+    const orgProducts = products.filter((product) => product.orgName === orgName);
+    if (orgProducts.length === 0) return [];
+
+    // Repeat the temporary samples so tightly spaced cards can fill wide viewports.
+    return [{
+      orgName,
+      products: Array.from({ length: Math.max(26, orgProducts.length) }, (_, index) => ({
+        ...orgProducts[index % orgProducts.length],
+        id: `${orgName}-${index + 1}`,
+      })),
+    }];
   });
 }
 
-// only one slide = no arrows/dots, add more slides to make it a carousel
-const promoSlides = ["Some Promo Here or Event-exclusive stuff from orgs"];
-
 export function getStudentHomeData() {
-  const forYou = makeProducts("for-you", 7);
-
-  // products from the orgs the student joined (dummy: repeat until there are 7)
-  const orgProducts = makeProducts("orgs", 9).filter((p) => joinedOrgs.includes(p.orgName));
-  const fromYourOrgs = Array.from({ length: 7 }, (_, i) => ({
-    ...orgProducts[i % orgProducts.length],
-    id: `orgs-${i}`,
-  }));
-
-  const exploreMore = makeProducts("explore", 14, 3);
-
-  return { forYou, fromYourOrgs, exploreMore, promoSlides };
+  return {
+    yourOrgs: makeOrgRows(["LSCS", "ENGLICOM"]),
+    preOrders: makeOrgRows(["LSS", "CHEN"]),
+    exploreMore: makeOrgRows(["DSS", "ISO"]),
+  };
 }
