@@ -6,6 +6,8 @@ export type HomeProduct = {
   reviewCount?: number;
   price: number;
   imgDir: string | null;
+  /** Pre-order products don't have a product details page. */
+  isPreOrder?: boolean;
 };
 
 export type HomeOrgProducts = {

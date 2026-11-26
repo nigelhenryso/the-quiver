@@ -1,4 +1,4 @@
-import type { Org } from "@/src/app/(student)/organizations/data";
+import type { Org } from "@/src/data/campusOrgs";
 import OrgCard from "./OrgCard";
 
 type OrgSectionProps = {

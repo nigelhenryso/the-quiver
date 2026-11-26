@@ -12,6 +12,7 @@ const ORGANIZATION_LIMIT = 3;
 const PRODUCTS_PER_ORGANIZATION = 20;
 
 type ProductRow = Pick<Product, "product_id" | "name" | "price"> & {
+  has_catalog_preorder: boolean;
   ProductImage: Pick<ProductImage, "image_url">[];
   ProductVariantCombination: Pick<ProductVariantCombination, "image_url">[];
 };
@@ -83,7 +84,7 @@ async function getOrganizationProducts(
       organization_id, name, acronym,
       OrganizationImage (image_url),
       ${productRelation} (
-        product_id, name, price,
+        product_id, name, price, has_catalog_preorder,
         ProductImage (image_url),
         ProductVariantCombination (image_url)
       ),
@@ -147,6 +148,7 @@ async function toOrgProductRows(
         orgName: org.acronym || org.name,
         price: Number(product.price),
         imgDir: resolveImage(cover) ?? resolveImage(variant),
+        isPreOrder: product.has_catalog_preorder,
       };
     }),
   }));

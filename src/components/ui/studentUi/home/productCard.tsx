@@ -3,12 +3,24 @@ import { ProductCardStar } from "@/src/components/ui/logos";
 import type { HomeProduct } from "@/src/types/StudentDashboard";
 import { productCardClass, productImageClass } from "./carouselStyles";
 
+const cardClass = `${productCardClass} font-body transition-all duration-200 ease-in-out hover:border-[#004D31] hover:shadow-lg motion-safe:hover:scale-105 text-[#506552] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#244432]`;
+
 export default function HomeProductCard({ product }: { product: HomeProduct }) {
+  // Pre-order products don't have a product details page yet.
+  if (product.isPreOrder) {
+    return <div className={cardClass}><CardContent product={product} /></div>;
+  }
+
   return (
-    <Link
-      href={`/products/${encodeURIComponent(product.id)}`}
-      className={`${productCardClass} font-body transition-all duration-200 ease-in-out hover:border-[#004D31] hover:shadow-lg motion-safe:hover:scale-105 text-[#506552] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#244432]`}
-    >
+    <Link href={`/products/${encodeURIComponent(product.id)}`} className={cardClass}>
+      <CardContent product={product} />
+    </Link>
+  );
+}
+
+function CardContent({ product }: { product: HomeProduct }) {
+  return (
+    <>
       {product.imgDir ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={product.imgDir} alt="" loading="lazy" decoding="async" className={productImageClass} />
@@ -32,6 +44,6 @@ export default function HomeProductCard({ product }: { product: HomeProduct }) {
         {product.productName}
       </h4>
       <p className="mt-0.5 text-center text-xs">₱{product.price.toFixed(2)}</p>
-    </Link>
+    </>
   );
 }
