@@ -20,32 +20,48 @@ const organizationFields = "organization_id, name, acronym, OrganizationImage(im
 const productFields = "product_id, name, price, ProductImage(image_url), ProductVariantCombination(image_url)";
 const ORGANIZATION_LIMIT = 3;
 
-type CatalogScope = { kind: "joined" | "explore"; studentId: string } | { kind: "preOrders" };
+type CatalogScope =
+  | { kind: "joined" | "explore"; studentId: string }
+  | { kind: "preOrders"; studentId: string; membership: "joined" | "other"; limit: number };
 
 export async function getYourOrgProducts(supabase: SupabaseClient, studentId: string): Promise<HomeOrgProducts[]> {
-  return getOrganizationProducts(supabase, { kind: "joined", studentId });
+  const organizations = await getOrganizationProducts(supabase, { kind: "joined", studentId });
+  return toOrgProductRows(supabase, organizations);
 }
 
-export async function getPreOrderProducts(supabase: SupabaseClient): Promise<HomeOrgProducts[]> {
-  return getOrganizationProducts(supabase, { kind: "preOrders" });
+export async function getPreOrderProducts(supabase: SupabaseClient, studentId: string): Promise<HomeOrgProducts[]> {
+  const joined = await getOrganizationProducts(supabase, {
+    kind: "preOrders", studentId, membership: "joined", limit: ORGANIZATION_LIMIT,
+  });
+  const remaining = ORGANIZATION_LIMIT - joined.length;
+  if (remaining === 0) return toOrgProductRows(supabase, joined);
+
+  const others = await getOrganizationProducts(supabase, {
+    kind: "preOrders", studentId, membership: "other", limit: remaining,
+  });
+  const joinedIds = new Set(joined.map((org) => org.organization_id));
+  return toOrgProductRows(supabase, [...joined, ...others.filter((org) => !joinedIds.has(org.organization_id))]);
 }
 
 export async function getExploreProducts(supabase: SupabaseClient, studentId: string): Promise<HomeOrgProducts[]> {
-  return getOrganizationProducts(supabase, { kind: "explore", studentId });
+  const organizations = await getOrganizationProducts(supabase, { kind: "explore", studentId });
+  return toOrgProductRows(supabase, organizations);
 }
 
 async function getOrganizationProducts(
   supabase: SupabaseClient,
   scope: CatalogScope,
-): Promise<HomeOrgProducts[]> {
+): Promise<OrganizationRow[]> {
+  const onlyJoined = scope.kind === "joined" || (scope.kind === "preOrders" && scope.membership === "joined");
   const productRelation = scope.kind === "joined" ? "Product" : "Product!inner";
-  const selectedFields = [organizationFields, `${productRelation}(${productFields})`];
-  if (scope.kind === "joined") selectedFields.push(`${STUDENT_AFFILIATION_TABLE}!inner(student_id)`);
-  if (scope.kind === "explore") selectedFields.push(`${STUDENT_AFFILIATION_TABLE}()`);
+  const affiliationSelection = onlyJoined
+    ? `${STUDENT_AFFILIATION_TABLE}!inner(student_id)`
+    : `${STUDENT_AFFILIATION_TABLE}()`;
 
   const query = supabase.from(ORGANIZATION_TABLE)
-    .select(selectedFields.join(", "))
+    .select(`${organizationFields}, ${productRelation}(${productFields}), ${affiliationSelection}`)
     .eq("Product.is_active", true)
+    .eq(`${STUDENT_AFFILIATION_TABLE}.student_id`, scope.studentId)
     .order("name")
     .order("organization_id")
     .order("organization_image_id", { referencedTable: "OrganizationImage" })
@@ -61,22 +77,19 @@ async function getOrganizationProducts(
     .order("combination_id", { referencedTable: "Product.ProductVariantCombination" })
     .limit(1, { referencedTable: "Product.ProductVariantCombination" });
 
+  if (!onlyJoined) query.is(STUDENT_AFFILIATION_TABLE, null);
   if (scope.kind === "preOrders") {
-    query.eq("Product.has_catalog_preorder", true).limit(ORGANIZATION_LIMIT);
-  } else {
-    query.eq(`${STUDENT_AFFILIATION_TABLE}.student_id`, scope.studentId);
-    if (scope.kind === "explore") {
-      query.is(STUDENT_AFFILIATION_TABLE, null)
-        .eq("Product.is_member_exclusive", false)
-        .limit(ORGANIZATION_LIMIT);
-    }
+    query.eq("Product.has_catalog_preorder", true).limit(scope.limit);
+  }
+  if (scope.kind === "explore") {
+    query.eq("Product.is_member_exclusive", false).limit(ORGANIZATION_LIMIT);
   }
 
   const { data, error } = await query
     .overrideTypes<OrganizationRow[], { merge: false }>();
   if (error) throw error;
 
-  return toOrgProductRows(supabase, data);
+  return data;
 }
 
 async function toOrgProductRows(supabase: SupabaseClient, organizations: OrganizationRow[]): Promise<HomeOrgProducts[]> {

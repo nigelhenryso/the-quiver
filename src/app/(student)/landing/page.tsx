@@ -56,10 +56,10 @@ async function YourOrganizations() {
 }
 
 async function PreOrderCatalog() {
-  const { supabase } = await getStudentSession();
+  const { supabase, studentId } = await getStudentSession();
 
   try {
-    const rows = await getPreOrderProducts(supabase);
+    const rows = await getPreOrderProducts(supabase, studentId);
     return rows.length > 0
       ? <OrgProductRows rows={rows} />
       : <p className="ml-5 font-body text-sm text-[#506552]">No pre-orders are available yet.</p>;
