@@ -4,7 +4,7 @@ import { connection } from "next/server";
 import Home, { OrgProductRows } from "@/src/components/ui/studentUi/home/Home";
 import ProductRowSkeleton from "@/src/components/ui/studentUi/home/ProductRowSkeleton";
 import { createClient } from "@/src/lib/supabase/server";
-import { getExploreProducts, getPreOrderProducts, getYourOrgProducts } from "./orgProducts";
+import { getExploreProducts, getPreOrderProducts, getYourOrgProducts } from "@/src/services/studentDashboardService";
 
 export const metadata = {
   title: "Home | The Quiver",

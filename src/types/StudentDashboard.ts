@@ -1,5 +1,3 @@
-export const HOME_CAROUSEL_LIMIT = 20;
-
 export type HomeProduct = {
   id: number | string;
   productName: string;
