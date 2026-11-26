@@ -1,4 +1,4 @@
-// Temporary listings for Pre-order Now and Explore More.
+// Temporary listings for Explore More.
 
 export const HOME_CAROUSEL_LIMIT = 20;
 
@@ -53,7 +53,6 @@ function makeOrgRows(orgNames: string[]): HomeOrgProducts[] {
 
 export function getStudentHomeData() {
   return {
-    preOrders: makeOrgRows(["LSS", "CHEN"]),
     exploreMore: makeOrgRows(["DSS", "ISO"]),
   };
 }

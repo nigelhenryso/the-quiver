@@ -4,14 +4,14 @@ import ProductRow, { OrgAvatar } from "./productRow";
 
 type HomeProps = {
   yourOrgs: ReactNode;
-  preOrders: HomeOrgProducts[];
+  preOrders: ReactNode;
   exploreMore: HomeOrgProducts[];
 };
 
 export default function Home({ yourOrgs, preOrders, exploreMore }: HomeProps) {
   const sections = [
     { id: "your-orgs", title: "Your Orgs", content: yourOrgs },
-    { id: "pre-order", title: "Pre-order Now!", content: <OrgProductRows rows={preOrders} /> },
+    { id: "pre-order", title: "Pre-order Now!", content: preOrders },
     { id: "explore-more", title: "Explore More", content: <OrgProductRows rows={exploreMore} /> },
   ];
 
