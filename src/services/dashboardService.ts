@@ -151,8 +151,8 @@ export async function getOrgDashboard(
     (linesByOrder.get(orderId) ?? []).reduce((sum, l) => sum + Number(l.total_cost), 0); //total number of orders
 
   const stats = {
-    pendingPaymentVerification: orders.filter((o) => o.status === "Pending" && o.Payment.length > 0).length, //n=numberof pending orders
-    pendingClaim: orders.filter((o) => o.status === "R4P").length, //number of ready for pick up orders
+    pendingPaymentVerification: orders.filter((o) => o.status === "Processing" && o.Payment.length > 0).length, //n=numberof pending orders
+    pendingClaim: orders.filter((o) => o.status === "R4P" || o.status === "Unclaimed").length, //number of ready for pick up orders
   };
 
   const current = manilaYearMonth(now);
