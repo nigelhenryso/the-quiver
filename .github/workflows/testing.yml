@@ -43,10 +43,6 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
 
-      - name: Wait for Next.js Server
-        run: |
-              npx wait-on http://localhost:3000
-
       - name: Run Selenium Tests
         run: pnpm test:e2e
         env:
