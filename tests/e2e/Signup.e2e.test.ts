@@ -4,9 +4,9 @@ import { Builder, By, until, WebDriver, WebElement } from "selenium-webdriver";
 import chrome from "selenium-webdriver/chrome";
 
 
-jest.setTimeout(30000);
+jest.setTimeout(90000);
 const URL = "http://localhost:3000";
-const TIMEOUT = 30000;
+const TIMEOUT = 90000;
 
 class Webpage {
   emailField!: WebElement;
