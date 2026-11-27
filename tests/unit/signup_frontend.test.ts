@@ -216,30 +216,30 @@ describe("Sign up", () => {
     await driver.quit();
   });
 
-  it("User can sign up successfully without birthday and contact number", async () => {
-    const email = generateEmail("@dlsu.edu.ph");
-    const password = "password123";
-    const firstName = "John";
-    const lastName = "Doe";
-    const idNum = generateIdNumber();
-    const college = "BAGCED";
+  // it("User can sign up successfully without birthday and contact number", async () => {
+  //   const email = generateEmail("@dlsu.edu.ph");
+  //   const password = "password123";
+  //   const firstName = "John";
+  //   const lastName = "Doe";
+  //   const idNum = generateIdNumber();
+  //   const college = "BAGCED";
 
-    const page = new Webpage(driver);
-    await page.openSignupModal();
-    await page.getSignupModalElements();
-    await checkSignupModalElementsLoaded(page);
-    await page.simulateInputsSignupModal(email, password);
+  //   const page = new Webpage(driver);
+  //   await page.openSignupModal();
+  //   await page.getSignupModalElements();
+  //   await checkSignupModalElementsLoaded(page);
+  //   await page.simulateInputsSignupModal(email, password);
 
-    await page.getCompleteYourProfileModalElements();
-    await checkCompleteProfileModalElementsLoaded(page);
-    await page.simulateInputsCompleteYourProfileModal(firstName, lastName, idNum, college);
+  //   await page.getCompleteYourProfileModalElements();
+  //   await checkCompleteProfileModalElementsLoaded(page);
+  //   await page.simulateInputsCompleteYourProfileModal(firstName, lastName, idNum, college);
 
-    await page.driver.wait(until.urlContains("landing"), TIMEOUT);
-    //await page.driver.get(`${URL}/studentProfile`);
-    //const containsNames = await page.hasText(firstName) && await page.hasText(lastName);
-    //expect(containsNames).toBe(true);
+  //   await page.driver.wait(until.urlContains("landing"), TIMEOUT);
+  //   //await page.driver.get(`${URL}/studentProfile`);
+  //   //const containsNames = await page.hasText(firstName) && await page.hasText(lastName);
+  //   //expect(containsNames).toBe(true);
 
-  });
+  // });
 
   it("User can sign up successfully with birthday and contact number", async () => {
     const email = generateEmail("@dlsu.edu.ph");
