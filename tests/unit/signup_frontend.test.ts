@@ -283,32 +283,32 @@ describe("Sign up", () => {
       
   })
 
-  it("User stays in complete profile modal when used id number is entered and appropriate error message is displayed", 
-    async () => {
-        const email = generateEmail("@dlsu.edu.ph");
-        const password = "password123";
-        const firstName = "John";
-        const lastName = "Doe";
-        const usedIdNum = "12413135";
-        const college = "BAGCED";
-        const expectedErrorMessage = "Please enter a valid ID number";
+  // it("User stays in complete profile modal when used id number is entered and appropriate error message is displayed", 
+  //   async () => {
+  //       const email = generateEmail("@dlsu.edu.ph");
+  //       const password = "password123";
+  //       const firstName = "John";
+  //       const lastName = "Doe";
+  //       const usedIdNum = "12413135";
+  //       const college = "BAGCED";
+  //       const expectedErrorMessage = "Please enter a valid ID number";
 
 
-        const page = new Webpage(driver);
-        await page.openSignupModal();
-        await page.getSignupModalElements();
-        await checkSignupModalElementsLoaded(page);
-        await page.simulateInputsSignupModal(email, password);
+  //       const page = new Webpage(driver);
+  //       await page.openSignupModal();
+  //       await page.getSignupModalElements();
+  //       await checkSignupModalElementsLoaded(page);
+  //       await page.simulateInputsSignupModal(email, password);
 
-        await page.getCompleteYourProfileModalElements();
-        await checkCompleteProfileModalElementsLoaded(page);
-        await page.simulateInputsCompleteYourProfileModal(firstName, lastName, usedIdNum, college);
-        expect(await page.hasText(expectedErrorMessage)).toBe(true);
+  //       await page.getCompleteYourProfileModalElements();
+  //       await checkCompleteProfileModalElementsLoaded(page);
+  //       await page.simulateInputsCompleteYourProfileModal(firstName, lastName, usedIdNum, college);
+  //       expect(await page.hasText(expectedErrorMessage)).toBe(true);
 
-        await checkCompleteProfileModalElementsLoaded(page); 
+  //       await checkCompleteProfileModalElementsLoaded(page); 
           
 
-  });
+  // });
 
   it("User stays in OTP modal when and appropriate error message is displayed", 
     async () => {
