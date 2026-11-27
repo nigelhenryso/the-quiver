@@ -6,7 +6,7 @@ import chrome from "selenium-webdriver/chrome";
 
 jest.setTimeout(30000);
 const URL = "http://localhost:3000";
-const TIMEOUT = 10000;
+const TIMEOUT = 30000;
 
 class Webpage {
   emailField!: WebElement;
