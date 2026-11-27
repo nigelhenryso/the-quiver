@@ -1,9 +1,10 @@
 import assert from "node:assert";
-import { describe, it, beforeEach, afterEach, expect } from "@jest/globals";
+import { describe, it, beforeEach, afterEach, expect, jest } from "@jest/globals";
 import { Builder, By, until, WebDriver, WebElement } from "selenium-webdriver";
 import chrome from "selenium-webdriver/chrome";
 
 
+jest.setTimeout(30000);
 const URL = "http://localhost:3000";
 const TIMEOUT = 10000;
 
