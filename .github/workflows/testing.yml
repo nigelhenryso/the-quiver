@@ -43,6 +43,13 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
 
+
+      - name: Start Next.js Server
+        run: pnpm start > next-server.log 2>&1 &
+      
+      - name: Wait for Next.js Server
+        run: pnpm exec wait-on --timeout 60000 http://localhost:3000
+
       - name: Run Selenium Tests
         run: pnpm test:e2e
         env:
