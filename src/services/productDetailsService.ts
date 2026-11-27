@@ -1,26 +1,29 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { ORDER_CART_ITEM_TABLE, ORDER_CART_TABLE } from "@/src/lib/supabase/tables";
+import type { ProductSize } from "@/src/types/enums";
 import type { ProductDetails, ProductMedia, ProductOptionGroup } from "@/src/types/ProductDetails";
+import { DEFAULT_VARIANT_NAME } from "@/src/types/ProductVariant";
 import { resolveProductMedia } from "./productMedia";
 
-/** Row returned by the get_student_product_details RPC (supabase/policies/student_product_details_read.sql). */
+/** Row returned by the get_student_product_details RPC (supabase/erd_v2/03_rpcs.sql). */
 type ProductDetailsRow = {
   product_id: string;
   name: string;
   price: number | string;
   description: string | null;
+  category: string | null;
   cover_video_path: string | null;
   is_preorder: boolean;
   organization: { organization_id: string; name: string; acronym: string | null };
   images: string[];
-  options: { variant_id: string; name: string | null; variant_type_id: string | null; type_name: string | null }[];
-  combinations: {
-    combination_id: string;
+  variants: {
+    variant_id: string;
     inventory_id: string | null;
+    name: string;
+    size: ProductSize | null;
     price: number | string;
     image_url: string | null;
     stock: number;
-    option_ids: string[];
   }[];
   reviews: {
     rating_id: string;
@@ -34,7 +37,7 @@ type ProductDetailsRow = {
   }[];
 };
 
-const SIZE_ORDER = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "2XL", "XXXL", "3XL", "4XL", "5XL"];
+const SIZE_ORDER = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "2XL", "XXXL", "3XL", "4XL", "5XL", "6XL"];
 
 /** "blue" → "Blue", "navy blue" → "Navy Blue", "xl" → "XL". Leaves the rest of each word as typed. */
 export function formatVariantName(name: string) {
@@ -52,24 +55,28 @@ function optionSort(a: { name: string }, b: { name: string }) {
   return a.name.localeCompare(b.name, undefined, { numeric: true });
 }
 
-function groupOptions(options: ProductDetailsRow["options"]): ProductOptionGroup[] {
-  const groups = new Map<string, ProductOptionGroup>();
-  for (const option of options) {
-    if (!option.name) continue;
-    const key = option.variant_type_id ?? "other";
-    const group = groups.get(key) ?? { key, name: formatVariantName(option.type_name ?? "Variant"), options: [] };
-    group.options.push({ id: option.variant_id, name: formatVariantName(option.name) });
-    groups.set(key, group);
+const nameOptionId = (name: string) => `name:${name.trim().toLowerCase()}`;
+const sizeOptionId = (size: string) => `size:${size}`;
+
+/** Each variant is (name, size); the picker shows a Size group and a Variant group, each only when it has choices. */
+function groupOptions(variants: ProductDetailsRow["variants"]): ProductOptionGroup[] {
+  const sizes = new Map<string, string>();
+  const names = new Map<string, string>();
+  for (const variant of variants) {
+    if (variant.size) sizes.set(sizeOptionId(variant.size), variant.size);
+    if (variant.name.trim() !== DEFAULT_VARIANT_NAME) names.set(nameOptionId(variant.name), formatVariantName(variant.name));
   }
-  // Size first, then the other types alphabetically, untyped options last.
-  return [...groups.values()]
-    .map((group) => ({ ...group, options: group.options.sort(optionSort) }))
-    .sort((a, b) => {
-      if (a.key === "other" || b.key === "other") return a.key === "other" ? 1 : -1;
-      if (a.name.toLowerCase() === "size") return -1;
-      if (b.name.toLowerCase() === "size") return 1;
-      return a.name.localeCompare(b.name);
-    });
+  const toGroup = (key: string, name: string, options: Map<string, string>): ProductOptionGroup[] => options.size
+    ? [{ key, name, options: [...options].map(([id, label]) => ({ id, name: label })).sort(optionSort) }]
+    : [];
+  return [...toGroup("size", "Size", sizes), ...toGroup("variant", "Variant", names)];
+}
+
+function optionIds(variant: ProductDetailsRow["variants"][number]) {
+  return [
+    ...(variant.size ? [sizeOptionId(variant.size)] : []),
+    ...(variant.name.trim() !== DEFAULT_VARIANT_NAME ? [nameOptionId(variant.name)] : []),
+  ];
 }
 
 /** Everything the product details page shows, or null if the student can't see the product. */
@@ -86,7 +93,8 @@ export async function getProductDetails(supabase: SupabaseClient, productId: str
   const resolve = await resolveProductMedia(supabase, [
     ...row.images,
     row.cover_video_path,
-    ...row.combinations.map((combination) => combination.image_url),
+    ...row.variants.map((variant) => variant.image_url),
+    ...row.reviews.flatMap((review) => [review.avatar_url, ...review.images]),
   ]);
 
   const images = row.images.flatMap((reference) => {
@@ -104,9 +112,9 @@ export async function getProductDetails(supabase: SupabaseClient, productId: str
     comment: review.comment,
     createdAt: review.created_at,
     reviewer: review.reviewer ?? "Student",
-    avatarUrl: review.avatar_url?.startsWith("http") ? review.avatar_url : null,
+    avatarUrl: resolve(review.avatar_url),
     variants: review.variants.map((label) => label.split(" / ").map(formatVariantName).join(" / ")),
-    imageUrls: review.images.filter((url) => url.startsWith("http")),
+    imageUrls: review.images.flatMap((reference) => resolve(reference) ?? []),
   }));
 
   return {
@@ -121,14 +129,14 @@ export async function getProductDetails(supabase: SupabaseClient, productId: str
       acronym: row.organization.acronym,
     },
     media,
-    optionGroups: groupOptions(row.options),
-    combinations: row.combinations.map((combination) => ({
-      id: combination.combination_id,
-      inventoryId: combination.inventory_id,
-      price: Number(combination.price),
-      stock: combination.stock,
-      optionIds: combination.option_ids,
-      imageUrl: resolve(combination.image_url),
+    optionGroups: groupOptions(row.variants),
+    combinations: row.variants.map((variant) => ({
+      id: variant.variant_id,
+      inventoryId: variant.inventory_id,
+      price: Number(variant.price),
+      stock: variant.stock,
+      optionIds: optionIds(variant),
+      imageUrl: resolve(variant.image_url),
     })),
     reviews,
     averageRating: reviews.length

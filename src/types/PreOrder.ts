@@ -1,6 +1,6 @@
 export type PreOrder = {
     preorder_id: string;
-    inventory_id: string;
+    variant_id: string;
     student_id: string;
     organization_id: string;
     quantity: number;

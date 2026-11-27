@@ -1,11 +1,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { PRODUCT_TABLE } from "@/src/lib/supabase/tables";
+import type { ProductSize } from "@/src/types/enums";
 import type { Product } from "@/src/types/Product";
+import { DEFAULT_VARIANT_NAME, type ProductVariant } from "@/src/types/ProductVariant";
 import type { EditIdentity, ExistingCombination, SavedMedia, VariantFields } from "./createProduct";
 import { resolveProductMedia } from "./productMedia";
 
 export type EditableProduct = Product & {
-  tagId: string;
   identity: EditIdentity;
   images: SavedMedia[];
   video: SavedMedia | null;
@@ -14,32 +15,32 @@ export type EditableProduct = Product & {
 };
 
 type Row = Product & {
-  ProductTag: { tag_id: string }[];
   ProductImage: { image_url: string; position: number | null; product_image_id: string }[];
-  ProductVariantCombination: {
-    combination_id: string;
-    price_override: number | null;
-    image_url: string | null;
+  ProductVariant: (Pick<ProductVariant, "variant_id" | "name" | "size" | "price_override" | "image_url"> & {
     Inventory: { stock_quantity: number } | null;
-    CombinationOption: { VariantOption: { name: string | null; VariantTypes: { name: string } | null } | null }[];
-  }[];
+  })[];
 };
+
+// The variant dialog stores sizes by these values (see VariantConfigurationDialog).
+const FREE_SIZE = "Free Size/One Size";
+const SIZE_FORM_VALUES: Partial<Record<ProductSize, string>> = {
+  S: "Small", M: "Medium", L: "Large", XL: "Extra Large", "2XL": "Extra Extra Large",
+};
+const formSize = (size: ProductSize | null) => size ? SIZE_FORM_VALUES[size] ?? size : FREE_SIZE;
 
 export async function getEditableProduct(supabase: SupabaseClient, productId: string, organizationId: string): Promise<EditableProduct | null> {
   const { data, error } = await supabase.from(PRODUCT_TABLE).select(`
     *,
-    ProductTag(tag_id),
     ProductImage(image_url, position, product_image_id),
-    ProductVariantCombination(combination_id, price_override, image_url, Inventory(stock_quantity),
-      CombinationOption(VariantOption(name, VariantTypes(name))))
+    ProductVariant(variant_id, name, size, price_override, image_url, Inventory(stock_quantity))
   `).eq("product_id", productId).eq("organization_id", organizationId).maybeSingle<Row>();
   if (error) throw error;
   if (!data) return null;
 
-  const { ProductTag: tags, ProductImage: images, ProductVariantCombination: combinations, ...product } = data;
+  const { ProductImage: images, ProductVariant: variants, ...product } = data;
   const resolve = await resolveProductMedia(supabase, [
     ...images.map(({ image_url }) => image_url),
-    ...combinations.map(({ image_url }) => image_url),
+    ...variants.map(({ image_url }) => image_url),
     product.cover_video_path,
   ]);
   const media = (reference: string): SavedMedia => ({ reference, url: resolve(reference) });
@@ -47,40 +48,38 @@ export async function getEditableProduct(supabase: SupabaseClient, productId: st
   const rows = new Map<string, EditableProduct["variants"][number]>();
   const sizes = new Set<string>();
 
-  for (const combination of combinations) {
-    const options = combination.CombinationOption.flatMap(({ VariantOption: option }) =>
-      option?.name ? [{ name: option.name, type: option.VariantTypes?.name }] : []);
+  const sorted = [...variants].sort((a, b) => a.variant_id.localeCompare(b.variant_id));
+  for (const variant of sorted) {
     const existing: ExistingCombination = {
-      id: combination.combination_id,
-      stock: combination.Inventory?.stock_quantity ?? 0,
-      price: combination.price_override === null ? null : Number(combination.price_override),
-      image: combination.image_url,
+      id: variant.variant_id,
+      stock: variant.Inventory?.stock_quantity ?? 0,
+      price: variant.price_override === null ? null : Number(variant.price_override),
+      image: variant.image_url,
     };
-    if (combinations.length === 1 && !options.length) {
+    const isDefault = variant.name.trim() === DEFAULT_VARIANT_NAME;
+    if (variants.length === 1 && isDefault && !variant.size) {
       identity.base = existing;
       continue;
     }
-    const color = options.find((option) => option.type === "Color")?.name ?? "";
-    const size = options.find((option) => option.type === "Size")?.name ?? "";
-    const label = options.filter((option) => option.type !== "Color" && option.type !== "Size")
-      .map((option) => option.type ? `${option.type}: ${option.name}` : option.name).join(", ");
+    const color = isDefault ? "" : variant.name;
+    const size = formSize(variant.size);
     const price = String(existing.price ?? product.price);
-    const key = label ? combination.combination_id : JSON.stringify([color, price, combination.image_url]);
+    // One form row per (color, price, image); its sizes become the stock columns.
+    const key = JSON.stringify([color.toLowerCase(), price, variant.image_url]);
     let row = rows.get(key);
     if (!row || row.sizes?.includes(size)) {
-      row = { rowId: combination.combination_id, color, label: label || undefined, price, sizes: [], stock: {},
-        existing: {}, savedImage: combination.image_url ? media(combination.image_url) : null };
-      rows.set(rows.has(key) ? combination.combination_id : key, row);
+      row = { rowId: variant.variant_id, color, price, sizes: [], stock: {}, existing: {},
+        savedImage: variant.image_url ? media(variant.image_url) : null };
+      rows.set(rows.has(key) ? variant.variant_id : key, row);
     }
     row.sizes!.push(size);
     row.stock = { ...row.stock, [size.toLowerCase()]: String(existing.stock) };
     row.existing = { ...row.existing, [size.toLowerCase()]: existing };
-    if (size) sizes.add(size);
+    sizes.add(size);
   }
 
   return {
     ...product,
-    tagId: tags.map(({ tag_id }) => tag_id).sort()[0] ?? "",
     identity,
     images: images.sort((a, b) => (a.position ?? Infinity) - (b.position ?? Infinity)
       || a.product_image_id.localeCompare(b.product_image_id)).map(({ image_url }) => media(image_url)),

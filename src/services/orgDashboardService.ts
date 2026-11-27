@@ -4,9 +4,10 @@ import {
   ORDER_TABLE,
   ORGANIZATION_TABLE,
 } from "@/src/lib/supabase/tables";
-import type { OrderStatus } from "@/src/types/enums";
+import type { OrderStatus, ProductSize } from "@/src/types/enums";
 import type { MonthlyCompletion, OrgDashboard, RecentOrder } from "@/src/types/Dashboard";
 import type { ProductImage } from "@/src/types/ProductImage";
+import { DEFAULT_VARIANT_NAME } from "@/src/types/ProductVariant";
 import { resolveProductMedia } from "./productMedia";
 
 const TIME_ZONE = "Asia/Manila";
@@ -18,12 +19,11 @@ export type LineRow = {
   quantity: number;
   total_cost: number;
   Inventory: {
-    ProductVariantCombination: {
+    ProductVariant: {
+      name: string;
+      size: ProductSize | null;
       image_url: string | null;
       Product: { name: string; organization_id: string; ProductImage: Pick<ProductImage, "image_url" | "position">[] } | null;
-      CombinationOption: {
-        VariantOption: { name: string | null; VariantTypes: { name: string } | null } | null;
-      }[];
     } | null;
   } | null;
 };
@@ -61,11 +61,12 @@ export const productName = (name: string) => capitalize(name.replace(/(\w)\s+-\s
  * @returns a string that contains the product name along with the variant(s) and the quantity ordered
  */
 
-function variantName(option: { name: string | null; VariantTypes: { name: string } | null }) {
-  const name = option.name?.trim();
-  if (!name) return null;
-  const type = option.VariantTypes?.name?.trim();
-  return type ? `${capitalize(type)}: ${capitalize(name)}` : capitalize(name);
+/** Variant name (unless it's the default variant) and size, ex: ["Blue", "M"]. */
+export function variantParts(variant: { name: string; size: ProductSize | null } | null | undefined) {
+  if (!variant) return [];
+  const name = variant.name.trim();
+  return [name && name !== DEFAULT_VARIANT_NAME ? capitalize(name) : null, variant.size]
+    .filter((part): part is string => Boolean(part));
 }
 
 /**
@@ -75,13 +76,9 @@ function variantName(option: { name: string | null; VariantTypes: { name: string
  */
 
 export function lineLabel(line: LineRow) {
-  const combo = line.Inventory?.ProductVariantCombination;
-  const name = productName(combo?.Product?.name ?? "Item");
-  const variant = (combo?.CombinationOption ?? [])
-    .map((o) => (o.VariantOption ? variantName(o.VariantOption) : null))
-    .filter((v): v is string => Boolean(v))
-    .sort() 
-    .join(", ");
+  const variantRow = line.Inventory?.ProductVariant;
+  const name = productName(variantRow?.Product?.name ?? "Item");
+  const variant = variantParts(variantRow).join(" / ");
   return `${name}${variant ? ` - ${variant}` : ""} - ${line.quantity}x`;
 }
 
@@ -92,11 +89,11 @@ export function lineLabel(line: LineRow) {
  */
 
 export function lineImage(line: LineRow) {
-  const combo = line.Inventory?.ProductVariantCombination;
+  const variant = line.Inventory?.ProductVariant;
   return (
-    combo?.image_url ??
-    combo?.Product?.ProductImage.find((image) => image.position === 0)?.image_url ??
-    combo?.Product?.ProductImage[0]?.image_url ??
+    variant?.image_url ??
+    variant?.Product?.ProductImage.find((image) => image.position === 0)?.image_url ??
+    variant?.Product?.ProductImage[0]?.image_url ??
     null
   );
 }
@@ -118,7 +115,7 @@ export async function getOrgDashboard(
     supabase
       .from(ORDER_INVENTORY_TABLE)
       .select(
-        "order_id, quantity, total_cost, Inventory(ProductVariantCombination(image_url, Product(name, organization_id, ProductImage(image_url, position)), CombinationOption(VariantOption(name, VariantTypes(name)))))",
+        "order_id, quantity, total_cost, Inventory(ProductVariant(name, size, image_url, Product(name, organization_id, ProductImage(image_url, position))))",
       )
       .returns<LineRow[]>(),
   ]); //returns everyhing in a row mapped down to variant types, variant images, variant option, product image, product name, and organization the belong to
@@ -128,7 +125,7 @@ export async function getOrgDashboard(
 
   const linesByOrder = new Map<string, LineRow[]>();
   for (const line of lineData ?? []) {
-    if (line.Inventory?.ProductVariantCombination?.Product?.organization_id !== orgId) continue;
+    if (line.Inventory?.ProductVariant?.Product?.organization_id !== orgId) continue;
     const list = linesByOrder.get(line.order_id) ?? [];
     list.push(line);
     linesByOrder.set(line.order_id, list); //returns the orders that belong to the org in the session

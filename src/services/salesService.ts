@@ -1,17 +1,17 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { ORDER_INVENTORY_TABLE, ORDER_TABLE, ORGANIZATION_TABLE } from "@/src/lib/supabase/tables";
-import { lineImage, lineLabel, productName, type LineRow } from "@/src/services/orgDashboardService";
+import { lineImage, lineLabel, productName, variantParts, type LineRow } from "@/src/services/orgDashboardService";
 import { resolveProductMedia } from "@/src/services/productMedia";
 import type { OrderStatus } from "@/src/types/enums";
 import type { OrgSales, SalesLine, SalesOrder } from "@/src/types/Sales";
 
 const UNCATEGORIZED = "Uncategorized";
 
-type SalesLineRow = LineRow & { // maps the inventory to the variants and variant types it contains as well as the product it belongs to
+type SalesLineRow = LineRow & { // maps the inventory to its variant and the product (and category) it belongs to
   Inventory: {
-    ProductVariantCombination: {
+    ProductVariant: {
       product_id: string;
-      Product: { ProductTag: { Tag: { name: string } | null }[] } | null;
+      Product: { Category: { name: string } | null } | null;
     } | null;
   } | null;
 };
@@ -25,29 +25,22 @@ type OrderRow = { // maps the order to the student who placed it and the payment
 };
 
 function category(line: SalesLineRow) {
-  const tags = (line.Inventory?.ProductVariantCombination?.Product?.ProductTag ?? [])
-    .map((t) => t.Tag?.name?.trim())
-    .filter((name): name is string => Boolean(name))
-    .sort();
-  return tags[0] ?? UNCATEGORIZED; // if multiple tags, pick the first alphabetically; if none, use "Uncategorized"
+  return line.Inventory?.ProductVariant?.Product?.Category?.name?.trim() || UNCATEGORIZED;
 }
 
 function coverImage(line: SalesLineRow) { // product-level cover (position 0) so the best seller doesn't show one variant's photo
-  const images = line.Inventory?.ProductVariantCombination?.Product?.ProductImage ?? [];
+  const images = line.Inventory?.ProductVariant?.Product?.ProductImage ?? [];
   return (images.find((i) => i.position === 0) ?? images[0])?.image_url ?? null;
 }
 
 function toSalesLine(line: SalesLineRow): SalesLine { // per row mapping of inventory to the variants and variant types it contains as well as the product it belongs to
-  const combo = line.Inventory?.ProductVariantCombination;
+  const variant = line.Inventory?.ProductVariant;
   return {
-    productId: combo?.product_id ?? "",
-    productName: productName(combo?.Product?.name ?? "Item"),
+    productId: variant?.product_id ?? "",
+    productName: productName(variant?.Product?.name ?? "Item"),
     category: category(line),
     image: coverImage(line) ?? lineImage(line),
-    variants: (combo?.CombinationOption ?? [])
-      .map((o) => o.VariantOption?.name?.trim())
-      .filter((name): name is string => Boolean(name))
-      .sort(),
+    variants: variantParts(variant),
     label: lineLabel(line),
     quantity: Number(line.quantity),
     total: Number(line.total_cost),
@@ -67,7 +60,7 @@ export async function getOrgSales(supabase: SupabaseClient, orgId: string): Prom
     supabase
       .from(ORDER_INVENTORY_TABLE)
       .select(
-        "order_id, quantity, total_cost, Inventory(ProductVariantCombination(product_id, image_url, Product(name, organization_id, ProductImage(image_url, position), ProductTag(Tag(name))), CombinationOption(VariantOption(name, VariantTypes(name)))))",
+        "order_id, quantity, total_cost, Inventory(ProductVariant(product_id, name, size, image_url, Product(name, organization_id, ProductImage(image_url, position), Category(name))))",
       )
       .returns<SalesLineRow[]>(),
   ]); //gets an organization'sorders from the order_inventory table and maps them to the variants and variant types it contains as well as the product it belongs to
@@ -77,7 +70,7 @@ export async function getOrgSales(supabase: SupabaseClient, orgId: string): Prom
 
   const linesByOrder = new Map<string, SalesLine[]>(); // maps order_id -> lines of this org in that order
   for (const line of lineData ?? []) {
-    if (line.Inventory?.ProductVariantCombination?.Product?.organization_id !== orgId) continue;
+    if (line.Inventory?.ProductVariant?.Product?.organization_id !== orgId) continue;
     const list = linesByOrder.get(line.order_id) ?? [];
     list.push(toSalesLine(line));
     linesByOrder.set(line.order_id, list);

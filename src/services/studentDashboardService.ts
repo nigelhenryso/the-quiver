@@ -4,7 +4,7 @@ import type { Organization } from "@/src/types/Organization";
 import type { OrganizationImage } from "@/src/types/OrganizationImage";
 import type { Product } from "@/src/types/Product";
 import type { ProductImage } from "@/src/types/ProductImage";
-import type { ProductVariantCombination } from "@/src/types/ProductVariantCombination";
+import type { ProductVariant } from "@/src/types/ProductVariant";
 import type { HomeOrgProducts } from "@/src/types/StudentDashboard";
 import { resolveProductMedia } from "./productMedia";
 
@@ -14,7 +14,7 @@ const PRODUCTS_PER_ORGANIZATION = 20;
 type ProductRow = Pick<Product, "product_id" | "name" | "price"> & {
   has_catalog_preorder: boolean;
   ProductImage: Pick<ProductImage, "image_url">[];
-  ProductVariantCombination: Pick<ProductVariantCombination, "image_url">[];
+  ProductVariant: Pick<ProductVariant, "image_url">[];
 };
 
 type OrganizationRow = Pick<Organization, "organization_id" | "name" | "acronym"> & {
@@ -86,7 +86,7 @@ async function getOrganizationProducts(
       ${productRelation} (
         product_id, name, price, has_catalog_preorder,
         ProductImage (image_url),
-        ProductVariantCombination (image_url)
+        ProductVariant (image_url)
       ),
       ${affiliationSelection}
     `)
@@ -102,17 +102,17 @@ async function getOrganizationProducts(
     .order("position", { referencedTable: "Product.ProductImage", nullsFirst: false })
     .order("product_image_id", { referencedTable: "Product.ProductImage" })
     .limit(1, { referencedTable: "Product.ProductImage" })
-    .not("Product.ProductVariantCombination.image_url", "is", null)
-    .neq("Product.ProductVariantCombination.image_url", "")
-    .order("combination_id", { referencedTable: "Product.ProductVariantCombination" })
-    .limit(1, { referencedTable: "Product.ProductVariantCombination" });
+    .not("Product.ProductVariant.image_url", "is", null)
+    .neq("Product.ProductVariant.image_url", "")
+    .order("variant_id", { referencedTable: "Product.ProductVariant" })
+    .limit(1, { referencedTable: "Product.ProductVariant" });
 
   if (!onlyJoined) query.is(STUDENT_AFFILIATION_TABLE, null);
   if (scope.kind === "preOrders") {
     query.eq("Product.has_catalog_preorder", true).limit(scope.limit);
   }
   if (scope.kind === "explore") {
-    query.eq("Product.is_member_exclusive", false).limit(ORGANIZATION_LIMIT);
+    query.eq("Product.is_for_members_only", false).limit(ORGANIZATION_LIMIT);
   }
 
   const { data, error } = await query.overrideTypes<OrganizationRow[], { merge: false }>();
@@ -124,7 +124,7 @@ async function getOrganizationProducts(
 }
 
 function productImageReferences(product: ProductRow) {
-  return [product.ProductImage[0]?.image_url || null, product.ProductVariantCombination[0]?.image_url || null] as const;
+  return [product.ProductImage[0]?.image_url || null, product.ProductVariant[0]?.image_url || null] as const;
 }
 
 async function toOrgProductRows(

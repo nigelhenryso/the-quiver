@@ -1,14 +1,15 @@
-// stock for one ProductVariantCombination (1:1)
+// stock for one ProductVariant (1:1)
 export type Inventory = {
     inventory_id: string;
-    combination_id: string;
+    variant_id: string;
     stock_quantity: number;
+    sku: string | null;
     created_at: string;
     updated_at: string;
 }
 
 export type InventoryVariant = {
-  id: string;
+  id: string; // variant_id
   sku: string | null;
   options: { id: string; label: string }[];
   imageUrl: string | null;

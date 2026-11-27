@@ -1,7 +1,7 @@
 export type ProductMedia = { kind: "image" | "video"; url: string };
 
 export type ProductOptionGroup = {
-  key: string; // variant_type_id, or "other" for options without a type
+  key: string; // "size" or "variant"
   name: string;
   options: { id: string; name: string }[];
 };

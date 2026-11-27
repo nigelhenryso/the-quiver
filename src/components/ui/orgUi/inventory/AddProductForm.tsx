@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Check, ChevronDown } from "lucide-react";
 import { calSans, lato } from "@/src/styles/fonts";
-import type { Tag } from "@/src/types/Tag";
+import type { Category } from "@/src/types/Category";
 import { supabase } from "@/src/lib/supabase/client";
 import { saveInventoryProduct } from "@/src/actions/inventoryActions";
 import { prepareProduct, removeProductUploads, type PreparedProductSave, type SavedMedia, type VariantFields } from "@/src/services/createProduct";
@@ -62,12 +62,12 @@ function checkVideo(file: File): Promise<string | null> {
 
 const fieldClass = `${lato.className} w-full rounded-[4px] border border-[#C9D6CE] bg-white px-3 text-[13px] text-[#1E3A2C] outline-none placeholder:text-[#8A9690] focus:border-[#008A58] focus:ring-1 focus:ring-[#008A58]`;
 
-export default function AddProductForm({ tags, showListingDetails = false, existing }: { tags: Tag[]; showListingDetails?: boolean; existing?: EditableProduct }) {
+export default function AddProductForm({ categories, showListingDetails = false, existing }: { categories: Category[]; showListingDetails?: boolean; existing?: EditableProduct }) {
   const router = useRouter();
   const [images, setImages] = useState<(File | SavedMedia | null)[]>(() => IMAGE_CAPTIONS.map((_, index) => existing?.images[index] ?? null));
   const [video, setVideo] = useState<File | SavedMedia | null>(existing?.video ?? null);
   const [mediaError, setMediaError] = useState("");
-  const [tagId, setTagId] = useState(existing?.tagId ?? "");
+  const [categoryId, setCategoryId] = useState(existing?.category_id ?? "");
   const [customCategory, setCustomCategory] = useState("");
   const [name, setName] = useState(existing?.name ?? "");
   const [description, setDescription] = useState(existing?.description ?? "");
@@ -89,12 +89,12 @@ export default function AddProductForm({ tags, showListingDetails = false, exist
   const [checkingVideo, setCheckingVideo] = useState(false);
   const inputClass = showListingDetails ? `${productInputStyle} w-full` : fieldClass;
   const fieldWidth = showListingDetails ? basicInformationFieldWidth : "";
-  const categoryOptions = tags
-    .filter((tag) => !showListingDetails || tag.name.trim().toLowerCase() !== OTHER_CATEGORY)
-    .map((tag) => ({ value: tag.tag_id, label: tag.name }));
+  const categoryOptions = categories
+    .filter((category) => !showListingDetails || category.name.trim().toLowerCase() !== OTHER_CATEGORY)
+    .map((category) => ({ value: category.category_id, label: category.name }));
   if (showListingDetails) categoryOptions.push({ value: OTHER_CATEGORY, label: "Other" });
-  const selectedCategory = categoryOptions.find((option) => option.value === tagId);
-  const isCustomCategory = showListingDetails && tagId === OTHER_CATEGORY;
+  const selectedCategory = categoryOptions.find((option) => option.value === categoryId);
+  const isCustomCategory = showListingDetails && categoryId === OTHER_CATEGORY;
 
   useEffect(() => {
     const bar = actionBar.current;
@@ -175,7 +175,7 @@ export default function AddProductForm({ tags, showListingDetails = false, exist
       coverGroup.current?.querySelector("button")?.focus();
       return;
     }
-    if (!selectedCategory && (!existing || existing.tagId !== tagId)) {
+    if (!selectedCategory && (!existing || (existing.category_id ?? "") !== categoryId)) {
       setNotice("A product category is required before continuing.");
       categoryTrigger.current?.focus();
       return;
@@ -196,7 +196,7 @@ export default function AddProductForm({ tags, showListingDetails = false, exist
         pendingProduct.current = await prepareProduct(supabase, {
           name,
           description,
-          tagId: isCustomCategory ? null : tagId || null,
+          categoryId: isCustomCategory ? null : categoryId || null,
           categoryName: isCustomCategory ? customCategory.trim() : null,
           images: images.filter((image): image is File | SavedMedia => image !== null),
           video,
@@ -296,7 +296,7 @@ export default function AddProductForm({ tags, showListingDetails = false, exist
           </div>
         </Row>
 
-        <Row label={showListingDetails ? "Product Category" : "*Product Category"} htmlFor="product-category" required={showListingDetails && (!existing || Boolean(existing.tagId))} center>
+        <Row label={showListingDetails ? "Product Category" : "*Product Category"} htmlFor="product-category" required={showListingDetails && (!existing || Boolean(existing.category_id))} center>
           <div className={fieldWidth}>
             <DropdownMenu.Root modal={false}>
               <DropdownMenu.Trigger
@@ -318,9 +318,9 @@ export default function AddProductForm({ tags, showListingDetails = false, exist
                   className="z-[60] max-h-[min(6.75rem,var(--radix-dropdown-menu-content-available-height))] w-[var(--radix-dropdown-menu-trigger-width)] overflow-y-auto overscroll-contain rounded-[6px] bg-white font-body text-[13px] text-[#1E3A2C] shadow-md ring-1 ring-[#C9D6CE]"
                 >
                   <DropdownMenu.RadioGroup
-                    value={tagId}
+                    value={categoryId}
                     onValueChange={(value) => {
-                      setTagId(value);
+                      setCategoryId(value);
                       setNotice("");
                     }}
                   >

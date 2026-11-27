@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import AddProductForm from "@/src/components/ui/orgUi/inventory/AddProductForm";
 import ProductFormPage from "@/src/components/ui/orgUi/inventory/ProductFormPage";
 import { createClient } from "@/src/lib/supabase/server";
-import { ORGANIZATION_TABLE, TAG_TABLE } from "@/src/lib/supabase/tables";
+import { CATEGORY_TABLE, ORGANIZATION_TABLE } from "@/src/lib/supabase/tables";
 
 export const metadata = {
   title: "Add New Product | The Quiver Seller Hub",
@@ -31,16 +31,16 @@ async function AddProductContent() {
   }
   if (!organization) return <p className="mt-6">No organization profile is linked to this account.</p>;
 
-  const { data: tags, error } = await supabase
-    .from(TAG_TABLE)
-    .select("tag_id, name")
+  const { data: categories, error } = await supabase
+    .from(CATEGORY_TABLE)
+    .select("category_id, name")
     .order("name")
-    .order("tag_id");
+    .order("category_id");
 
   if (error) {
-    console.error("Failed to load product tags", error);
+    console.error("Failed to load product categories", error);
     return <p role="alert" className="mt-6">Couldn’t load product categories. Refresh the page to try again.</p>;
   }
 
-  return <AddProductForm tags={tags} showListingDetails />;
+  return <AddProductForm categories={categories} showListingDetails />;
 }
