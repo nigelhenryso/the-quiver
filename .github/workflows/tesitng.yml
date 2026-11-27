@@ -54,4 +54,4 @@ jobs:
           TEST_ORG_EMAIL: 'org1@dlsu.edu.ph'
           TEST_ORG_PASSWORD: 'organization1'
           E2E_BASE_URL: 'http://localhost:3000'
-          E2E_HEADED: true
+          E2E_HEADED: false
