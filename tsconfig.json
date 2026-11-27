@@ -21,7 +21,8 @@
     ],
     "paths": {
       "@/*": ["./*"]
-    }
+    },
+    "types": ["jest", "@testing-library/jest-dom", "selenium-webdriver"],
   },
   "include": [
     "next-env.d.ts",
