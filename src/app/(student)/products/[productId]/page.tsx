@@ -10,7 +10,7 @@ import { createClient } from "@/src/lib/supabase/server";
 import { getOrgCartCount, getProductDetails } from "@/src/services/productDetailsService";
 
 export const metadata = {
-  title: "Product | The Quiver",
+  title: "Product Details Page",
 };
 
 type Params = Promise<{ productId: string }>;
