@@ -59,6 +59,7 @@
     "ts-node": "^10.9.2",
     "typescript": "^5",
     "vite": "latest",
-    "vitest": "^4"
+    "vitest": "^4",
+    "wait-on": "^9.5.1"
   }
 }
