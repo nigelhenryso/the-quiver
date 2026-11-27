@@ -1,6 +1,7 @@
 import assert from "node:assert";
 import { describe, it, beforeEach, afterEach, expect } from "@jest/globals";
 import { Builder, By, until, WebDriver, WebElement } from "selenium-webdriver";
+import chrome from "selenium-webdriver/chrome";
 
 
 const URL = "http://localhost:3000";
@@ -154,8 +155,15 @@ class Webpage {
  
 
 async function initDriver(): Promise<WebDriver> {
-  const driver = await new Builder().forBrowser("chrome").build();
-  await driver.manage().window().maximize();
+  const options = new chrome.Options();
+  options.addArguments(
+    "--headless=new",
+    "--no-sandbox",
+    "--disable-dev-shm-usage",
+    "--disable-gpu",
+    "--window-size=1920,1080"
+  );
+  const driver = await new Builder().forBrowser("chrome").setChromeOptions(options).build();
   await driver.get(URL);
   return driver;
 }
