@@ -1,37 +1,49 @@
+import Link from "next/link";
 import { ProductCardStar } from "@/src/components/ui/logos";
-import type { HomeProduct } from "@/src/app/(student)/landing/data";
+import type { HomeProduct } from "@/src/types/StudentDashboard";
+import { productCardClass, productImageClass } from "./carouselStyles";
 
-// product card used in the student home page (rating + review count style)
+const cardClass = `${productCardClass} font-body transition-all duration-200 ease-in-out hover:border-[#004D31] hover:shadow-lg motion-safe:hover:scale-105 text-[#506552] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#244432]`;
+
 export default function HomeProductCard({ product }: { product: HomeProduct }) {
-  return (
-    <div className="flex w-full flex-col gap-[3px] overflow-hidden rounded-[10px] border-[0.5px] border-[#2F4531]/60 bg-[#F5FEF2] p-2 shadow-[1px_2px_5px_rgba(0,0,0,0.25)] transition-all duration-200 ease-in-out hover:scale-105 hover:border-[#004D31] hover:shadow-lg">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={product.imgDir}
-        alt={product.productName}
-        className="aspect-square w-full rounded-[8px] bg-[#BADBA6] object-cover"
-      />
+  // Pre-order products don't have a product details page yet.
+  if (product.isPreOrder) {
+    return <div className={cardClass}><CardContent product={product} /></div>;
+  }
 
-      <div className="mt-1 flex w-full flex-row items-center justify-between px-0.5">
-        <div className="flex flex-row items-center gap-[3px]">
-          <ProductCardStar width={11} height={11} color="#00B775" />
-          <span className={`$font-body text-[10px] leading-none text-[#2F4531]`}>
-            {product.rating.toFixed(1)} ({product.reviewCount})
+  return (
+    <Link href={`/products/${encodeURIComponent(product.id)}`} className={cardClass}>
+      <CardContent product={product} />
+    </Link>
+  );
+}
+
+function CardContent({ product }: { product: HomeProduct }) {
+  return (
+    <>
+      {product.imgDir ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={product.imgDir} alt="" loading="lazy" decoding="async" className={productImageClass} />
+      ) : (
+        <div aria-hidden="true" className={productImageClass} />
+      )}
+
+      <div className="mt-1.5 flex flex-wrap items-center gap-x-1 gap-y-0.5 text-[10px]">
+        {product.rating !== undefined && (
+          <span className="flex shrink-0 items-center gap-0.5">
+            <ProductCardStar aria-hidden="true" width={10} height={10} color="#00B775" />
+            <span>{product.rating.toFixed(1)} ({product.reviewCount})</span>
           </span>
-        </div>
-        <p className={`$font-body text-[10px] italic leading-none text-[#2F4531]`}>
+        )}
+        <span className="ml-auto min-w-0 max-w-full text-right italic [overflow-wrap:anywhere]">
           {product.orgName}
-        </p>
+        </span>
       </div>
 
-      <h3
-        className={`$font-body mt-1 truncate text-center text-[14px] font-bold text-[#2F4531]`}
-      >
+      <h4 className="mt-1.5 truncate text-center text-sm font-bold">
         {product.productName}
-      </h3>
-      <p className={`$font-body text-center text-[12px] text-[#2F4531]`}>
-        ₱{product.price.toFixed(2)}
-      </p>
-    </div>
+      </h4>
+      <p className="mt-0.5 text-center text-xs">₱{product.price.toFixed(2)}</p>
+    </>
   );
 }

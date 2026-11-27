@@ -51,7 +51,7 @@ export async function waitForRoleHome(driver: WebDriver, role: 'STUDENT' | 'ORG'
   if (role === 'STUDENT') {
     await waitForPath(driver, '/landing');
     await driver.wait(until.titleIs(STUDENT_HOME_TITLE), WAIT_MS);
-    await driver.wait(until.elementLocated(headerText('Campus Orgs')), WAIT_MS);
+    await driver.wait(until.elementLocated(headerText('Pre-Orders')), WAIT_MS);
   } else {
     await waitForPath(driver, '/dashboard');
     await driver.wait(until.elementLocated(headerText('Seller Hub')), WAIT_MS);

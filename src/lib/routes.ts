@@ -14,9 +14,12 @@ export const ORG_ROUTES = [
 export const STUDENT_ROUTES = [
   '/landing',
   '/cart',
+  '/preOrderCart',
   '/checkout',
   '/organizations',
+  '/products',
   '/studentOrders',
+  '/studentPreOrders',
   '/studentProfile',
   '/success',
 ];

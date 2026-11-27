@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Footer } from "../../../Footer";
-import type { Org } from "@/src/app/(student)/organizations/data";
+import type { Org } from "@/src/data/campusOrgs";
 import OrgBrowser from "./OrgBrowser";
 
 type CampusOrgsProps = {

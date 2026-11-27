@@ -1,6 +1,6 @@
 import type { OrderStatus } from "./enums";
 
-// shapes the org dashboard components read (built by dashboardService)
+// shapes the org dashboard components read (built by orgDashboardService)
 
 export type SalesPeriod = "Weekly" | "Monthly" | "Yearly";
 

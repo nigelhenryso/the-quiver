@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { ORDER_INVENTORY_TABLE, ORDER_TABLE, ORGANIZATION_TABLE } from "@/src/lib/supabase/tables";
-import { lineImage, lineLabel, productName, type LineRow } from "@/src/services/dashboardService";
+import { lineImage, lineLabel, productName, type LineRow } from "@/src/services/orgDashboardService";
 import { resolveProductMedia } from "@/src/services/productMedia";
 import type { OrderStatus } from "@/src/types/enums";
 import type { OrgSales, SalesLine, SalesOrder } from "@/src/types/Sales";
