@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Check, ChevronDown, Search } from "lucide-react";
+import { useEffect, useId, useRef, useState } from "react";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { Check, ChevronDown, Minus, Search } from "lucide-react";
 import { lato } from "@/src/styles/fonts";
 import { stockStatusLabel } from "@/src/lib/inventory";
 import type { StockStatus } from "@/src/types/Inventory";
@@ -41,6 +42,10 @@ type FilterBarProps = {
 };
 
 const controlClass = `${lato.className} h-[36px] w-full rounded-[6px] border border-[#C9D6CE] bg-white px-3 text-[12px] text-[#1E3A2C] outline-none transition-all duration-200 ease-in-out hover:border-[#004D31] hover:shadow-md focus:border-[#008A58] focus:ring-1 focus:ring-[#008A58]`;
+const dropdownTriggerClass = `${controlClass} flex items-center justify-between text-left`;
+const dropdownPanelClass = "z-20 overflow-y-auto rounded-[6px] border border-[#C9D6CE] bg-white shadow-[0_4px_10px_rgba(0,0,0,0.15)]";
+const dropdownRowClass = `${lato.className} flex cursor-pointer items-center gap-2 px-3 py-2 text-[12px] text-[#1E3A2C] hover:bg-[#F3FFF6]`;
+const dropdownDividerClass = "border-b border-[#E4E9E6] last:border-b-0";
 
 // adds the value if it is not in the list yet, removes it if it is (keeps the original order)
 function toggleIn<T>(all: T[], current: T[], item: T): T[] {
@@ -58,7 +63,10 @@ export default function FilterBar({
   stockCounts,
   total,
 }: FilterBarProps) {
-  const categories = [...categoryCounts.keys()];
+  const performanceValueId = useId();
+  const categories = [...categoryCounts.keys()].sort(
+    (a, b) => Number(a === "Others") - Number(b === "Others"),
+  );
   const checkedCategories = value.categories.filter((category) => categoryCounts.has(category));
   // ex: "Category: All (20)" / "Category: Shirt, Pins"
   const summary = (name: string, labels: string[], allCount: number) =>
@@ -106,6 +114,7 @@ export default function FilterBar({
         onToggle={(c) =>
           onChange({ ...value, categories: toggleIn(categories, checkedCategories, c) })
         }
+        onToggleAll={(selectAll) => onChange({ ...value, categories: selectAll ? categories : [] })}
       />
 
       {/* stock status (multi select) */}
@@ -113,7 +122,7 @@ export default function FilterBar({
         label="Stock status"
         buttonText={summary(
           "Stock Status",
-          value.stock.map((s) => stockStatusLabel[s]),
+          value.stock.map((s) => `${stockStatusLabel[s]} (${stockCounts[s]})`),
           stockStatuses.length,
         )}
         options={stockStatuses.map((s) => ({
@@ -128,23 +137,41 @@ export default function FilterBar({
 
       {/* sales performance (sort) */}
       <div className="relative min-w-[180px] flex-1">
-        <select
-          value={value.performance}
-          onChange={(e) => onChange({ ...value, performance: e.target.value as PerformanceSort })}
-          aria-label="Sales performance"
-          className={`${controlClass} cursor-pointer appearance-none pr-8`}
-        >
-          {performanceOptions.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
-        <ChevronDown
-          size={14}
-          aria-hidden
-          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#008A58]"
-        />
+        <DropdownMenu.Root modal={false}>
+          <DropdownMenu.Trigger
+            aria-label="Sales performance"
+            aria-describedby={performanceValueId}
+            className={dropdownTriggerClass}
+          >
+            <span id={performanceValueId} className="truncate">
+              {performanceOptions.find((option) => option.value === value.performance)?.label}
+            </span>
+            <ChevronDown size={14} className="shrink-0 text-[#008A58]" aria-hidden />
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Portal>
+            <DropdownMenu.Content
+              align="start"
+              sideOffset={4}
+              className={`${dropdownPanelClass} max-h-[min(16rem,var(--radix-dropdown-menu-content-available-height))] w-[var(--radix-dropdown-menu-trigger-width)]`}
+            >
+              <DropdownMenu.RadioGroup
+                value={value.performance}
+                onValueChange={(performance) => onChange({ ...value, performance: performance as PerformanceSort })}
+              >
+                {performanceOptions.map((option) => (
+                  <DropdownMenu.RadioItem
+                    key={option.value}
+                    value={option.value}
+                    textValue={option.label}
+                    className={`${dropdownRowClass} ${dropdownDividerClass} outline-none data-[highlighted]:bg-[#F3FFF6] data-[state=checked]:text-[#008A58]`}
+                  >
+                    {option.label}
+                  </DropdownMenu.RadioItem>
+                ))}
+              </DropdownMenu.RadioGroup>
+            </DropdownMenu.Content>
+          </DropdownMenu.Portal>
+        </DropdownMenu.Root>
       </div>
 
       <div className="ml-auto flex gap-3">
@@ -172,15 +199,18 @@ function MultiSelect({
   options,
   checked,
   onToggle,
+  onToggleAll,
 }: {
   label: string;
   buttonText: string;
   options: { value: string; label: string }[];
   checked: string[];
   onToggle: (value: string) => void;
+  onToggleAll?: (selectAll: boolean) => void;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const allChecked = options.length > 0 && checked.length === options.length;
 
   // close when clicking outside or pressing Escape
   useEffect(() => {
@@ -205,7 +235,7 @@ function MultiSelect({
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
-        className={`${controlClass} flex items-center justify-between text-left`}
+        className={dropdownTriggerClass}
       >
         <span className="truncate">{buttonText}</span>
         <ChevronDown size={14} className="shrink-0 text-[#008A58]" aria-hidden />
@@ -216,36 +246,63 @@ function MultiSelect({
           role="listbox"
           aria-multiselectable
           aria-label={label}
-          className="absolute left-0 right-0 top-[calc(100%+4px)] z-20 max-h-64 overflow-y-auto rounded-[6px] border border-[#C9D6CE] bg-white shadow-[0_4px_10px_rgba(0,0,0,0.15)]"
+          className={`${dropdownPanelClass} absolute left-0 right-0 top-[calc(100%+4px)] max-h-64`}
         >
-          {options.map((o) => {
-            const isChecked = checked.includes(o.value);
-            return (
-              <li
-                key={o.value}
-                role="option"
-                aria-selected={isChecked}
-                className="border-b border-[#E4E9E6] last:border-b-0"
-              >
-                <label
-                  className={`${lato.className} flex cursor-pointer items-center gap-2 px-3 py-2 text-[12px] text-[#1E3A2C] hover:bg-[#F3FFF6]`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={() => onToggle(o.value)}
-                    className="peer sr-only"
-                  />
-                  <span className="flex h-[14px] w-[14px] items-center justify-center rounded-[4px] border border-[#004D31] bg-white text-white peer-checked:bg-[#004D31] peer-focus-visible:ring-2 peer-focus-visible:ring-[#008A58]">
-                    {isChecked && <Check size={10} strokeWidth={3.5} />}
-                  </span>
-                  {o.label}
-                </label>
-              </li>
-            );
-          })}
+          {onToggleAll && (
+            <CheckboxOption
+              label="All"
+              checked={allChecked}
+              indeterminate={!allChecked && checked.length > 0}
+              disabled={options.length === 0}
+              onChange={() => onToggleAll(!allChecked)}
+            />
+          )}
+          {options.map((option) => (
+            <CheckboxOption
+              key={option.value}
+              label={option.label}
+              checked={checked.includes(option.value)}
+              onChange={() => onToggle(option.value)}
+            />
+          ))}
         </ul>
       )}
     </div>
+  );
+}
+
+function CheckboxOption({
+  label,
+  checked,
+  indeterminate = false,
+  disabled = false,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  indeterminate?: boolean;
+  disabled?: boolean;
+  onChange: () => void;
+}) {
+  return (
+    <li role="option" aria-selected={checked} aria-disabled={disabled || undefined} className={dropdownDividerClass}>
+      <label className={`${dropdownRowClass} ${disabled ? "cursor-default opacity-60" : ""}`}>
+        <input
+          type="checkbox"
+          checked={checked}
+          disabled={disabled}
+          ref={(input) => {
+            if (input) input.indeterminate = indeterminate;
+          }}
+          onChange={onChange}
+          className="peer sr-only"
+        />
+        <span className="flex size-[14px] shrink-0 items-center justify-center rounded-[4px] border border-[#004D31] bg-white text-white peer-checked:bg-[#004D31] peer-indeterminate:bg-[#004D31] peer-focus-visible:ring-2 peer-focus-visible:ring-[#008A58]">
+          {checked && <Check size={10} strokeWidth={3.5} aria-hidden />}
+          {indeterminate && <Minus size={10} strokeWidth={3.5} aria-hidden />}
+        </span>
+        {label}
+      </label>
+    </li>
   );
 }

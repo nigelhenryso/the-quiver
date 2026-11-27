@@ -134,7 +134,7 @@ export default function MediaCarousel({ media, name, focusUrl }: { media: Produc
       </div>
 
       {count > 1 && (
-        <ul className="mt-2 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]" aria-label="Choose a photo">
+        <ul className="mt-2 flex gap-2 overflow-x-auto pb-1" aria-label="Choose a photo">
           {media.map((item, slide) => (
             <li key={`${item.url}-thumb-${slide}`} className="shrink-0">
               <button
