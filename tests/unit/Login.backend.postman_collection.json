@@ -1,0 +1,1257 @@
+{
+  "info": {
+    "name": "The Quiver - Login (BACKEND, Postman / Newman)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "BACKEND rows of sheet '02 - Login'. Order: LOGIN-02, 03, 04, 07, 09, 10, 12, 24, 25.\nLOGIN-16..19 (Google callback) are in tests/backend/Login.oauth-callback.backend.test.ts because Postman cannot produce a Google login code.\nLOGIN-27 (cookie flags) is in the Selenium file because only a real browser creates that cookie.\nRun:  pnpm test:backend"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// The name of the Supabase session cookie, e.g. sb-abcd1234-auth-token (derived from the project URL).",
+          "const m = (pm.environment.get('SUPABASE_URL') || '').match(/^https?:\\/\\/([^.\\/:]+)/);",
+          "pm.collectionVariables.set('COOKIE_NAME', 'sb-' + (m ? m[1] : 'unknown') + '-auth-token');"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "LOGIN-02 | Valid student credentials return a session",
+      "item": [
+        {
+          "name": "LOGIN-02 1/3 - Sign in as the student account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_KEY}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{SUPABASE_URL}}/auth/v1/token?grant_type=password",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{STUDENT_EMAIL}}\", \"password\": \"{{STUDENT_PASSWORD}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
+                  "let body = {};",
+                  "try { body = pm.response.json(); } catch (e) {}",
+                  "pm.test('LOGIN-02 sign-in returns 200 and a session', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(body.access_token, 'access_token').to.be.a('string').and.have.length.above(10);",
+                  "  pm.expect(body.refresh_token, 'refresh_token').to.be.a('string').and.have.length.above(10);",
+                  "  pm.expect(body.user.email).to.eql(pm.environment.get('STUDENT_EMAIL').toLowerCase());",
+                  "});",
+                  "pm.collectionVariables.set('STUDENT_TOKEN', body.access_token);",
+                  "pm.collectionVariables.set('STUDENT_ID', body.user && body.user.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "LOGIN-02 2/3 - Student table (is there a Student row?)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_KEY}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{STUDENT_TOKEN}}"
+              }
+            ],
+            "url": "{{SUPABASE_URL}}/rest/v1/Student?select=student_id&student_id=eq.{{STUDENT_ID}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
+                  "pm.test('LOGIN-02 Student rows for this user: 1 (so the app treats it as a student)', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json()).to.have.lengthOf(1);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "LOGIN-02 3/3 - Organization table (is there an Organization row?)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_KEY}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{STUDENT_TOKEN}}"
+              }
+            ],
+            "url": "{{SUPABASE_URL}}/rest/v1/Organization?select=organization_id&organization_id=eq.{{STUDENT_ID}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
+                  "pm.test('LOGIN-02 Organization rows for this user: 0 (so the app treats it as a student)', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json()).to.have.lengthOf(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Signs in with the real student test account, then asks the database which profile row exists (this is exactly how src/services/accountService.ts decides the account type)."
+    },
+    {
+      "name": "LOGIN-03 | Wrong password is rejected",
+      "item": [
+        {
+          "name": "LOGIN-03 - Sign in with a wrong password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_KEY}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{SUPABASE_URL}}/auth/v1/token?grant_type=password",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{STUDENT_EMAIL}}\", \"password\": \"this-is-not-the-password\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
+                  "let body = {};",
+                  "try { body = pm.response.json(); } catch (e) {}",
+                  "const message = body.msg || body.error_description || body.message || '';",
+                  "pm.test('LOGIN-03 wrong password is rejected with HTTP 400 \"Invalid login credentials\"', () => {",
+                  "  pm.response.to.have.status(400);",
+                  "  pm.expect(message).to.match(/invalid login credentials/i);",
+                  "});",
+                  "pm.test('LOGIN-03 no session is returned', () => {",
+                  "  pm.expect(body).to.not.have.property('access_token');",
+                  "  pm.expect(body).to.not.have.property('refresh_token');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "LOGIN-04 | Unknown email gets the SAME error as a wrong password",
+      "item": [
+        {
+          "name": "LOGIN-04 1/2 - Registered email + wrong password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_KEY}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{SUPABASE_URL}}/auth/v1/token?grant_type=password",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{STUDENT_EMAIL}}\", \"password\": \"this-is-not-the-password\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
+                  "let body = {};",
+                  "try { body = pm.response.json(); } catch (e) {}",
+                  "pm.collectionVariables.set('L04_STATUS', String(pm.response.code));",
+                  "pm.collectionVariables.set('L04_MESSAGE', body.msg || body.error_description || body.message || '');",
+                  "pm.collectionVariables.set('L04_CODE', body.error_code || body.error || '');",
+                  "pm.test('LOGIN-04 (setup) the wrong password is rejected', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "LOGIN-04 2/2 - Unknown email + any password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_KEY}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{SUPABASE_URL}}/auth/v1/token?grant_type=password",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{L04_UNKNOWN_EMAIL}}\", \"password\": \"this-is-not-the-password\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('L04_UNKNOWN_EMAIL', 'nobody_' + Date.now() + '@dlsu.edu.ph');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
+                  "let body = {};",
+                  "try { body = pm.response.json(); } catch (e) {}",
+                  "const message = body.msg || body.error_description || body.message || '';",
+                  "const code = body.error_code || body.error || '';",
+                  "pm.test('LOGIN-04 same HTTP status as a wrong password', () => {",
+                  "  pm.expect(String(pm.response.code)).to.eql(pm.collectionVariables.get('L04_STATUS'));",
+                  "});",
+                  "pm.test('LOGIN-04 same error message and error code as a wrong password', () => {",
+                  "  pm.expect(message).to.eql(pm.collectionVariables.get('L04_MESSAGE'));",
+                  "  pm.expect(code).to.eql(pm.collectionVariables.get('L04_CODE'));",
+                  "});",
+                  "pm.test('LOGIN-04 the message does not reveal that the account does not exist', () => {",
+                  "  pm.expect(message).to.not.match(/not found|does not exist|no user|unknown/i);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "LOGIN-07 | (TENTATIVE) Account without a Student profile",
+      "item": [
+        {
+          "name": "LOGIN-07 1/3 - Sign in as the noprofile account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_KEY}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{SUPABASE_URL}}/auth/v1/token?grant_type=password",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{NOPROFILE_EMAIL}}\", \"password\": \"{{NOPROFILE_PASSWORD}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// This account is optional. Leave NOPROFILE_EMAIL empty in the environment file to skip LOGIN-07.",
+                  "if (!pm.environment.get('NOPROFILE_EMAIL')) {",
+                  "  pm.test.skip('LOGIN-07 skipped (no NOPROFILE_EMAIL in the environment file)');",
+                  "  return;",
+                  "}",
+                  "",
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
+                  "let body = {};",
+                  "try { body = pm.response.json(); } catch (e) {}",
+                  "pm.test('LOGIN-07 sign-in returns 200 and a session', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(body.access_token, 'access_token').to.be.a('string').and.have.length.above(10);",
+                  "  pm.expect(body.refresh_token, 'refresh_token').to.be.a('string').and.have.length.above(10);",
+                  "  pm.expect(body.user.email).to.eql(pm.environment.get('NOPROFILE_EMAIL').toLowerCase());",
+                  "});",
+                  "pm.collectionVariables.set('NOPROFILE_TOKEN', body.access_token);",
+                  "pm.collectionVariables.set('NOPROFILE_ID', body.user && body.user.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "LOGIN-07 2/3 - Student table (is there a Student row?)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_KEY}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{NOPROFILE_TOKEN}}"
+              }
+            ],
+            "url": "{{SUPABASE_URL}}/rest/v1/Student?select=student_id&student_id=eq.{{NOPROFILE_ID}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// This account is optional. Leave NOPROFILE_EMAIL empty in the environment file to skip LOGIN-07.",
+                  "if (!pm.environment.get('NOPROFILE_EMAIL')) {",
+                  "  pm.test.skip('LOGIN-07 skipped (no NOPROFILE_EMAIL in the environment file)');",
+                  "  return;",
+                  "}",
+                  "",
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
+                  "pm.test('LOGIN-07 Student rows for this user: 0 (so the app treats it as a NEW account)', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json()).to.have.lengthOf(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "LOGIN-07 3/3 - Organization table (is there an Organization row?)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_KEY}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{NOPROFILE_TOKEN}}"
+              }
+            ],
+            "url": "{{SUPABASE_URL}}/rest/v1/Organization?select=organization_id&organization_id=eq.{{NOPROFILE_ID}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// This account is optional. Leave NOPROFILE_EMAIL empty in the environment file to skip LOGIN-07.",
+                  "if (!pm.environment.get('NOPROFILE_EMAIL')) {",
+                  "  pm.test.skip('LOGIN-07 skipped (no NOPROFILE_EMAIL in the environment file)');",
+                  "  return;",
+                  "}",
+                  "",
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
+                  "pm.test('LOGIN-07 Organization rows for this user: 0 (so the app treats it as a NEW account)', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json()).to.have.lengthOf(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "NOTE: the sheet expects an error, but the current app lets this user sign in and then opens the Complete your Profile modal (account type 'new'). This folder checks what the app does today. OPTIONAL: it is skipped automatically when NOPROFILE_EMAIL is empty."
+    },
+    {
+      "name": "LOGIN-09 | Email is case-insensitive",
+      "item": [
+        {
+          "name": "LOGIN-09 - Sign in with the email in UPPER CASE",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_KEY}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{SUPABASE_URL}}/auth/v1/token?grant_type=password",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{STUDENT_EMAIL_UPPER}}\", \"password\": \"{{STUDENT_PASSWORD}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('STUDENT_EMAIL_UPPER', pm.environment.get('STUDENT_EMAIL').toUpperCase());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
+                  "let body = {};",
+                  "try { body = pm.response.json(); } catch (e) {}",
+                  "pm.test('LOGIN-09 an UPPER CASE email still signs in', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(body.user.email).to.eql(pm.environment.get('STUDENT_EMAIL').toLowerCase());",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "LOGIN-10 | (TENTATIVE) Repeated failed logins are rate-limited",
+      "item": [
+        {
+          "name": "LOGIN-10 - Failed login attempt (repeats until a 429 or 60 attempts)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_KEY}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{SUPABASE_URL}}/auth/v1/token?grant_type=password",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{L10_EMAIL}}\", \"password\": \"wrong-password\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('L10_EMAIL', 'ratelimit_' + Date.now() + '_' + (pm.collectionVariables.get('L10_COUNT') || 0) + '@dlsu.edu.ph');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Opt-in: this sends up to 60 requests and may block your IP for a few minutes.",
+                  "// Turn it on by setting RUN_RATE_LIMIT_TEST to true in the environment file.",
+                  "// The limit is a Supabase setting (default: 30 sign-ins per 5 minutes per IP).",
+                  "if (pm.environment.get('RUN_RATE_LIMIT_TEST') !== 'true') {",
+                  "  pm.test.skip('LOGIN-10 rate limit (skipped: set RUN_RATE_LIMIT_TEST=true to run it)');",
+                  "  return;",
+                  "}",
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "const attempt = Number(pm.collectionVariables.get('L10_COUNT') || 0) + 1;",
+                  "pm.collectionVariables.set('L10_COUNT', attempt);",
+                  "if (pm.response.code === 429) {",
+                  "  pm.test('LOGIN-10 Supabase answers HTTP 429 after ' + attempt + ' failed attempts', () => pm.response.to.have.status(429));",
+                  "  pm.collectionVariables.unset('L10_COUNT');",
+                  "} else if (attempt < 60) {",
+                  "  postman.setNextRequest(pm.info.requestName);",
+                  "} else {",
+                  "  pm.test('LOGIN-10 Supabase answers HTTP 429 within 60 failed attempts', () => {",
+                  "    pm.expect.fail('No 429 after 60 attempts. Is the rate limit disabled or set very high in the Supabase project?');",
+                  "  });",
+                  "  pm.collectionVariables.unset('L10_COUNT');",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "LOGIN-12 | Organization account is recognised as an organization",
+      "item": [
+        {
+          "name": "LOGIN-12 1/3 - Sign in as the org account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_KEY}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{SUPABASE_URL}}/auth/v1/token?grant_type=password",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{ORG_EMAIL}}\", \"password\": \"{{ORG_PASSWORD}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
+                  "let body = {};",
+                  "try { body = pm.response.json(); } catch (e) {}",
+                  "pm.test('LOGIN-12 sign-in returns 200 and a session', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(body.access_token, 'access_token').to.be.a('string').and.have.length.above(10);",
+                  "  pm.expect(body.refresh_token, 'refresh_token').to.be.a('string').and.have.length.above(10);",
+                  "  pm.expect(body.user.email).to.eql(pm.environment.get('ORG_EMAIL').toLowerCase());",
+                  "});",
+                  "pm.collectionVariables.set('ORG_TOKEN', body.access_token);",
+                  "pm.collectionVariables.set('ORG_ID', body.user && body.user.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "LOGIN-12 2/3 - Student table (is there a Student row?)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_KEY}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ORG_TOKEN}}"
+              }
+            ],
+            "url": "{{SUPABASE_URL}}/rest/v1/Student?select=student_id&student_id=eq.{{ORG_ID}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
+                  "pm.test('LOGIN-12 Student rows for this user: 0 (so the app treats it as an organization)', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json()).to.have.lengthOf(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "LOGIN-12 3/3 - Organization table (is there an Organization row?)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_KEY}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ORG_TOKEN}}"
+              }
+            ],
+            "url": "{{SUPABASE_URL}}/rest/v1/Organization?select=organization_id&organization_id=eq.{{ORG_ID}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
+                  "pm.test('LOGIN-12 Organization rows for this user: 1 (so the app treats it as an organization)', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json()).to.have.lengthOf(1);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "The app does not put a 'role' in the token. The role is decided by which table has a row for the user, so that is what is checked."
+    },
+    {
+      "name": "LOGIN-24 | Pages and data are protected when there is no session",
+      "item": [
+        {
+          "name": "LOGIN-24 - GET /landing with no session",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{APP_URL}}/landing"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
+                  "pm.test('LOGIN-24 GET /landing without a session is redirected (HTTP 307) to the home page \"/\"', () => {",
+                  "  pm.response.to.have.status(307);",
+                  "  pm.expect(pm.response.headers.get('Location') || '').to.match(/^(https?:\\/\\/[^\\/]+\\/?|\\/)$/);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "LOGIN-24 - GET /cart with no session",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{APP_URL}}/cart"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
+                  "pm.test('LOGIN-24 GET /cart without a session is redirected (HTTP 307) to the home page \"/\"', () => {",
+                  "  pm.response.to.have.status(307);",
+                  "  pm.expect(pm.response.headers.get('Location') || '').to.match(/^(https?:\\/\\/[^\\/]+\\/?|\\/)$/);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "LOGIN-24 - GET /dashboard with no session",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{APP_URL}}/dashboard"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
+                  "pm.test('LOGIN-24 GET /dashboard without a session is redirected (HTTP 307) to the home page \"/\"', () => {",
+                  "  pm.response.to.have.status(307);",
+                  "  pm.expect(pm.response.headers.get('Location') || '').to.match(/^(https?:\\/\\/[^\\/]+\\/?|\\/)$/);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "LOGIN-24 - GET /inventory with no session",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{APP_URL}}/inventory"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
+                  "pm.test('LOGIN-24 GET /inventory without a session is redirected (HTTP 307) to the home page \"/\"', () => {",
+                  "  pm.response.to.have.status(307);",
+                  "  pm.expect(pm.response.headers.get('Location') || '').to.match(/^(https?:\\/\\/[^\\/]+\\/?|\\/)$/);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "LOGIN-24 - GET / (the public page stays public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{APP_URL}}/"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
+                  "pm.test('LOGIN-24 GET / without a session is allowed (HTTP 200)', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "LOGIN-24 - Database: Student table with NO token",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_KEY}}"
+              }
+            ],
+            "url": "{{SUPABASE_URL}}/rest/v1/Student?select=student_id&limit=1"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
+                  "pm.test('LOGIN-24 the database gives an anonymous request no Student rows', () => {",
+                  "  // Either the request is refused, or row-level security hides every row.",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 401, 403]);",
+                  "  if (pm.response.code === 200) pm.expect(pm.response.json()).to.eql([]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "LOGIN-25 | Expired, tampered and malformed tokens are rejected",
+      "item": [
+        {
+          "name": "LOGIN-25 - GET /dashboard with a malformed session cookie",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{COOKIE_NAME}}=garbage"
+              }
+            ],
+            "url": "{{APP_URL}}/dashboard"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
+                  "pm.test('LOGIN-25 a malformed session cookie is treated as logged out (HTTP 307 to \"/\")', () => {",
+                  "  pm.response.to.have.status(307);",
+                  "  pm.expect(pm.response.headers.get('Location') || '').to.match(/^(https?:\\/\\/[^\\/]+\\/?|\\/)$/);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "LOGIN-25 (setup) - Sign in as the student to build a tampered token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_KEY}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{SUPABASE_URL}}/auth/v1/token?grant_type=password",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{STUDENT_EMAIL}}\", \"password\": \"{{STUDENT_PASSWORD}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Forget tokens from an earlier run, so a failed setup can never reuse an old one.",
+                  "pm.collectionVariables.unset('TAMPERED_TOKEN');",
+                  "pm.collectionVariables.unset('EXPIRED_TOKEN');",
+                  "pm.collectionVariables.unset('MALFORMED_TOKEN');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
+                  "const enc = (obj) => CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(JSON.stringify(obj)))",
+                  "  .replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, '');",
+                  "",
+                  "// Malformed token: not a token at all.",
+                  "pm.collectionVariables.set('MALFORMED_TOKEN', 'garbage');",
+                  "",
+                  "// Expired token: says it expired an hour ago (the signature is fake, so it is invalid anyway).",
+                  "const now = Math.floor(Date.now() / 1000);",
+                  "pm.collectionVariables.set('EXPIRED_TOKEN', [",
+                  "  enc({ alg: 'HS256', typ: 'JWT' }),",
+                  "  enc({ role: 'authenticated', sub: '00000000-0000-0000-0000-000000000000', exp: now - 3600 }),",
+                  "  'invalid-signature',",
+                  "].join('.'));",
+                  "",
+                  "let body = {};",
+                  "try { body = pm.response.json(); } catch (e) {}",
+                  "pm.test('LOGIN-25 (setup) the student signs in', () => pm.response.to.have.status(200));",
+                  "if (!body.access_token) return; // the tampered-token request below then reports the failed setup",
+                  "",
+                  "// Tampered token: a real token whose payload is edited (role -> service_role), old signature kept.",
+                  "const parts = body.access_token.split('.');",
+                  "let b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');",
+                  "while (b64.length % 4) b64 += '=';",
+                  "const payload = JSON.parse(CryptoJS.enc.Base64.parse(b64).toString(CryptoJS.enc.Utf8));",
+                  "payload.role = 'service_role';",
+                  "parts[1] = enc(payload);",
+                  "pm.collectionVariables.set('TAMPERED_TOKEN', parts.join('.'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "LOGIN-25 - Database with a malformed token",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_KEY}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{MALFORMED_TOKEN}}"
+              }
+            ],
+            "url": "{{SUPABASE_URL}}/rest/v1/Student?select=student_id&limit=1"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
+                  "if (!pm.collectionVariables.get('MALFORMED_TOKEN')) {",
+                  "  pm.test('LOGIN-25 the a malformed token could not be built, because the LOGIN-25 (setup) sign-in failed', () => {",
+                  "    pm.expect.fail('Fix the LOGIN-25 (setup) request first');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "pm.test('LOGIN-25 the database rejects a malformed token (HTTP 401)', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "LOGIN-25 - Database with an expired token",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_KEY}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{EXPIRED_TOKEN}}"
+              }
+            ],
+            "url": "{{SUPABASE_URL}}/rest/v1/Student?select=student_id&limit=1"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
+                  "if (!pm.collectionVariables.get('EXPIRED_TOKEN')) {",
+                  "  pm.test('LOGIN-25 the an expired token could not be built, because the LOGIN-25 (setup) sign-in failed', () => {",
+                  "    pm.expect.fail('Fix the LOGIN-25 (setup) request first');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "pm.test('LOGIN-25 the database rejects an expired token (HTTP 401)', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "LOGIN-25 - Database with a tampered token",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{SUPABASE_KEY}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{TAMPERED_TOKEN}}"
+              }
+            ],
+            "url": "{{SUPABASE_URL}}/rest/v1/Student?select=student_id&limit=1"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// If the request itself failed (wrong SUPABASE_URL / APP_URL, app not running, no internet), say so",
+                  "// clearly instead of showing confusing assertion errors.",
+                  "if (pm.response.code === undefined) {",
+                  "  pm.test('REQUEST FAILED - no response. Check SUPABASE_URL / APP_URL in your .local.json file and that the app is running', () => {",
+                  "    pm.expect.fail('no response received');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "",
+                  "if (!pm.collectionVariables.get('TAMPERED_TOKEN')) {",
+                  "  pm.test('LOGIN-25 the a tampered token could not be built, because the LOGIN-25 (setup) sign-in failed', () => {",
+                  "    pm.expect.fail('Fix the LOGIN-25 (setup) request first');",
+                  "  });",
+                  "  return;",
+                  "}",
+                  "pm.test('LOGIN-25 the database rejects a tampered token (role edited) (HTTP 401)', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
