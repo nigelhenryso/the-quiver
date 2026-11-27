@@ -272,7 +272,7 @@ export const Header = ({
                       aria-label="Carts"
                       aria-haspopup="menu"
                       aria-expanded={isCartMenuOpen}
-                      onClick={() => setIsCartMenuOpen((open) => !open)}
+                      onClick={() => goToCart('/cart')}
                       className="flex items-center gap-1 rounded text-white transition-colors hover:text-[#b9dccf] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                     >
                       <ShoppingCartLogo width={16} height={16}/>
@@ -283,33 +283,8 @@ export const Header = ({
                         aria-hidden="true"
                         className={`transition-transform ${isCartMenuOpen ? 'rotate-180' : ''}`}
                       >
-                        <path d="M0 0H7L3.5 5Z" fill="currentColor" />
                       </svg>
                     </button>
-                    {isCartMenuOpen && (
-                      <div
-                        role="menu"
-                        aria-label="Carts"
-                        className="absolute right-0 top-[calc(100%+12px)] z-50 flex w-[180px] flex-col overflow-hidden rounded-[12px] bg-white py-1 shadow-[0px_4px_8.8px_rgba(0,0,0,0.25)]"
-                      >
-                        <button
-                          type="button"
-                          role="menuitem"
-                          onClick={() => goToCart('/cart')}
-                          className="px-4 py-2 text-left text-[16px] text-[#145B46] hover:bg-[#E6FAF2]"
-                        >
-                          Order Cart
-                        </button>
-                        <button
-                          type="button"
-                          role="menuitem"
-                          onClick={() => goToCart('/preOrderCart')}
-                          className="px-4 py-2 text-left text-[16px] text-[#145B46] hover:bg-[#E6FAF2]"
-                        >
-                          Pre-Order Cart
-                        </button>
-                      </div>
-                    )}
                   </div>
                   <Button
                     primary
