@@ -5,9 +5,9 @@ import type { OrderStatus } from "./enums";
 export type SalesLine = {
   productId: string;
   productName: string;
-  category: string; // first tag of the product (alphabetical), "Uncategorized" if none
+  category: string; // Product.Category name, "Uncategorized" if none
   image: string | null;
-  variants: string[]; // option names, ex: ["Blue", "Large"]; empty if no variants
+  variants: string[]; // variant name and size, ex: ["Blue", "L"]; empty for the default variant
   label: string; // ex: "T-Shirt 1 - Color: Blue - 2x"
   quantity: number;
   total: number; // price at sale × quantity

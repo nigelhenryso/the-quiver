@@ -122,7 +122,7 @@ export default function ProductListingDetails({ variants, setVariants, sizes, se
           )}
           <div className="max-w-[720px] space-y-4 sm:ml-9">
             <PreOrderSwitch initialStart={existing?.preorder_start_date} initialEnd={existing?.preorder_end_date} />
-            <ListingSwitch id="org-exclusive" label="Org-Exclusive" defaultChecked={existing?.is_member_exclusive}>
+            <ListingSwitch id="org-exclusive" label="Org-Exclusive" defaultChecked={existing?.is_for_members_only}>
               Make the product available to organization members only.
             </ListingSwitch>
           </div>

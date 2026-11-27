@@ -14,6 +14,7 @@ export type VariantFields = {
 };
 
 export type SavedMedia = { reference: string; url: string | null };
+/** An existing ProductVariant row (id = variant_id). */
 export type ExistingCombination = { id: string; stock: number; price: number | null; image: string | null };
 export type EditIdentity = { id: string; version: string; basePrice: number; base?: ExistingCombination };
 
@@ -23,14 +24,14 @@ type Combination = {
   stock: number;
   price: number | null;
   image_path: string | null;
-  combination_id?: string;
+  variant_id?: string;
   previous_stock?: number;
 };
 
 export type ProductSaveDraft = {
   name: string;
   description: string;
-  tagId: string | null;
+  categoryId: string | null;
   categoryName: string | null;
   images: (File | SavedMedia)[];
   video: File | SavedMedia | null;
@@ -45,10 +46,10 @@ export type PreparedProduct = {
   product_id: string;
   name: string;
   description: string;
-  tag_id: string | null;
+  category_id: string | null;
   category_name: string | null;
   is_active: boolean;
-  is_member_exclusive: boolean;
+  is_for_members_only: boolean;
   price: number;
   images: string[];
   video_path: string | null;
@@ -116,7 +117,7 @@ export async function prepareProduct(supabase: SupabaseClient, draft: ProductSav
           stock: Number(variant.stock.get(sizeKey)),
           price: existing && price === Number(existing.price ?? draft.edit?.basePrice) ? existing.price : price,
           image_path: imagePath,
-          ...(existing && { combination_id: existing.id, previous_stock: existing.stock }),
+          ...(existing && { variant_id: existing.id, previous_stock: existing.stock }),
         });
       }
     }
@@ -127,16 +128,16 @@ export async function prepareProduct(supabase: SupabaseClient, draft: ProductSav
       : base?.price === inputPrice ? draft.edit!.basePrice : inputPrice;
     if (!combinations.length) {
       combinations.push({ color: null, size: null, stock: Number(value("product-stock")), price: base?.price == null ? null : inputPrice,
-        image_path: base?.image ?? null, ...(base && { combination_id: base.id, previous_stock: base.stock }) });
+        image_path: base?.image ?? null, ...(base && { variant_id: base.id, previous_stock: base.stock }) });
     }
     return { uploads: paths, listing: {
       product_id: productId,
       name: draft.name.trim(),
       description: draft.description.trim(),
-      tag_id: draft.tagId,
+      category_id: draft.categoryId,
       category_name: draft.categoryName,
       is_active: draft.published,
-      is_member_exclusive: draft.form.has("org-exclusive"),
+      is_for_members_only: draft.form.has("org-exclusive"),
       price,
       images,
       video_path: videoPath,

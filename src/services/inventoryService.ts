@@ -1,27 +1,18 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { InventoryProduct, InventoryVariant } from "@/src/types/Inventory";
-import { ORDER_INVENTORY_TABLE, PRODUCT_TABLE, PRODUCT_VARIANT_COMBINATION_TABLE } from "@/src/lib/supabase/tables";
+import { ORDER_INVENTORY_TABLE, PRODUCT_TABLE, PRODUCT_VARIANT_TABLE } from "@/src/lib/supabase/tables";
 import type { Order } from "@/src/types/Order";
 import type { Product as ProductRow } from "@/src/types/Product";
-import type { VariantOption } from "@/src/types/VariantOption";
+import { DEFAULT_VARIANT_NAME, type ProductVariant } from "@/src/types/ProductVariant";
 import { resolveProductMedia } from "./productMedia";
 
 type CatalogRow = Pick<ProductRow, "product_id" | "name" | "price" | "is_active"> & {
-  ProductTag: { Tag: { name: string } | null }[];
+  Category: { name: string } | null;
   ProductImage: { image_url: string | null }[];
 };
 
-type CombinationRow = {
-  combination_id: string;
-  product_id: string;
-  sku: string | null;
-  price_override: number | null;
-  image_url: string | null;
-  CombinationOption: {
-    variant_id: string;
-    VariantOption: (Pick<VariantOption, "name"> & { VariantTypes: { name: string } | null }) | null;
-  }[];
-  Inventory: { inventory_id: string; stock_quantity: number | null } | null;
+type VariantRow = Pick<ProductVariant, "variant_id" | "product_id" | "name" | "size" | "price_override" | "image_url"> & {
+  Inventory: { inventory_id: string; stock_quantity: number | null; sku: string | null } | null;
 };
 
 type SalesRow = { inventory_id: string; quantity: number; Order: Pick<Order, "placed_at"> };
@@ -46,6 +37,15 @@ async function readAll<T>(
   }
 }
 
+/** "Variant: Blue" / "Size: M" chips for one variant; empty for the default variant. */
+function variantOptions(variant: VariantRow) {
+  const options: { id: string; label: string }[] = [];
+  const name = variant.name.trim();
+  if (name && name !== DEFAULT_VARIANT_NAME) options.push({ id: `${variant.variant_id}:name`, label: `Variant: ${name}` });
+  if (variant.size) options.push({ id: `${variant.variant_id}:size`, label: `Size: ${variant.size}` });
+  return options;
+}
+
 export async function getOrgInventory(
   supabase: SupabaseClient,
   organizationId: string,
@@ -56,7 +56,7 @@ export async function getOrgInventory(
       .from(PRODUCT_TABLE)
       .select(`
         product_id, name, price, is_active,
-        ProductTag (Tag (name)),
+        Category (name),
         ProductImage (image_url)
       `)
       .eq("organization_id", organizationId)
@@ -75,7 +75,7 @@ export async function getOrgInventory(
       id: row.product_id,
       productId: row.product_id,
       name: row.name,
-      categories: [...new Set(row.ProductTag.flatMap(({ Tag: tag }) => tag?.name ? [tag.name] : []))].sort(),
+      categories: row.Category?.name ? [row.Category.name] : [],
       imageUrl: row.ProductImage[0]?.image_url ?? null,
       price: Number(row.price),
       stock: 0,
@@ -87,58 +87,50 @@ export async function getOrgInventory(
 
   const productIds = [...products.keys()];
   const inventoryById = new Map<string, { product: InventoryProduct; variant?: InventoryVariant }>();
-  const combinationsByProduct = new Map<string, CombinationRow[]>();
+  const variantsByProduct = new Map<string, VariantRow[]>();
   for (let offset = 0; offset < productIds.length; offset += ID_BATCH_SIZE) {
-    const combinations = await readAll<CombinationRow>("variant combinations", (from, to) =>
+    const variants = await readAll<VariantRow>("product variants", (from, to) =>
       supabase
-        .from(PRODUCT_VARIANT_COMBINATION_TABLE)
-        .select(`
-          combination_id, product_id, sku, price_override, image_url,
-          CombinationOption (variant_id, VariantOption (name, VariantTypes (name))),
-          Inventory (inventory_id, stock_quantity)
-        `)
+        .from(PRODUCT_VARIANT_TABLE)
+        .select("variant_id, product_id, name, size, price_override, image_url, Inventory (inventory_id, stock_quantity, sku)")
         .in("product_id", productIds.slice(offset, offset + ID_BATCH_SIZE))
-        .order("combination_id")
+        .order("variant_id")
         .range(from, to)
-        .overrideTypes<CombinationRow[], { merge: false }>(),
+        .overrideTypes<VariantRow[], { merge: false }>(),
     );
-    for (const combination of combinations) {
-      const siblings = combinationsByProduct.get(combination.product_id);
-      if (siblings) siblings.push(combination);
-      else combinationsByProduct.set(combination.product_id, [combination]);
+    for (const variant of variants) {
+      const siblings = variantsByProduct.get(variant.product_id);
+      if (siblings) siblings.push(variant);
+      else variantsByProduct.set(variant.product_id, [variant]);
     }
   }
 
-  for (const [productId, combinations] of combinationsByProduct) {
+  for (const [productId, variants] of variantsByProduct) {
     const product = products.get(productId)!;
-    for (const combination of combinations) {
-      const stock = combination.Inventory?.stock_quantity ?? 0;
-      const price = Number(combination.price_override ?? product.price);
-      const options = combination.CombinationOption.map(({ variant_id, VariantOption: option }) => {
-        const name = option?.name?.trim() || "Unnamed option";
-        const type = option?.VariantTypes?.name?.trim();
-        return { id: variant_id, label: type ? `${type}: ${name}` : name };
-      }).sort((a, b) => a.label.localeCompare(b.label) || a.id.localeCompare(b.id));
+    for (const row of variants) {
+      const stock = row.Inventory?.stock_quantity ?? 0;
+      const price = Number(row.price_override ?? product.price);
+      const options = variantOptions(row);
 
       product.stock += stock;
       let variant: InventoryVariant | undefined;
       if (options.length) {
         variant = {
-          id: combination.combination_id,
-          sku: combination.sku,
+          id: row.variant_id,
+          sku: row.Inventory?.sku ?? null,
           options,
-          imageUrl: combination.image_url,
+          imageUrl: row.image_url,
           price,
           stock,
           sales: 0,
         };
         product.variants.push(variant);
       } else {
-        product.imageUrl ??= combination.image_url;
-        if (combinations.length === 1) product.price = price;
+        product.imageUrl ??= row.image_url;
+        if (variants.length === 1) product.price = price;
       }
-      if (combination.Inventory) {
-        inventoryById.set(combination.Inventory.inventory_id, { product, variant });
+      if (row.Inventory) {
+        inventoryById.set(row.Inventory.inventory_id, { product, variant });
       }
     }
     product.variants.sort((a, b) =>

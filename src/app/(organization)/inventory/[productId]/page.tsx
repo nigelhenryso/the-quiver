@@ -3,7 +3,7 @@ import { connection } from "next/server";
 import AddProductForm from "@/src/components/ui/orgUi/inventory/AddProductForm";
 import ProductFormPage from "@/src/components/ui/orgUi/inventory/ProductFormPage";
 import { createClient } from "@/src/lib/supabase/server";
-import { TAG_TABLE } from "@/src/lib/supabase/tables";
+import { CATEGORY_TABLE } from "@/src/lib/supabase/tables";
 import { getEditableProduct } from "@/src/services/editProduct";
 
 export const metadata = { title: "Edit Product | The Quiver Seller Hub" };
@@ -24,16 +24,16 @@ async function EditProductContent({ params }: { params: Promise<{ productId: str
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/");
 
-  const [product, tags] = await Promise.allSettled([
+  const [product, categories] = await Promise.allSettled([
     getEditableProduct(supabase, productId, user.id),
-    supabase.from(TAG_TABLE).select("tag_id, name").order("name").order("tag_id"),
+    supabase.from(CATEGORY_TABLE).select("category_id, name").order("name").order("category_id"),
   ]);
   if (product.status === "fulfilled" && !product.value) notFound();
-  if (product.status === "rejected" || tags.status === "rejected" || tags.value.error) {
+  if (product.status === "rejected" || categories.status === "rejected" || categories.value.error) {
     console.error("Could not load product for editing", product.status === "rejected" ? product.reason : null,
-      tags.status === "rejected" ? tags.reason : tags.value.error);
+      categories.status === "rejected" ? categories.reason : categories.value.error);
     return <p role="alert" className="mt-6">Couldn’t load the product details. Refresh the page to try again.</p>;
   }
   if (!product.value) notFound();
-  return <AddProductForm key={`${productId}:${product.value.identity.version}`} tags={tags.value.data} showListingDetails existing={product.value} />;
+  return <AddProductForm key={`${productId}:${product.value.identity.version}`} categories={categories.value.data} showListingDetails existing={product.value} />;
 }

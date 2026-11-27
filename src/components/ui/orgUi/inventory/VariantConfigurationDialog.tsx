@@ -5,7 +5,6 @@ import { ArrowLeft, Plus, X } from "lucide-react";
 
 const freeSize = "Free Size/One Size";
 const sizePresets = [
-  { label: "XS", value: "Extra Small" },
   { label: "S", value: "Small" },
   { label: "M", value: "Medium" },
   { label: "L", value: "Large" },
