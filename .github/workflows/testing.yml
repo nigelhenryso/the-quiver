@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev
+      - qa/login-tests
 
 jobs:
   build-and-test:
@@ -12,6 +13,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@v1
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -38,3 +42,22 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+
+
+      - name: Start Next.js Server
+        run: pnpm start > next-server.log 2>&1 &
+      
+      - name: Wait for Next.js Server
+        run: pnpm exec wait-on --timeout 60000 http://localhost:3000
+
+      - name: Run Selenium Tests
+        run: pnpm test:e2e
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: 'http://localhost:54321'
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'test-publishable-key'
+          TEST_STUDENT_EMAIL: 'yuan_panlilio@dlsu.edu.ph'
+          TEST_STUDENT_PASSWORD: 'Spongebob07*'
+          TEST_ORG_EMAIL: 'org1@dlsu.edu.ph'
+          TEST_ORG_PASSWORD: 'organization1'
+          E2E_BASE_URL: 'http://localhost:3000'
+          E2E_HEADED: false
