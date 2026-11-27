@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev
+      - qa/login-tests
 
 jobs:
   build-and-test:
