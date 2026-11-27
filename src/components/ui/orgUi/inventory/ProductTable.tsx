@@ -58,7 +58,7 @@ export default function ProductTable({
     <div className="min-h-[240px] overflow-x-auto">
       <div className="min-w-[1180px]">
         {/* header */}
-        <div className={`${COLS} items-center border-b border-[#1E3A2C] px-5 py-3`}>
+        <div className={`${COLS} items-center border-b border-[#C9D6CE] px-5 py-3`}>
           <input
             ref={headRef}
             type="checkbox"
@@ -183,10 +183,10 @@ export default function ProductTable({
                       <div className="flex items-center gap-4 pl-3.5">
                         <Thumb size={46} imageUrl={v.imageUrl ?? p.imageUrl} />
                         <div className={`${lato.className} min-w-0 text-[13px] text-[#1E3A2C]`}>
-                          {v.sku && <p className="break-words font-bold">{v.sku}</p>}
-                          <ul role="list" className="mt-0.5 list-disc space-y-0.5 break-words pl-4 text-[11px] text-[#3F4B54]">
-                            {v.options.map(({ id, label }) => <li key={id}>{label}</li>)}
-                          </ul>
+                          <h4 className="break-words font-bold">
+                            {v.options.map(({ label }) => label.replace(/^(?:Color|Size): /i, "")).join(" - ")}
+                          </h4>
+                          {v.sku && <p className="mt-0.5 break-words text-[11px] text-[#3F4B54]">{v.sku}</p>}
                         </div>
                       </div>
                       <p className={`${lato.className} text-[13px] font-bold text-[#1E3A2C]`}>
