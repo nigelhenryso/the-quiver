@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from './Button';
+import { Search } from 'lucide-react';
 import { QuiverLogo, ShoppingCartLogo, NotificationBellLogo, UserLogo, MarketLogo } from './logos';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -109,6 +110,31 @@ export const Header = ({
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const [isCartMenuOpen, setIsCartMenuOpen] = useState(false);
+  const cartMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close the cart menu on outside click or Escape.
+  useEffect(() => {
+    if (!isCartMenuOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (!cartMenuRef.current?.contains(e.target as Node)) setIsCartMenuOpen(false);
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsCartMenuOpen(false);
+    };
+    document.addEventListener('mousedown', onClick);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', onClick);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [isCartMenuOpen]);
+
+  /** Closes the cart menu and opens one of the carts. */
+  const goToCart = (path: string) => {
+    setIsCartMenuOpen(false);
+    router.push(path);
+  };
 
   // Close the user menu on outside click.
   useEffect(() => {
@@ -162,11 +188,17 @@ export const Header = ({
 
   return (
     <header>
-    <div className="flex flex-row items-center justify-between left-0 top-0 h-[59px] w-full bg-[#008A58] shadow-[0px_4px_8.8px_rgba(0,0,0,0.4)]">
+    <div
+      className={`flex w-full items-center justify-between bg-[#008A58] shadow-[0px_4px_8.8px_rgba(0,0,0,0.4)] ${
+        loggedIn && student
+          ? 'flex-wrap gap-x-4 gap-y-3 px-4 py-3 md:h-[59px] md:flex-nowrap md:px-6 md:py-0 lg:grid lg:grid-cols-[minmax(max-content,20.55fr)_minmax(max-content,35.9fr)_minmax(0,29fr)_minmax(max-content,14.55fr)] lg:gap-0 lg:px-[1.65%]'
+          : 'h-[59px]'
+      }`}
+    >
         {loggedIn ? (
           student ? ( /* IF STUDENT */
             <>
-                <div className="mx-[45px] flex flex-row items-center gap-1">
+                <div className="flex shrink-0 items-center gap-1 whitespace-nowrap md:ml-[21px] lg:ml-[calc(45px_-_1.65vw)]">
                   <QuiverLogo />
                   <div className = "flex flex-row items-end">
                     <h1 className={`font-heading flex items-center text-[21.6867px] leading-[30px] font-normal text-white`}>
@@ -175,7 +207,7 @@ export const Header = ({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-[30px]"> {/* NAV OPTIONS */}
+                <div className="order-3 flex w-full items-center justify-between gap-3 md:order-none md:w-auto md:justify-start lg:justify-between lg:pr-[5.55vw]"> {/* NAV OPTIONS */}
                   <Button
                     size="small"
                     type='nav'
@@ -192,7 +224,17 @@ export const Header = ({
                     textColor='#FFFFFF'
                     hoverTextColor='#b9dccf'
                     onClick={() => router.push('/organizations')}
-                    label="Campus Orgs"
+                    label="Organizations"
+                    fontSize={15}
+                  />
+                  <Button
+                    primary
+                    size="small"
+                    type='nav'
+                    textColor='#FFFFFF'
+                    hoverTextColor='#b9dccf'
+                    onClick={() => router.push('/studentPreOrders')}
+                    label="Pre-Orders"
                     fontSize={15}
                   />
                   <Button
@@ -206,17 +248,44 @@ export const Header = ({
                     fontSize={15}
                   />
                 </div>
-                <div className="mx-[45px] flex items-center gap-[30px]"> {/* NAV OPTIONS */}
-                  <Button
-                    primary
-                    size="small"
-                    type='nav'
-                    textColor='#FFFFFF'
-                    hoverTextColor='#b9dccf'
-                    onClick={() => router.push('/cart')}
-                    logo={<ShoppingCartLogo width={16} height={16}/>}
-                    fontSize={20}
-                  />
+                <label className="order-4 flex h-10 w-full items-center gap-2 rounded-lg border border-[#A4B99F] bg-[#F1FBEE] px-2 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[#008A58] md:order-none md:w-auto md:min-w-0 md:flex-1 lg:mr-[1.85vw] lg:h-[35px]">
+                  <Search size={18} aria-hidden="true" className="shrink-0 text-[#68836D]" />
+                  <span className="relative min-w-0 flex-1 font-body text-sm">
+                    <input
+                      type="search"
+                      aria-label="Search org merchandise"
+                      placeholder="Search org merchandise"
+                      className="peer block w-full bg-transparent text-[#1E3A2C] outline-none placeholder:text-transparent"
+                    />
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-0 hidden truncate text-[#8FA98B] peer-placeholder-shown:block"
+                    >
+                      Search org merchandise
+                    </span>
+                  </span>
+                </label>
+                <div className="flex h-9 shrink-0 items-center gap-4 border-l border-[#00B775] pl-4 lg:grid lg:h-[70%] lg:grid-cols-3 lg:justify-items-center lg:gap-0 lg:pl-2"> {/* NAV OPTIONS */}
+                  <div ref={cartMenuRef} className="relative">
+                    <button
+                      type="button"
+                      aria-label="Carts"
+                      aria-haspopup="menu"
+                      aria-expanded={isCartMenuOpen}
+                      onClick={() => goToCart('/cart')}
+                      className="flex items-center gap-1 rounded text-white transition-colors hover:text-[#b9dccf] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                    >
+                      <ShoppingCartLogo width={16} height={16}/>
+                      <svg
+                        width="7"
+                        height="5"
+                        viewBox="0 0 7 5"
+                        aria-hidden="true"
+                        className={`transition-transform ${isCartMenuOpen ? 'rotate-180' : ''}`}
+                      >
+                      </svg>
+                    </button>
+                  </div>
                   <Button
                     primary
                     size="small"

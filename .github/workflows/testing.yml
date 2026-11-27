@@ -3,7 +3,7 @@ name: Testing before push to dev
 on:
   push:
     branches:
-      - qa/signup-tests
+      - dev
 
 jobs:
   build-and-test:

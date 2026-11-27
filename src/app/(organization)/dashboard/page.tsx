@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import QuickView from "@/src/components/ui/orgUi/dashboard/QuickView";
 import RecentOrders from "@/src/components/ui/orgUi/dashboard/RecentOrders";
 import { createClient } from "@/src/lib/supabase/server";
-import { getOrgDashboard } from "@/src/services/dashboardService";
+import { getOrgDashboard } from "@/src/services/orgDashboardService";
 
 export const metadata = {
   title: "Organization Dashboard",

@@ -3,7 +3,7 @@ import type { InventoryProduct, StockStatus } from "@/src/types/Inventory";
 export const INVENTORY_PAGE_SIZE = 5;
 
 export function getProductCategories(product: InventoryProduct): string[] {
-  return product.categories.length ? product.categories : ["Uncategorized"];
+  return product.categories.length ? product.categories : ["Others"];
 }
 
 export function getStockStatus(stock: number): StockStatus {

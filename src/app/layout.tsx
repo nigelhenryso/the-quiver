@@ -3,6 +3,7 @@ import { ThemeProvider } from "next-themes";
 import { calSans, lato } from "../styles/fonts";
 import "../styles/globals.css";
 import { Footer } from "../components/ui/Footer";
+import PageScrollbar from "../components/ui/PageScrollbar";
 import SessionHeartbeat from "../components/auth/SessionHeartbeat";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -24,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html id="page-scroll-root" lang="en" suppressHydrationWarning>
       <body className={`${calSans.variable} ${lato.variable} antialiased`}>
         <ThemeProvider
           attribute="class"
@@ -35,6 +36,7 @@ export default function RootLayout({
           {children}
         </ThemeProvider>
         <Footer/>
+        <PageScrollbar />
         <SessionHeartbeat />
       </body>
     </html>
