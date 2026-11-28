@@ -7,7 +7,7 @@ import { Button } from '../Button';
 import { ArrowRight, LockKeyHole } from '../logos';
 import { supabase } from '@/src/lib/supabase/client';
 import { COLLEGES, completeProfileSchema, toFieldErrors, type CompleteProfileInput } from '@/src/lib/zodSchemas/authSchema';
-import { createStudentProfile } from '@/src/services/authService';
+import { createStudentProfile, isDlsuIdTaken } from '@/src/services/authService';
 
 interface CompleteYourProfileModalProps {
   isOpen: boolean;
@@ -111,6 +111,19 @@ export default function CompleteYourProfileModal({
     }
 
     setSubmitting(true);
+    const { taken, error: idCheckError } = await isDlsuIdTaken(result.data.idNumber);
+    if (idCheckError) {
+      setSubmitting(false);
+      console.error('[CompleteYourProfile] ID check failed:', idCheckError);
+      setFormError(`Could not verify your ID number (${idCheckError.message}). Please try again.`);
+      return;
+    }
+    if (taken) {
+      setSubmitting(false);
+      setErrors((prev) => ({ ...prev, idNumber: 'This ID number is already registered.' }));
+      return;
+    }
+
     const { error } = await createStudentProfile(userId, email, result.data);
     setSubmitting(false);
 

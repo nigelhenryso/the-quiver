@@ -130,6 +130,17 @@ export async function signInWithPassword(email: string, password: string) {
 }
 
 /**
+ * Checks whether another student already registered this DLSU ID number.
+ * Uses the `is_dlsu_id_taken` RPC because RLS hides other students' rows.
+ *
+ * @returns `{ taken, error }` (never throws). `taken` is `false` when the check fails.
+ */
+export async function isDlsuIdTaken(idNumber: string) {
+  const { data, error } = await supabase.rpc('is_dlsu_id_taken', { p_dlsu_id_no: idNumber });
+  return { taken: data === true, error };
+}
+
+/**
  * Inserts the logged-in user's `Student` row from the "Complete your profile" form.
  *
  * @returns `{ data, error }` (never throws). `data` is always `null`:
