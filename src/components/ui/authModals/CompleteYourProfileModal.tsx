@@ -23,7 +23,7 @@ const EMPTY_FORM: CompleteProfileInput = {
   idNumber: '',
   college: '',
   contactNo: '',
-  birthday: '',
+  personalEmail: '',
 };
 
 const fieldProps = {
@@ -256,6 +256,7 @@ export default function CompleteYourProfileModal({
                 autoComplete="tel"
                 borderColor={borderFor('contactNo')}
                 value={formData.contactNo}
+                required={true}
                 onChange={(v) => updateField('contactNo', v.replace(/[^\d+\s-]/g, '').slice(0, 16))}
               />
               <FieldError message={errors.contactNo} />
@@ -263,15 +264,16 @@ export default function CompleteYourProfileModal({
             <div className="flex w-1/2 flex-col">
               <InputField
                 {...fieldProps}
-                placeholder="YYYY-MM-DD"
-                inputType="date"
-                inputName="Birthday"
-                autoComplete="bday"
-                borderColor={borderFor('birthday')}
-                value={formData.birthday}
-                onChange={(v) => updateField('birthday', v)}
+                placeholder="you@example.com"
+                inputType="email"
+                inputName="Personal Email"
+                autoComplete="email"
+                borderColor={borderFor('personalEmail')}
+                value={formData.personalEmail}
+                required={true}
+                onChange={(v) => updateField('personalEmail', v)}
               />
-              <FieldError message={errors.birthday} />
+              <FieldError message={errors.personalEmail} />
             </div>
           </div>
 

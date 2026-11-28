@@ -31,14 +31,15 @@ Current Zod authSchema:
     College:
     1. Must be in 'BAGCED', 'CCS', 'CLA', 'COS', 'GCOE', 'RVRCOB', 'SOE'
   
-    Birthday:
-    1. Required, in YYYY-MM-DD format (from the date picker)
-    2. Must be a real date, not in the future, and not before 1900
+    Personal Email:
+    1. Required, trimmed
+    2. Must be a valid email address
+    3. Must not be a @dlsu.edu.ph address (that is already the DLSU Email)
 
-    Contact No (Optional):
-    1. Should only be numerical : VAL-INP-28
-    2. Minimum one character 
-    2. Should either be 7 or 11 characters (09XX - XXX - XXXX) in length : VAL-INP-30
+    Contact No:
+    1. Required
+    2. Should only be numerical : VAL-INP-28
+    3. Should either be 7 or 11 characters (09XX - XXX - XXXX) in length : VAL-INP-30
 
 */
 
@@ -124,22 +125,20 @@ export const completeProfileSchema = z.object({
     .min(1, 'Please select your college.')
     .refine((value): value is College => (COLLEGES as readonly string[]).includes(value), 'Please select a valid college.'),
 
-  birthday: z
+  personalEmail: z
     .string()
-    .min(1, 'Birthday is required.')
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Enter a valid birthday.')
-    .refine((value) => {
-      // Rejects impossible dates like 2004-02-31 (JS would silently roll them over).
-      const [y, m, d] = value.split('-').map(Number);
-      const date = new Date(y, m - 1, d);
-      return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
-    }, 'Enter a valid birthday.')
-    .refine((value) => new Date(`${value}T00:00:00`) <= new Date(), 'Birthday cannot be in the future.')
-    .refine((value) => Number(value.slice(0, 4)) >= 1900, 'Enter a valid birthday.'),
+    .trim()
+    .min(1, 'Personal Email is required.')
+    .email('Enter a valid email address.')
+    .refine(
+      (email) => !email.toLowerCase().endsWith('@dlsu.edu.ph'),
+      'Use a personal email, not your DLSU Email.'
+    ),
 
   contactNo: z
   .string()
   .trim()
+  .min(1, 'Contact Number is required.')
   .transform((value) => value.replace(/[\s-]/g, ''))
   .refine(
     (value) =>
@@ -147,8 +146,7 @@ export const completeProfileSchema = z.object({
       (value.length === 7 ||
         (value.length === 11 && value.startsWith('09'))),
     'Enter a valid contact number.'
-  )
-  .optional(),
+  ),
 });
 
 export type SignUpInput = z.input<typeof signUpSchema>;
