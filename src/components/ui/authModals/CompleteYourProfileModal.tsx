@@ -280,6 +280,7 @@ export default function CompleteYourProfileModal({
                 placeholder="you@example.com"
                 inputType="email"
                 inputName="Personal Email"
+                info="Your personal email is extra contact info. Organizations may use it, along with your contact number and DLSU email, to reach you about your orders."
                 autoComplete="email"
                 borderColor={borderFor('personalEmail')}
                 value={formData.personalEmail}
