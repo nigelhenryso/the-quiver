@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Info } from 'lucide-react';
 import { OpenEye, ClosedEye } from './logos';
 
 
@@ -17,6 +18,8 @@ export interface InputFieldProps {
   disabled?: boolean;
   autoComplete?: string;
   required?: boolean;
+  /** Shows an info icon next to the label with this text as a hover/focus tooltip. */
+  info?: string;
   inputMode?: React.HTMLAttributes<HTMLInputElement>['inputMode'];
   onClick?: () => void;
   onChange?: (value: string) => void;
@@ -38,6 +41,7 @@ export const InputField = ({
   autoComplete,
   inputMode,
   required,
+  info,
   onClick,
   onChange,
 }: InputFieldProps) => {
@@ -65,17 +69,39 @@ export const InputField = ({
 
   return (
     <div className="input-field flex w-full flex-col gap-[3px] p-[5px]">
-      <label
-        htmlFor={inputName}
-        className="font-body pl-[6px] font-bold"
-        style={{
-          color: inputNameColor,
-          fontSize: `${fontSize}px`,
-        }}
-      >
-        {inputName}
-        {required && <span className="text-[#EF4444]"> *</span>}
-      </label>
+      <div className="flex items-center justify-between gap-[6px] px-[6px]">
+        <label
+          htmlFor={inputName}
+          className="font-body font-bold"
+          style={{
+            color: inputNameColor,
+            fontSize: `${fontSize}px`,
+          }}
+        >
+          {inputName}
+          {required && <span className="text-[#EF4444]"> *</span>}
+        </label>
+
+        {info && (
+          <span className="group relative inline-flex">
+            <button
+              type="button"
+              aria-label={`About ${inputName}`}
+              aria-describedby={`${inputName}-info`}
+              className="inline-flex cursor-help items-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#CCF0E3]"
+            >
+              <Info width={fontSize - 2} height={fontSize - 2} color={inputNameColor} aria-hidden="true" />
+            </button>
+            <span
+              id={`${inputName}-info`}
+              role="tooltip"
+              className="font-body pointer-events-none invisible absolute bottom-full right-0 z-20 mb-2 w-64 rounded-[10px] bg-[#F5FEF2] px-3 py-2 text-[14px] font-normal leading-[18px] text-[#1F3D2B] opacity-0 shadow-lg transition-opacity group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100"
+            >
+              {info}
+            </span>
+          </span>
+        )}
+      </div>
       
       <div className="relative w-full">
         {isDropdown ? (
